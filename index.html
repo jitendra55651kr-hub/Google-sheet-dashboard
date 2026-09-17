@@ -1,303 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>M-Swasth Enterprise Command Center</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <style>
-    body { background: #070b19; color: #f8fafc; font-family: 'Inter', sans-serif; }
-    .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
-    .glass-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8)); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.07); }
-    .active-tab { background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 0 20px rgba(37,99,235,0.5); border-color: rgba(96,165,250,0.5); }
-    .glow-text { text-shadow: 0 0 10px rgba(59,130,246,0.5); }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-  </style>
-</head>
-<body class="flex h-screen overflow-hidden">
+async function syncAllSheetData() {
+  const toast = document.getElementById('status-toast');
+  toast.className = 'mb-6 p-4 rounded-xl text-xs font-medium flex items-center justify-between glass-card border-blue-500/40 text-blue-300';
+  toast.innerHTML = `<span><i class="fa-solid fa-spinner fa-spin mr-2"></i> Streaming public CSV layers from Google Sheet ID...</span>`;
+  toast.classList.remove('hidden');
+
+  const tabs = { attendance: 'Attendance', performance: 'Performance Data', regionwise: 'Regionwise Data', tat: 'TAT', quality: 'Quality' };
   
-  <!-- Left Telemetry Sidebar -->
-  <aside class="w-72 glass flex flex-col justify-between p-6 border-r border-slate-800/80 z-20">
-    <div>
-      <div class="flex items-center gap-3 mb-10">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-xl shadow-lg shadow-blue-500/30">M</div>
-        <div>
-          <h1 class="font-extrabold text-sm tracking-wider text-white">M-SWASTH</h1>
-          <p class="text-[11px] text-blue-400 font-semibold tracking-wide">COMMAND CENTER v4.2</p>
-        </div>
-      </div>
+  for (const [key, tabName] of Object.entries(tabs)) {
+    try {
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+      const response = await fetch(csvUrl);
+      const text = await response.text();
       
-      <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3 px-2">Operations Matrix</p>
-      <nav class="space-y-1.5 flex flex-col">
-        <button onclick="switchPage('attendance')" id="tab-attendance" class="page-btn flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold active-tab transition-all text-left"><i class="fa-solid fa-calendar-check w-4 text-center"></i> 1. Attendance</button>
-        <button onclick="switchPage('performance')" id="tab-performance" class="page-btn flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all text-left"><i class="fa-solid fa-chart-line w-4 text-center"></i> 2. Performance Data</button>
-        <button onclick="switchPage('regionwise')" id="tab-regionwise" class="page-btn flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all text-left"><i class="fa-solid fa-map-location-dot w-4 text-center"></i> 3. Regionwise Data</button>
-        <button onclick="switchPage('tat')" id="tab-tat" class="page-btn flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all text-left"><i class="fa-solid fa-stopwatch w-4 text-center"></i> 4. TAT Analytics</button>
-        <button onclick="switchPage('quality')" id="tab-quality" class="page-btn flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all text-left"><i class="fa-solid fa-award w-4 text-center"></i> 5. Quality Report</button>
-      </nav>
-    </div>
-    
-    <div class="glass-card p-4 rounded-2xl text-xs">
-      <div class="flex items-center justify-between mb-2">
-        <span class="flex items-center gap-2"><span id="sync-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> <span id="sync-label" class="text-slate-300 font-medium">Unlinked</span></span>
-        <button onclick="openSheetModal()" class="text-blue-400 hover:text-blue-300 text-[11px] font-semibold underline">Bind</button>
-      </div>
-      <p id="linked-sheet-name" class="text-slate-500 text-[10px] truncate">Click bind to sync Google Sheet ID</p>
-    </div>
-  </aside>
-
-  <!-- Main Viewport Canvas -->
-  <main class="flex-1 flex flex-col h-screen overflow-y-auto bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-950/20 via-slate-950 to-slate-950 p-8">
-    
-    <!-- Top Action Toolbar -->
-    <header class="flex justify-between items-center mb-8 pb-4 border-b border-slate-800/80">
-      <div>
-        <h2 id="page-main-title" class="text-xl font-black tracking-tight text-white glow-text">1. ATTENDANCE TELEMETRY</h2>
-        <p id="page-sub-title" class="text-xs text-slate-400">Real-time team presence and shift compliance tracking</p>
-      </div>
-      
-      <div class="flex items-center gap-3">
-        <button onclick="openSheetModal()" class="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all">
-          <i class="fa-solid fa-link-slash"></i> Connect / Change Google Sheet
-        </button>
-        <button onclick="syncAllSheetData()" id="sync-btn" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all">
-          <i class="fa-solid fa-rotate"></i> Auto-Sync Live Data
-        </button>
-      </div>
-    </header>
-
-    <!-- Global Telemetry Status Toast -->
-    <div id="status-toast" class="hidden mb-6 p-4 rounded-xl text-xs font-medium flex items-center justify-between glass-card border-blue-500/30 text-blue-300"></div>
-
-    <!-- KPI Metric Cards Grid -->
-    <div class="grid grid-cols-4 gap-5 mb-8">
-      <div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
-        <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
-        <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold mb-1">Active Personnel</p>
-        <h3 id="kpi-1" class="text-3xl font-black text-white">05</h3>
-      </div>
-      <div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
-        <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
-        <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold mb-1">Primary Metric Index</p>
-        <h3 id="kpi-2" class="text-3xl font-black text-emerald-400">114.2%</h3>
-      </div>
-      <div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
-        <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all"></div>
-        <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold mb-1">Queue / TAT Benchmark</p>
-        <h3 id="kpi-3" class="text-3xl font-black text-amber-400">00:24:17</h3>
-      </div>
-      <div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
-        <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-all"></div>
-        <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold mb-1">Compliance / Audit</p>
-        <h3 id="kpi-4" class="text-3xl font-black text-purple-400">98.5%</h3>
-      </div>
-    </div>
-
-    <!-- Charts & Deep Matrix Section -->
-    <div class="grid grid-cols-12 gap-6 mb-8">
-      <div class="col-span-5 glass-card p-6 rounded-2xl flex flex-col justify-between">
-        <div class="flex justify-between items-center mb-4">
-          <h3 id="chart-title" class="text-xs font-bold text-slate-200 uppercase tracking-wider">Performance Distribution</h3>
-          <span class="text-[10px] text-slate-500 bg-slate-800/80 px-2.5 py-1 rounded-lg">Live Telemetry</span>
-        </div>
-        <div class="h-64 flex items-center justify-center">
-          <canvas id="primaryChart"></canvas>
-        </div>
-      </div>
-      
-      <div class="col-span-7 glass-card p-6 rounded-2xl flex flex-col">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Synchronized Google Sheet Stream Preview</h3>
-          <span id="row-count-badge" class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg font-semibold">Synced Records: Ready</span>
-        </div>
-        <div id="data-table-container" class="flex-1 overflow-auto rounded-xl border border-slate-800/80 bg-slate-950/40 text-xs">
-          <table class="w-full text-left border-collapse">
-            <thead class="sticky top-0 bg-slate-900/90 text-slate-400 text-[10px] uppercase tracking-wider border-b border-slate-800">
-              <tr><th class="p-3">Agent / Record</th><th class="p-3">Shift / Category</th><th class="p-3">Status / Metrics</th></tr>
-            </thead>
-            <tbody id="table-body" class="divide-y divide-slate-800/50 text-slate-300">
-              <tr><td colspan="3" class="p-8 text-center text-slate-500 italic">Bind Google Sheet ID and click Auto-Sync Live Data to stream rows...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- Connect Google Sheet Modal -->
-  <div id="sheetModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="glass-card w-full max-w-lg p-7 rounded-3xl border border-slate-700/80 shadow-2xl">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400"><i class="fa-solid fa-cloud-arrow-down"></i></div>
-        <div>
-          <h3 class="text-base font-bold text-white">Connect Google Sheet Source</h3>
-          <p class="text-xs text-slate-400">Zero-code live ingestion connector</p>
-        </div>
-      </div>
-      
-      <p class="text-xs text-slate-300 mb-4 leading-relaxed">
-        Apni Google Sheet ka <b>Sharing Access "Anyone with the link can view"</b> karein, aur yahan Sheet URL ya ID paste karein. Dashboard automatically saare 5 tabs (`Attendance`, `Performance Data`, `Regionwise Data`, `TAT`, `Quality`) fetch kar lega.
-      </p>
-      
-      <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Google Sheet URL / ID</label>
-      <input type="text" id="sheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/17mZJcOCzSV_w7m_RGISlJflkOHPRMD-x99fOJ0KkkfQ/edit" class="w-full bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-3 text-xs text-white mb-6 focus:outline-none focus:border-blue-500 shadow-inner">
-      
-      <div class="flex justify-end gap-3">
-        <button onclick="closeSheetModal()" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800 transition-all">Cancel</button>
-        <button onclick="saveAndSyncSheet()" class="px-6 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30 transition-all">Save & Sync Now</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let currentPage = 'attendance';
-    let sheetId = localStorage.getItem('mswast_target_sheet_id') || '17mZJcOCzSV_w7m_RGISlJflkOHPRMD-x99fOJ0KkkfQ';
-    let cachedSheetData = {};
-    let chartInstance = null;
-
-    const pageMeta = {
-      attendance: { title: '1. ATTENDANCE TELEMETRY', sub: 'Shift presence, Sunday logs & half-day tracking', kpis: ['05', '96.2%', '00:00:00', '100%'] },
-      performance: { title: '2. PERFORMANCE DATA INDEX', sub: 'Done consults, camp cases, productivity % analytics', kpis: ['05', '114.2%', 'Fdb: 1,320', '95.0%'] },
-      regionwise: { title: '3. REGIONWISE TELEMETRY', sub: 'Bilaspur, Jashpur branch-level distribution stream', kpis: ['3 Regions', '23,103 Cons', '7,558 Camp', '99.1%'] },
-      tat: { title: '4. TURNAROUND TIME (TAT)', sub: 'Hourly consultation duration and state-level lag metrics', kpis: ['08-09 Hr', '00:24:17 Avg', 'Bihar/MP', '97.8%'] },
-      quality: { title: '5. QUALITY AUDIT SCORECARD', sub: 'Fatal counts, error percentages and final quality scores', kpis: ['05 Audited', '100.0% Q', '0 Fatal', '100%'] }
-    };
-
-    if (localStorage.getItem('mswast_target_sheet_id')) {
-      updateSyncBadge('Linked', 'emerald', sheetId.slice(0, 16) + '...');
-      syncAllSheetData();
-    }
-
-    function openSheetModal() { document.getElementById('sheetUrlInput').value = sheetId; document.getElementById('sheetModal').classList.remove('hidden'); document.getElementById('sheetModal').classList.add('flex'); }
-    function closeSheetModal() { document.getElementById('sheetModal').classList.add('hidden'); document.getElementById('sheetModal').classList.remove('flex'); }
-
-    function updateSyncBadge(text, color, sub) {
-      document.getElementById('sync-label').innerText = text;
-      document.getElementById('sync-dot').className = `w-2 h-2 rounded-full bg-${color}-400 glow-text`;
-      document.getElementById('linked-sheet-name').innerText = sub;
-    }
-
-    function saveAndSyncSheet() {
-      const inputVal = document.getElementById('sheetUrlInput').value.trim();
-      if (!inputVal) return;
-      const match = inputVal.match(/\/d\/([a-zA-Z0-9-_]+)/);
-      sheetId = match ? match[1] : inputVal;
-      localStorage.setItem('mswast_target_sheet_id', sheetId);
-      closeSheetModal();
-      updateSyncBadge('Linked', 'emerald', sheetId.slice(0, 16) + '...');
-      syncAllSheetData();
-    }
-
-    function switchPage(page) {
-      currentPage = page;
-      document.querySelectorAll('.page-btn').forEach(btn => {
-        btn.classList.remove('active-tab', 'text-white');
-        btn.classList.add('text-slate-400');
-      });
-      document.getElementById('tab-' + page).classList.add('active-tab', 'text-white');
-      document.getElementById('tab-' + page).classList.remove('text-slate-400');
-      
-      const meta = pageMeta[page];
-      document.getElementById('page-main-title').innerText = meta.title;
-      document.getElementById('page-sub-title').innerText = meta.sub;
-      ['kpi-1','kpi-2','kpi-3','kpi-4'].forEach((id, idx) => document.getElementById(id).innerText = meta.kpis[idx]);
-      
-      renderPageData(page);
-    }
-
-    async function syncAllSheetData() {
-      const toast = document.getElementById('status-toast');
-      toast.className = 'mb-6 p-4 rounded-xl text-xs font-medium flex items-center justify-between glass-card border-blue-500/40 text-blue-300';
-      toast.innerHTML = `<span><i class="fa-solid fa-spinner fa-spin mr-2"></i> Streaming public CSV layers from Google Sheet ID...</span>`;
-      toast.classList.remove('hidden');
-
-      const tabs = { attendance: 'Attendance', performance: 'Performance Data', regionwise: 'Regionwise Data', tat: 'TAT', quality: 'Quality' };
-      
-      for (const [key, tabName] of Object.entries(tabs)) {
-        try {
-          const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
-          const response = await fetch(csvUrl);
-          const text = await response.text();
-          Papa.parse(text, {
-            header: true,
-            skipEmptyLines: true,
-            complete: function(res) {
-              cachedSheetData[key] = res.data.filter(r => Object.values(r).some(v => v !== null && v !== ''));
-            }
-          });
-        } catch (e) {
-          console.warn(`Tab ${tabName} fetch warning`, e);
-        }
+      // Check if Google returned HTML (private sheet / login redirect) instead of CSV
+      if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html') || text.includes('<title>Sign in')) {
+        console.warn(`Tab "${tabName}" returned HTML/Auth page. Ensure sheet sharing is set to 'Anyone with the link can view'.`);
+        cachedSheetData[key] = [];
+        continue;
       }
 
-      toast.className = 'mb-6 p-4 rounded-xl text-xs font-medium flex items-center justify-between glass-card border-emerald-500/40 text-emerald-300';
-      toast.innerHTML = `<span><i class="fa-solid fa-circle-check mr-2"></i> High-tech telemetry sync complete across all 5 workspace tabs!</span>`;
-      setTimeout(() => toast.classList.add('hidden'), 4000);
-      renderPageData(currentPage);
-    }
-
-    function renderPageData(page) {
-      const rows = cachedSheetData[page] || [];
-      const tbody = document.getElementById('table-body');
-      const badge = document.getElementById('row-count-badge');
-      badge.innerText = `Synced Records: ${rows.length}`;
-
-      if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-slate-500 italic">No cached rows for ${page}. Click Auto-Sync Live Data.</td></tr>`;
-      } else {
-        tbody.innerHTML = rows.slice(0, 15).map(r => {
-          const vals = Object.values(r);
-          return `<tr class="hover:bg-slate-900/60 transition-colors">
-            <td class="p-3 font-semibold text-white">${vals[0] || '-'}</td>
-            <td class="p-3 text-slate-400">${vals[1] || '-'}</td>
-            <td class="p-3 text-emerald-400 font-medium">${vals[vals.length-1] || 'Active'}</td>
-          </tr>`;
-        }).join('');
-      }
-
-      updateChart(page, rows);
-    }
-
-    function updateChart(page, rows) {
-      const ctx = document.getElementById('primaryChart').getContext('2d');
-      if (chartInstance) chartInstance.destroy();
-
-      let labels = ['Saurav Pal', 'Md Anas', 'Shivam Verma', 'Jogender Singh', 'Renu Gupta'];
-      let values = [195, 107, 110, 83, 71];
-      let labelName = 'Index / Score';
-
-      if (page === 'regionwise') { labels = ['Bilaspur', 'Jashpur']; values = [12400, 10700]; labelName = 'Consultations'; }
-      if (page === 'tat') { labels = ['08:00', '09:00', '10:00', '11:00']; values = [14, 18, 22, 19]; labelName = 'Avg TAT (Min)'; }
-
-      chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: labelName,
-            data: values,
-            backgroundColor: 'rgba(59, 130, 246, 0.75)',
-            hoverBackgroundColor: 'rgba(96, 165, 250, 0.9)',
-            borderRadius: 10
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { size: 10 } } }
-          }
+      Papa.parse(text, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(res) {
+          cachedSheetData[key] = (res.data || []).filter(r => Object.values(r).some(v => v !== null && v !== ''));
         }
       });
+    } catch (e) {
+      console.warn(`Tab ${tabName} fetch warning`, e);
+      cachedSheetData[key] = [];
     }
+  }
 
-    // Initialize default chart view
-    updateChart('attendance', []);
-  </script>
-</body>
-</html>
+  toast.className = 'mb-6 p-4 rounded-xl text-xs font-medium flex items-center justify-between glass-card border-emerald-500/40 text-emerald-300';
+  toast.innerHTML = `<span><i class="fa-solid fa-circle-check mr-2"></i> Telemetry sync evaluated across tabs! Check sharing permissions if preview is empty.</span>`;
+  setTimeout(() => toast.classList.add('hidden'), 5000);
+  renderPageData(currentPage);
+}
