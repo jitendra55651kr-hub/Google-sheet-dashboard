@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>M-Swasth Command Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body { background: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; }
+    .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    .active-tab { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 4.5px 18px rgba(59,130,246,0.4); }
+  </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+  
+  <!-- Sidebar Navigation for 5 Pages -->
+  <aside class="w-64 glass flex flex-col justify-between p-5 border-r border-slate-800">
+    <div>
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-xl shadow-lg">M</div>
+        <div>
+          <h1 class="font-bold text-sm tracking-wide">M-SWASTH OPS</h1>
+          <p class="text-xs text-slate-400">Team Jitendra Command</p>
+        </div>
+      </div>
+      
+      <nav class="space-y-2 flex flex-col">
+        <button onclick="switchPage('attendance')" id="tab-attendance" class="page-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium active-tab transition-all"><i class="fa-solid fa-calendar-check w-5"></i> 1. Attendance</button>
+        <button onclick="switchPage('performance')" id="tab-performance" class="page-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/50 transition-all"><i class="fa-solid fa-chart-line w-5"></i> 2. Performance</button>
+        <button onclick="switchPage('regionwise')" id="tab-regionwise" class="page-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/50 transition-all"><i class="fa-solid fa-map-location-dot w-5"></i> 3. Regionwise</button>
+        <button onclick="switchPage('tat')" id="tab-tat" class="page-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/50 transition-all"><i class="fa-solid fa-stopwatch w-5"></i> 4. TAT</button>
+        <button onclick="switchPage('quality')" id="tab-quality" class="page-btn flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800/50 transition-all"><i class="fa-solid fa-award w-5"></i> 5. Quality</button>
+      </nav>
+    </div>
+    
+    <div class="glass p-3 rounded-xl text-xs text-slate-400">
+      <p class="font-semibold text-slate-200 mb-1">Live Sync Active</p>
+      <p>Connected to Google Sheets ID</p>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col h-screen overflow-y-auto p-8">
+    
+    <!-- Top Header & Rough CSV Uploader Modal Trigger / Panel -->
+    <header class="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
+      <div>
+        <h2 id="page-title" class="text-2xl font-bold tracking-tight">Attendance Analytics</h2>
+        <p class="text-xs text-slate-400">Real-time telemetry and automated CSV ingestion pipeline</p>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <label class="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg shadow-emerald-900/30 transition-all">
+          <i class="fa-solid fa-file-arrow-up"></i> Upload Rough CSV
+          <input type="file" id="csv-upload-input" accept=".csv" class="hidden" onchange="handleCSVUpload(this)">
+        </label>
+      </div>
+    </header>
+
+    <!-- Upload Status Notification Banner -->
+    <div id="upload-status" class="hidden mb-6 p-4 rounded-xl text-sm font-medium flex items-center justify-between"></div>
+
+    <!-- KPI Metric Cards Grid -->
+    <div class="grid grid-cols-4 gap-6 mb-8">
+      <div class="glass p-5 rounded-2xl">
+        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Active Agents</p>
+        <h3 class="text-3xl font-extrabold text-blue-400">05</h3>
+      </div>
+      <div class="glass p-5 rounded-2xl">
+        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Avg Productivity</p>
+        <h3 class="text-3xl font-extrabold text-emerald-400">114.2%</h3>
+      </div>
+      <div class="glass p-5 rounded-2xl">
+        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Team Avg TAT</p>
+        <h3 class="text-3xl font-extrabold text-amber-400">00:24:17</h3>
+      </div>
+      <div class="glass p-5 rounded-2xl">
+        <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Quality Compliance</p>
+        <h3 class="text-3xl font-extrabold text-purple-400">98.5%</h3>
+      </div>
+    </div>
+
+    <!-- Charts / High-Tech Visual Container -->
+    <div class="grid grid-cols-2 gap-6 mb-8">
+      <div class="glass p-6 rounded-2xl">
+        <h3 class="text-sm font-semibold mb-4 text-slate-300">Performance / Metric Distribution</h3>
+        <canvas id="mainChart" height="200"></canvas>
+      </div>
+      <div class="glass p-6 rounded-2xl flex flex-col justify-between">
+        <h3 class="text-sm font-semibold mb-4 text-slate-300">Quick Data Preview / Filtered Stream</h3>
+        <div id="table-preview" class="overflow-x-auto text-xs text-slate-300">
+          <p class="text-slate-500">Select a section or upload CSV to stream preview...</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let currentPage = 'attendance';
+    const sheetMap = {
+      'attendance': 'Attendance',
+      'performance': 'Performance Data',
+      'regionwise': 'Regionwise Data',
+      'tat': 'TAT',
+      'quality': 'Quality'
+    };
+
+    function switchPage(page) {
+      currentPage = page;
+      document.querySelectorAll('.page-btn').forEach(btn => {
+        btn.classList.remove('active-tab', 'text-white');
+        btn.classList.add('text-slate-400');
+      });
+      document.getElementById('tab-' + page).classList.add('active-tab', 'text-white');
+      document.getElementById('tab-' + page).classList.remove('text-slate-400');
+      document.getElementById('page-titleinnerText' || 'page-title').innerText = page.toUpperCase() + ' COMMAND VIEW';
+    }
+
+    function handleCSVUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      const statusDiv = document.getElementById('upload-status');
+      
+      statusDiv.className = 'mb-6 p-4 rounded-xl text-sm font-medium flex items-center justify-between glass border-blue-500/30 text-blue-300';
+      statusDiv.innerHTML = `<span><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cleaning and filtering raw CSV for "${sheetMap[currentPage]}"...</span>`;
+      statusDiv.classList.remove('hidden');
+
+      reader.onload = function(e) {
+        const csvText = e.target.result;
+        google.script.run
+          .withSuccessHandler(res => {
+            statusDiv.className = 'mb-6 p-4 rounded-xl text-sm font-medium flex items-center justify-between glass border-emerald-500/30 text-emerald-300';
+            statusDiv.innerHTML = `<span><i class="fa-solid fa-circle-check mr-2"></i> Processed & appended ${res.rowsAdded} cleaned rows directly to Google Sheet!</span>`;
+            input.value = '';
+          })
+          .withFailureHandler(err => {
+            statusDiv.className = 'mb-6 p-4 rounded-xl text-sm font-medium flex items-center justify-between glass border-red-500/30 text-red-300';
+            statusDiv.innerHTML = `<span><i class="fa-solid fa-triangle-exclamation mr-2"></i> Error: ${err.message}</span>`;
+          })
+          .processAndUploadCSV(csvText, sheetMap[currentPage]);
+      };
+      reader.readAsText(file);
+    }
+
+    // Chart init mockup
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Saurav Pal', 'Md Anas', 'Shivam Verma', 'Jogender Singh', 'Renu Gupta'],
+        datasets: [{
+          label: 'Productivity / Score Index',
+          data: [195, 107, 110, 83, 71],
+          backgroundColor: '#3b82f6',
+          borderRadius: 8
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  </script>
+</body>
+</html>
