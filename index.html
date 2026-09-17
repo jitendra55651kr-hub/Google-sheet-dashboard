@@ -1,39 +1,39 @@
 async function syncAllSheetData() {
   const toast = document.getElementById('status-toast');
   toast.className = 'mb-6 p-4 rounded-xl text-xs font-medium flex items-center justify-between glass-card border-blue-500/40 text-blue-300';
-  toast.innerHTML = `<span><i class="fa-solid fa-spinner fa-spin mr-2"></i> Streaming public CSV layers from Google Sheet ID...</span>`;
+  toast.innerHTML = `<span><i class="fa-solid fa-spinner fa-spin mr-2"></i> Streaming CSV via PapaParse Engine...</span>`;
   toast.classList.remove('hidden');
 
   const tabs = { attendance: 'Attendance', performance: 'Performance Data', regionwise: 'Regionwise Data', tat: 'TAT', quality: 'Quality' };
   
   for (const [key, tabName] of Object.entries(tabs)) {
-    try {
-      const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
-      const response = await fetch(csvUrl);
-      const text = await response.text();
-      
-      // Check if Google returned HTML (private sheet / login redirect) instead of CSV
-      if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html') || text.includes('<title>Sign in')) {
-        console.warn(`Tab "${tabName}" returned HTML/Auth page. Ensure sheet sharing is set to 'Anyone with the link can view'.`);
-        cachedSheetData[key] = [];
-        continue;
-      }
-
-      Papa.parse(text, {
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tabName)}`;
+    
+    await new Promise((resolve) => {
+      Papa.parse(csvUrl, {
+        download: true,
         header: true,
         skipEmptyLines: true,
         complete: function(res) {
-          cachedSheetData[key] = (res.data || []).filter(r => Object.values(r).some(v => v !== null && v !== ''));
+          // Validate data doesn't contain HTML/code strings
+          const validRows = (res.data || []).filter(r => {
+            const vals = Object.values(r).join(' ');
+            return !vals.includes('<!DOCTYPE') && !vals.includes('function(') && Object.values(r).some(v => v !== null && v !== '');
+          });
+          cachedSheetData[key] = validRows;
+          resolve();
+        },
+        error: function(err) {
+          console.warn(`Tab ${tabName} load error:`, err);
+          cachedSheetData[key] = [];
+          resolve();
         }
       });
-    } catch (e) {
-      console.warn(`Tab ${tabName} fetch warning`, e);
-      cachedSheetData[key] = [];
-    }
+    });
   }
 
   toast.className = 'mb-6 p-4 rounded-xl text-xs font-medium flex items-center justify-between glass-card border-emerald-500/40 text-emerald-300';
-  toast.innerHTML = `<span><i class="fa-solid fa-circle-check mr-2"></i> Telemetry sync evaluated across tabs! Check sharing permissions if preview is empty.</span>`;
-  setTimeout(() => toast.classList.add('hidden'), 5000);
+  toast.innerHTML = `<span><i class="fa-solid fa-circle-check mr-2"></i> Direct CSV sync finished! Select tabs to view.</span>`;
+  setTimeout(() => toast.classList.add('hidden'), 4000);
   renderPageData(currentPage);
 }
