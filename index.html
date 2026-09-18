@@ -962,12 +962,13 @@
           background-color: #0f172a !important;
           color: #ffffff !important;
           font-weight: 900;
-          font-size: 16px;
-          letter-spacing: 0.7px;
-          padding: 15px 10px;
+          font-size: 15px;
+          letter-spacing: 0.6px;
+          padding: 14px 12px;
           border: 1px solid #cbd5e1;
           white-space: nowrap;
           text-transform: uppercase;
+          min-width: 55px;
         }
         .d3-th-sortable {
           user-select: none;
@@ -1008,13 +1009,14 @@
           background: rgba(255, 255, 255, 0.2);
         }
         .d3-table tbody td {
-          padding: 12px 8px;
+          padding: 12px 14px;
           border: 1px solid #cbd5e1;
           font-size: 15.5px;
           font-weight: 800;
           font-family: 'JetBrains Mono', monospace;
           white-space: nowrap;
           color: #0f172a;
+          min-width: 55px;
         }
         .d3-table tbody tr:nth-child(even) { background-color: #f8fafc; }
         .d3-table tbody tr:hover { background-color: #f1f5f9; }
@@ -1090,7 +1092,7 @@
           font-weight: 900;
           font-size: 16px;
           color: #0f172a;
-          min-width: 100px;
+          min-width: 75px;
           background-color: #fafaf9;
         }
         .d3-col-total-summary {
@@ -2128,7 +2130,7 @@
       "TEAM DEEPTI": [
         "Renu Rani", "Pooja Rathore", "ROSHNI PRAJAPATI", "GARVIT JHA", 
         "Rajni Saini", "Puja Chauhan", "Shivansh tiwari", "Saifur Janam", 
-        "Anjali Gupta", "Roshni chouhan", "Rajesh"
+        "Anjali Gupta", "Roshni chouhan", "NIKITA YADAV"
       ],
       "TEAM RAVI": [
         "Jyoti Singh unit 2", "Rajendra Mourya", "Apurv Acharya", 
@@ -2398,7 +2400,7 @@
         const ids = mapIds[t];
         const res = teamSplitResults[t] || { agentAvg: "0%", pharmAvg: "0%" };
         document.getElementById(ids[0]).innerText = res.agentAvg;
-        document.getElementById(ids[1]).innerText = res.pharmAvg;
+        document.getElementById(ids).innerText = res.pharmAvg;
       });
     }
 
@@ -2407,7 +2409,7 @@
 
     /* =========================================================================
         DASHBOARD 3 ENGINE (Hourly KPI Consultation Unit II)
-        with CP & CLINIC columns added before TOTAL
+        with CP, CLINIC, TOTAL grouped tightly and time slots expanded
         ======================================================================== */
     const D3_ROSTER = [
       {
@@ -2525,7 +2527,7 @@
       try {
         const parts = str.split(' ');
         const datePart = parts[0];
-        const timePart = parts[1] || "00:00:00";
+        const timePart = parts || "00:00:00";
         
         const dParts = datePart.split(/[\/\-]/);
         const tParts = timePart.split(':');
@@ -2534,17 +2536,17 @@
           let y, m, day;
           if (dParts[0].length === 4) {
             y = parseInt(dParts[0], 10);
-            m = parseInt(dParts[1], 10);
+            m = parseInt(dParts, 10);
             day = parseInt(dParts[2], 10);
           } else {
             m = parseInt(dParts[0], 10);
-            day = parseInt(dParts[1], 10);
+            day = parseInt(dParts, 10);
             y = parseInt(dParts[2], 10);
             if (y < 100) y += 2000;
           }
 
           let hr = parseInt(tParts[0] || 0, 10);
-          const min = parseInt(tParts[1] || 0, 10);
+          const min = parseInt(tParts || 0, 10);
           const sec = parseInt(tParts[2] || 0, 10);
 
           if (str.toLowerCase().includes('pm') && hr < 12) hr += 12;
@@ -2561,10 +2563,10 @@
     function parseD3ShiftEndTime(datePrefix, shiftStr) {
       if (!shiftStr || !shiftStr.includes('-')) return null;
       try {
-        const endPart = shiftStr.split('-')[1].trim();
+        const endPart = shiftStr.split('-').trim();
         const match = endPart.match(/(\d+):(\d+)\s*(AM|PM)/i);
         if (!match) return null;
-        let hours = parseInt(match[1], 10);
+        let hours = parseInt(match, 10);
         const mins = parseInt(match[2], 10);
         const ampm = match[3].toUpperCase();
 
@@ -2594,7 +2596,7 @@
       const match = str.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?/i);
       if (!match) return null;
 
-      let hour = parseInt(match[1], 10);
+      let hour = parseInt(match, 10);
       const ampm = match[3] ? match[3].toUpperCase() : null;
       if (ampm === "PM" && hour < 12) hour += 12;
       if (ampm === "AM" && hour === 12) hour = 0;
@@ -2926,10 +2928,19 @@
                   <th style="min-width: 220px;">AGENT NAME</th>
                   <th style="min-width: 140px;">SHIFT</th>
                   <th style="min-width: 200px;">KEY REGIONS (TOP 3)</th>
-                  <th>7-8</th><th>8-9</th><th>9-10</th><th>10-11</th><th>11-12</th><th>12-1</th>
-                  <th>1-2</th><th>2-3</th><th>3-4</th><th>4-5</th><th>5-6</th>
-                  <th style="min-width: 100px; background-color: #0f172a !important;">CP</th>
-                  <th style="min-width: 100px; background-color: #0f172a !important;">CLINIC</th>
+                  <th style="min-width: 55px;">7-8</th>
+                  <th style="min-width: 55px;">8-9</th>
+                  <th style="min-width: 55px;">9-10</th>
+                  <th style="min-width: 55px;">10-11</th>
+                  <th style="min-width: 55px;">11-12</th>
+                  <th style="min-width: 55px;">12-1</th>
+                  <th style="min-width: 55px;">1-2</th>
+                  <th style="min-width: 55px;">2-3</th>
+                  <th style="min-width: 55px;">3-4</th>
+                  <th style="min-width: 55px;">4-5</th>
+                  <th style="min-width: 55px;">5-6</th>
+                  <th style="min-width: 75px; background-color: #0f172a !important;">CP</th>
+                  <th style="min-width: 75px; background-color: #0f172a !important;">CLINIC</th>
                   <th class="d3-th-sortable" style="background-color: #0f172a !important; min-width: 145px;">
                     <button type="button" class="d3-btn-sort-filter ${isTotalActive ? 'active-sort' : ''}" onclick="toggleD3TeamSort('${team.team}', 'total')" title="Filter Total Cases">
                       <span>TOTAL</span>
@@ -3192,7 +3203,7 @@
 
       const avgTat = tatCount > 0 ? (tatSum / tatCount).toFixed(1) + ' m' : '--';
       const sortedRegions = Object.entries(regionCounts)
-        .sort((a, b) => b[1] - a[1])
+        .sort((a, b) => b - a)
         .map(([reg, count]) => `${reg} (${count})`)
         .join(', ');
 
@@ -3294,8 +3305,8 @@
       const tbody = document.getElementById("d3RegionTableBody");
 
       const regMap = d3AgentRegionMapStore[agentName] || {};
-      const entries = Object.entries(regMap).sort((a, b) => b[1] - a[1]);
-      let totalCases = entries.reduce((sum, item) => sum + item[1], 0);
+      const entries = Object.entries(regMap).sort((a, b) => b - a);
+      let totalCases = entries.reduce((sum, item) => sum + item, 0);
 
       title.innerHTML = `${agentName.toUpperCase()} — REGIONS SUMMARY`;
       detailsBar.innerHTML = `
@@ -3489,7 +3500,7 @@
       if (!str || str === '-') return '-';
       const parts = String(str).trim().split(' ');
       if (parts.length >= 2) {
-        return `<div class="d3-time-container"><span class="d3-time-date-part">${parts[0]}</span><span class="d3-time-bold-part">${parts[1]}</span></div>`;
+        return `<div class="d3-time-container"><span class="d3-time-date-part">${parts[0]}</span><span class="d3-time-bold-part">${parts}</span></div>`;
       }
       return `<span class="d3-time-bold-part">${str}</span>`;
     }
@@ -3661,7 +3672,6 @@
 
             hours[slot] += 1;
 
-            // Safe categorical inspection for CP / CLINIC
             const consultType = (row["Type"] || row["Consult Type"] || row["Category"] || "").trim().toUpperCase();
             if (consultType.includes("CP")) {
               cpCount++;
@@ -3746,7 +3756,7 @@
     function extractD5Prefix(str) {
       if (!str) return 'OTHER';
       const match = str.match(/(?:EC|ec)?(\d{2,3}:)/i);
-      return match ? match[1] : 'OTHER';
+      return match ? match : 'OTHER';
     }
 
     function handleD5FileDirect(file) {
