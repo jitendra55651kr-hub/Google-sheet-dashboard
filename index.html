@@ -1086,128 +1086,27 @@
           background-color: #0284c7 !important;
           color: #ffffff !important;
         }
+        .d3-col-category-breakdown {
+          font-weight: 900;
+          font-size: 16px;
+          color: #0f172a;
+          min-width: 100px;
+          background-color: #fafaf9;
+        }
         .d3-col-total-summary {
           background-color: #eff6ff !important;
           font-weight: 900;
           font-size: 16.5px;
           color: #1d4ed8;
-          min-width: 155px;
-          padding: 8px 10px;
-          position: relative;
-        }
-        .d3-total-header-cell {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-        }
-        .d3-total-filter-toggle {
-          background: rgba(255, 255, 255, 0.12);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          color: #ffffff;
-          font-size: 11px;
-          font-weight: 900;
-          padding: 3px 8px;
-          border-radius: 6px;
+          min-width: 145px;
+          padding: 8px 12px;
           cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-        }
-        .d3-total-filter-toggle.active {
-          background: #ea580c;
-          border-color: #ff9f43;
-        }
-        .d3-total-filter-popover {
-          display: none;
-          position: fixed;
-          background: #ffffff;
-          border: 1.5px solid #cbd5e1;
-          border-radius: 12px;
-          box-shadow: 0 16px 36px rgba(0,0,0,0.22);
-          padding: 14px;
-          width: 250px;
-          z-index: 999999;
-          text-align: left;
-          color: #0f172a;
-        }
-        .d3-total-filter-popover.open {
-          display: block;
-        }
-        .d3-filter-popover-title {
-          font-size: 12.5px;
-          font-weight: 900;
-          text-transform: uppercase;
-          color: #0f172a;
-          margin-bottom: 10px;
-          padding-bottom: 6px;
-          border-bottom: 1px solid #e2e8f0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .d3-filter-option-row {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 14px;
-          font-weight: 800;
-          padding: 6px 4px;
-          cursor: pointer;
-          user-select: none;
-        }
-        .d3-filter-option-row input[type="checkbox"] {
-          width: 17px;
-          height: 17px;
-          accent-color: #2563eb;
-          cursor: pointer;
-        }
-        .d3-filter-popover-actions {
-          display: flex;
-          justify-content: space-between;
-          gap: 8px;
-          margin-top: 12px;
-          padding-top: 10px;
-          border-top: 1px solid #e2e8f0;
-        }
-        .d3-filter-btn-clear, .d3-filter-btn-apply {
-          flex: 1;
-          padding: 7px 10px;
-          border-radius: 7px;
-          font-size: 12px;
-          font-weight: 900;
-          cursor: pointer;
-          text-transform: uppercase;
-          border: none;
-        }
-        .d3-filter-btn-clear {
-          background: #f1f5f9;
-          color: #475569;
-          border: 1px solid #cbd5e1;
-        }
-        .d3-filter-btn-apply {
-          background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-          color: #ffffff;
-        }
-        .d3-filter-badge-pill {
-          display: block;
-          font-size: 10.5px;
-          font-weight: 800;
-          color: #b45309;
-          background: #fef3c7;
-          border: 1px solid #fde68a;
-          border-radius: 4px;
-          padding: 2px 5px;
-          margin-top: 5px;
-          text-align: center;
         }
         .d3-spark-wrap {
           display: flex;
           flex-direction: column;
           align-items: center;
           gap: 4px;
-          cursor: pointer;
         }
         .d3-spark-bar-bg {
           width: 100%;
@@ -2508,6 +2407,7 @@
 
     /* =========================================================================
         DASHBOARD 3 ENGINE (Hourly KPI Consultation Unit II)
+        with CP & CLINIC columns added before TOTAL
         ======================================================================== */
     const D3_ROSTER = [
       {
@@ -2571,12 +2471,6 @@
     let d3AgentBreakStore = {};
     let d3AgentRegionMapStore = {};
     
-    // Per-team Consultation Type Filter state: { [teamName]: { cp: false, clinic: false, call: false, applied: false } }
-    let d3TeamTotalFilterState = {};
-    D3_ROSTER.forEach(t => {
-      d3TeamTotalFilterState[t.team] = { cp: false, clinic: false, call: false, applied: false };
-    });
-    
     let d3TeamSortState = {
       "TEAM JITENDRA": { column: "tat", order: "asc" },
       "TEAM DEEPTI":   { column: "tat", order: "asc" },
@@ -2592,132 +2486,6 @@
     function toggleD3TeamBreakInline(teamName) {
       d3TeamInlineBreakOpen[teamName] = !d3TeamInlineBreakOpen[teamName];
       renderD3();
-    }
-
-    // Toggle Total Type Filter Popover for a team
-    function toggleD3TotalFilterPopover(e, teamName) {
-      e.stopPropagation();
-      // Close any open popovers first
-      document.querySelectorAll('.d3-total-filter-popover.open').forEach(p => {
-        if (p.id !== 'popover_' + safeId(teamName)) p.classList.remove('open');
-      });
-      const popover = document.getElementById('popover_' + safeId(teamName));
-      if (!popover) return;
-      const isOpen = popover.classList.contains('open');
-      if (!isOpen) {
-        // Sync checkboxes with current state
-        const st = d3TeamTotalFilterState[teamName] || { cp: false, clinic: false, call: false };
-        const rect = e.currentTarget.getBoundingClientRect();
-        popover.style.top = (rect.bottom + 6) + 'px';
-        popover.style.left = Math.max(10, rect.left - 40) + 'px';
-        popover.classList.add('open');
-      } else {
-        popover.classList.remove('open');
-      }
-    }
-
-    function safeId(str) {
-      return str.replace(/[^a-zA-Z0-9]/g, '_');
-    }
-
-    function clearD3TeamTotalFilter(teamName) {
-      d3TeamTotalFilterState[teamName] = { cp: false, clinic: false, call: false, applied: false };
-      const popover = document.getElementById('popover_' + safeId(teamName));
-      if (popover) {
-        popover.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-        popover.classList.remove('open');
-      }
-      renderD3();
-    }
-
-    function applyD3TeamTotalFilter(teamName) {
-      const popover = document.getElementById('popover_' + safeId(teamName));
-      if (!popover) return;
-      const cpChecked = popover.querySelector('input[data-type="cp"]').checked;
-      const clinicChecked = popover.querySelector('input[data-type="clinic"]').checked;
-      const callChecked = popover.querySelector('input[data-type="call"]').checked;
-
-      const anyChecked = cpChecked || clinicChecked || callChecked;
-      d3TeamTotalFilterState[teamName] = {
-        cp: cpChecked,
-        clinic: clinicChecked,
-        call: callChecked,
-        applied: anyChecked
-      };
-      popover.classList.remove('open');
-      renderD3();
-    }
-
-    // Close popovers on outside click
-    document.addEventListener('click', function(e) {
-      if (!e.target.closest('.d3-total-filter-popover') && !e.target.closest('.d3-total-filter-toggle')) {
-        document.querySelectorAll('.d3-total-filter-popover.open').forEach(p => p.classList.remove('open'));
-      }
-    });
-
-    function getD3AgentConsultationCountByType(agentName, filterState) {
-      const store = d3AgentCaseStore[agentName];
-      if (!store) return 0;
-      let allCases = [];
-      D3_SLOTS.forEach(s => {
-        if (store[s] && store[s].length > 0) {
-          allCases = allCases.concat(store[s]);
-        }
-      });
-
-      const allSelected = filterState.cp && filterState.clinic && filterState.call;
-      const noneSelected = !filterState.cp && !filterState.clinic && !filterState.call;
-      if (noneSelected || allSelected) {
-        return allCases.length;
-      }
-
-      let count = 0;
-      allCases.forEach(c => {
-        const typeStr = String(c.type || '').trim().toLowerCase();
-        let matches = false;
-        if (filterState.cp && (typeStr.includes('cp') || typeStr.includes('consultation'))) matches = true;
-        if (filterState.clinic && (typeStr.includes('clinic'))) matches = true;
-        if (filterState.call && (typeStr.includes('call') || typeStr.includes('video'))) matches = true;
-
-        // If specific types selected, match case type keywords or fallback to inspecting consultation classification
-        const rawType = String(c.type || '').toLowerCase();
-        let isCpMatch = filterState.cp && (rawType === 'cp' || rawType.includes('cp consultation') || rawType === 'consultation' || rawType === 'online');
-        let isClinicMatch = filterState.clinic && (rawType === 'clinic' || rawType.includes('clinic'));
-        let isCallMatch = filterState.call && (rawType === 'call' || rawType.includes('video call') || rawType.includes('tele'));
-
-        // If standard labels match exact values
-        if (filterState.cp && (rawType === 'cp' || rawType.includes('cp'))) isCpMatch = true;
-        if (filterState.clinic && (rawType === 'clinic' || rawType.includes('clinic'))) isClinicMatch = true;
-        if (filterState.call && (rawType === 'call' || rawType.includes('call'))) isCallMatch = true;
-
-        if (isCpMatch || isClinicMatch || isCallMatch) {
-          count++;
-        } else {
-          // If none of those categories tag strictly, fallback to type filter checks or count matching
-          const selectedTypes = [];
-          if (filterState.cp) selectedTypes.push('cp');
-          if (filterState.clinic) selectedTypes.push('clinic');
-          if (filterState.call) selectedTypes.push('call');
-          if (selectedTypes.includes(rawType)) count++;
-        }
-      });
-      // Fallback: if strictly 0 matched filtered keywords because sample data type fields differ, compute proportional or item type count
-      if (count === 0 && (filterState.cp || filterState.clinic || filterState.call)) {
-        // Safe evaluation over cases list
-        count = allCases.filter(c => {
-          const t = String(c.type || '').toLowerCase();
-          if (filterState.cp && (t.includes('cp') || t === '-' || t === 'done')) return true;
-          if (filterState.clinic && (t.includes('clinic') || t.includes('video'))) return true;
-          if (filterState.call && (t.includes('call'))) return true;
-          return false;
-        }).length;
-        if (count === 0 && !allSelected) {
-          // If dataset row type values are generic, filter or attribute via helper rule
-          const activeFiltersCount = (filterState.cp ? 1 : 0) + (filterState.clinic ? 1 : 0) + (filterState.call ? 1 : 0);
-          count = Math.min(allCases.length, Math.max(0, Math.floor(allCases.length * (activeFiltersCount / 3))));
-        }
-      }
-      return count;
     }
 
     function toggleD3BreakSort() {
@@ -2859,6 +2627,8 @@
             shift: m.shift || "--",
             region: "",
             hours: hours,
+            cpCount: 0,
+            clinicCount: 0,
             total: 0,
             tat: "0.0",
             tatSum: 0,
@@ -3043,21 +2813,9 @@
         const totalArrow = isTotalActive ? (currentSort.order === "desc" ? "↓" : "↑") : "⇅";
         const tatArrow = isTatActive ? (currentSort.order === "desc" ? "↓" : "↑") : "⇅";
 
-        const teamFilterState = d3TeamTotalFilterState[team.team] || { cp: false, clinic: false, call: false, applied: false };
-        let activeBadgeText = "ALL";
-        if (teamFilterState.applied) {
-          const parts = [];
-          if (teamFilterState.cp) parts.push("CP");
-          if (teamFilterState.clinic) parts.push("CLINIC");
-          if (teamFilterState.call) parts.push("CALL");
-          activeBadgeText = parts.join(" + ");
-        }
-
         let rowsHtml = "";
         sortedMembers.forEach(member => {
-          // Dynamic displayed total according to selected Consultation Type filter
-          const displayedTotalCount = getD3AgentConsultationCountByType(member.name, teamFilterState);
-          grandTotal += displayedTotalCount;
+          grandTotal += member.total;
 
           const slotCells = D3_SLOTS.map(s => {
             const val = member.hours[s] || 0;
@@ -3068,10 +2826,10 @@
             }
           }).join('');
 
-          const percent = maxIndividualTotal > 0 ? Math.min(100, Math.round((displayedTotalCount / maxIndividualTotal) * 100)) : 0;
-          const displayTotal = displayedTotalCount > 0 ? displayedTotalCount : "";
+          const percent = maxIndividualTotal > 0 ? Math.min(100, Math.round((member.total / maxIndividualTotal) * 100)) : 0;
+          const displayTotal = member.total > 0 ? member.total : "";
           const memberTatVal = parseFloat(member.tat) || 0;
-            
+           
           let arrowHtml = "";
           if (memberTatVal > 0) {
             if (memberTatVal === teamMin.tat) {
@@ -3098,10 +2856,12 @@
               <td class="d3-col-shift-tag"><span class="d3-shift-pill">${member.shift}</span></td>
               <td class="d3-col-region-tag">${displayRegion}</td>
               ${slotCells}
-              <td class="d3-col-total-summary" title="Click to view all ${displayedTotalCount} cases" onclick="openD3Drilldown('${member.name.replace(/'/g, "\\'")}', 'ALL')">
+              <td class="d3-col-category-breakdown">${member.cpCount || ''}</td>
+              <td class="d3-col-category-breakdown">${member.clinicCount || ''}</td>
+              <td class="d3-col-total-summary" title="Click to view all ${member.total} cases" onclick="openD3Drilldown('${member.name.replace(/'/g, "\\'")}', 'ALL')">
                 <div class="d3-spark-wrap">
                   <span>${displayTotal}</span>
-                  ${displayedTotalCount > 0 ? `
+                  ${member.total > 0 ? `
                     <div class="d3-spark-bar-bg">
                       <div class="d3-spark-bar-fill" style="width: ${percent}%;"></div>
                     </div>` : ''}
@@ -3145,9 +2905,6 @@
           });
         }
 
-        const safeTeamKey = safeId(team.team);
-        const st = teamFilterState;
-
         teamBox.innerHTML = `
           <div class="d3-team-title-banner">
             <div class="d3-team-left-cluster">
@@ -3171,19 +2928,13 @@
                   <th style="min-width: 200px;">KEY REGIONS (TOP 3)</th>
                   <th>7-8</th><th>8-9</th><th>9-10</th><th>10-11</th><th>11-12</th><th>12-1</th>
                   <th>1-2</th><th>2-3</th><th>3-4</th><th>4-5</th><th>5-6</th>
-                  <th class="d3-th-sortable" style="background-color: #0f172a !important; min-width: 155px;">
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
-                      <div class="d3-total-header-cell">
-                        <button type="button" class="d3-btn-sort-filter ${isTotalActive ? 'active-sort' : ''}" onclick="toggleD3TeamSort('${team.team}', 'total')" title="Filter Total Cases">
-                          <span>TOTAL</span>
-                          <span class="d3-sort-icon-badge">${totalArrow}</span>
-                        </button>
-                        <button type="button" class="d3-total-filter-toggle ${st.applied ? 'active' : ''}" onclick="toggleD3TotalFilterPopover(event, '${team.team}')" title="Filter CP / CLINIC / CALL">
-                          <i class="fa-solid fa-filter"></i>
-                        </button>
-                      </div>
-                      <span class="d3-filter-badge-pill" id="badge_${safeTeamKey}">TOTAL • ${activeBadgeText}</span>
-                    </div>
+                  <th style="min-width: 100px; background-color: #0f172a !important;">CP</th>
+                  <th style="min-width: 100px; background-color: #0f172a !important;">CLINIC</th>
+                  <th class="d3-th-sortable" style="background-color: #0f172a !important; min-width: 145px;">
+                    <button type="button" class="d3-btn-sort-filter ${isTotalActive ? 'active-sort' : ''}" onclick="toggleD3TeamSort('${team.team}', 'total')" title="Filter Total Cases">
+                      <span>TOTAL</span>
+                      <span class="d3-sort-icon-badge">${totalArrow}</span>
+                    </button>
                   </th>
                   <th class="d3-th-sortable" style="background-color: #0f172a !important; min-width: 145px;">
                     <button type="button" class="d3-btn-sort-filter ${isTatActive ? 'active-sort' : ''}" onclick="toggleD3TeamSort('${team.team}', 'tat')" title="Filter Avg TAT">
@@ -3197,27 +2948,6 @@
                 ${rowsHtml}
               </tbody>
             </table>
-          </div>
-
-          <!-- Consultation Type Popover for ${team.team} -->
-          <div class="d3-total-filter-popover" id="popover_${safeTeamKey}">
-            <div class="d3-filter-popover-title">
-              <span>Consultation Type</span>
-              <button type="button" style="background:none; border:none; color:#64748b; cursor:pointer;" onclick="this.closest('.d3-total-filter-popover').classList.remove('open')">&times;</button>
-            </div>
-            <label class="d3-filter-option-row">
-              <input type="checkbox" data-type="cp" ${st.cp ? 'checked' : ''}> CP
-            </label>
-            <label class="d3-filter-option-row">
-              <input type="checkbox" data-type="clinic" ${st.clinic ? 'checked' : ''}> CLINIC
-            </label>
-            <label class="d3-filter-option-row">
-              <input type="checkbox" data-type="call" ${st.call ? 'checked' : ''}> CALL
-            </label>
-            <div class="d3-filter-popover-actions">
-              <button type="button" class="d3-filter-btn-clear" onclick="clearD3TeamTotalFilter('${team.team}')">Clear</button>
-              <button type="button" class="d3-filter-btn-apply" onclick="applyD3TeamTotalFilter('${team.team}')">Apply</button>
-            </div>
           </div>
 
           <div class="d3-team-inline-break-panel ${isInlineOpen ? 'active' : ''}">
@@ -3897,6 +3627,8 @@
           const regionMap = {};
           let tatSum = 0;
           let tatCount = 0;
+          let cpCount = 0;
+          let clinicCount = 0;
 
           if (!d3AgentCaseStore[agentObj.name]) {
             d3AgentCaseStore[agentObj.name] = {};
@@ -3928,6 +3660,14 @@
             if (!slot || hours[slot] === undefined) return;
 
             hours[slot] += 1;
+
+            // Safe categorical inspection for CP / CLINIC
+            const consultType = (row["Type"] || row["Consult Type"] || row["Category"] || "").trim().toUpperCase();
+            if (consultType.includes("CP")) {
+              cpCount++;
+            } else if (consultType.includes("CLINIC")) {
+              clinicCount++;
+            }
 
             const reg = (row["Region Name"] || row["Clinic State"] || "").trim();
             if (reg && reg.length > 0 && reg !== "-") {
@@ -3972,6 +3712,8 @@
             shift: agentObj.shift || "--",
             region: displayRegion,
             hours: hours,
+            cpCount: cpCount,
+            clinicCount: clinicCount,
             total: totalOutput,
             tat: avgTat,
             tatSum: tatSum,
