@@ -1,195 +1,491 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M-Swasth Calendar Leave Planner</title>
+    <title>M-Swasth | High-Tech Attendance & Leave Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 15px; }
-        .calendar-container { max-width: 1100px; margin: auto; background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border-radius: 20px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .add-btn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 10px 18px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(245,158,11,0.4); }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 15% 50%, #0f172a, #090d16);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-btn {
+            background: rgba(51, 65, 85, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-btn:hover {
+            background: rgba(71, 85, 105, 0.7);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
+        }
+        .status-leave { background: rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; }
+        .status-firsthalf { background: rgba(245, 158, 11, 0.25); border-color: rgba(245, 158, 11, 0.5); color: #fde68a; }
+        .status-secondhalf { background: rgba(168, 85, 247, 0.25); border-color: rgba(168, 85, 247, 0.5); color: #d8b4fe; }
+        .status-holiday { background: rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.5); color: #6ee7b7; }
+        .status-absent { background: rgba(244, 63, 94, 0.35); border-color: rgba(244, 63, 94, 0.6); color: #fda4af; }
         
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-        .cal-header-day { font-weight: bold; text-align: center; color: #94a3b8; font-size: 0.85rem; padding: 5px; }
-        .cal-cell { background: rgba(255,255,255,0.03); min-height: 100px; border-radius: 12px; padding: 8px; border: 1px solid rgba(255,255,255,0.08); font-size: 0.78rem; overflow-y: auto; transition: 0.2s; }
-        .cal-cell:hover { border-color: rgba(6,182,212,0.5); background: rgba(255,255,255,0.05); }
-        .cal-cell-num { font-weight: bold; margin-bottom: 6px; color: #06b6d4; font-size: 0.9rem; }
-        
-        .chip { padding: 3px 6px; border-radius: 6px; margin-bottom: 4px; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; font-weight: 600; }
-        .chip-agent { background: rgba(59, 130, 246, 0.25); color: #93c5fd; border-left: 3px solid #3b82f6; }
-        .chip-pharmacist { background: rgba(16, 185, 129, 0.25); color: #6ee7b7; border-left: 3px solid #10b981; }
-
-        .status-tag { float: right; font-size: 0.65rem; background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 4px; }
-
-        /* Fixed Bottom Action & Filter Bar */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); padding: 14px; display: flex; justify-content: center; gap: 15px; z-index: 100; flex-wrap: wrap; }
-        .nav-btn { background: #1e293b; color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); padding: 10px 24px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
-        .nav-btn.active { background: linear-gradient(135deg, #06b6d4, #3b82f6); color: white; border-color: transparent; box-shadow: 0 0 20px rgba(6,182,212,0.4); }
-
-        /* Modal */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); backdrop-filter:blur(5px); justify-content:center; align-items:center; z-index:200; }
-        .modal-box { background: #1e293b; padding: 25px; border-radius: 16px; width: 340px; display: flex; flex-direction: column; gap: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
-        .modal-box label { font-size: 0.85rem; color: #94a3b8; font-weight: 600; }
-        select, input { padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; font-size: 0.9rem; }
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
-        .btn-cancel { background: #334155; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-save { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .calendar-cell {
+            transition: all 0.2s ease;
+        }
+        .calendar-cell:hover {
+            transform: scale(1.03);
+            border-color: rgba(56, 189, 248, 0.4);
+            z-index: 10;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-6 pb-24">
 
-    <div class="calendar-container">
-        <div class="header">
-            <h2>📅 September 2026 Leave Calendar</h2>
-            <button class="add-btn" onclick="openModal()">+ Advance Leave Mention</button>
+    <!-- Header -->
+    <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-card p-6 rounded-2xl">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30">M-Swasth Operations</span>
+                <span class="text-xs text-slate-400">Advance Planner v2.0</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-extrabold mt-2 tracking-tight bg-gradient-to-r from-white via-slate-200 to-sky-400 bg-clip-text text-transparent">
+                Team & Pharmacist Attendance Matrix
+            </h1>
         </div>
-        <div id="calendarGrid" class="calendar-grid"></div>
+        <div class="flex flex-wrap items-center gap-3">
+            <select id="userSelector" class="bg-slate-800/80 border border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500">
+                <optgroup label="--- AGENTS (Red Line Upper) ---"></optgroup>
+                <!-- JS populated -->
+                <optgroup label="--- PHARMACISTS ---"></optgroup>
+                <!-- JS populated -->
+            </select>
+            <button onclick="exportData()" class="glass-btn text-xs font-medium px-4 py-2.5 rounded-xl text-sky-300 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Backup Data
+            </button>
+        </div>
+    </header>
+
+    <!-- Legend / Status Quick Pick Bar -->
+    <section class="max-w-7xl mx-auto mb-6 glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-2 text-xs font-medium">
+            <span class="text-slate-400 mr-2 font-semibold">MARK STATUS AS:</span>
+            <button onclick="setActiveStatus('Leave')" id="btn-Leave" class="status-btn px-3 py-1.5 rounded-xl border border-red-500/40 bg-red-500/20 text-red-300 font-semibold shadow-sm">1. Leave</button>
+            <button onclick="setActiveStatus('FirstHalf')" id="btn-FirstHalf" class="status-btn px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-300">2. FirstHalf</button>
+            <button onclick="setActiveStatus('SecondHalf')" id="btn-SecondHalf" class="status-btn px-3 py-1.5 rounded-xl border border-purple-500/40 bg-purple-500/10 text-purple-300">3. SecondHalf</button>
+            <button onclick="setActiveStatus('Holiday')" id="btn-Holiday" class="status-btn px-3 py-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">4. Holiday</button>
+            <button onclick="setActiveStatus('Absent')" id="btn-Absent" class="status-btn px-3 py-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300">5. Absent</button>
+            <button onclick="setActiveStatus(null)" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 hover:text-white">Clear/Eraser</button>
+        </div>
+        <div class="text-xs text-sky-400 font-medium">
+            Active Mode: <span id="currentModeLabel" class="font-bold underline text-white">Leave</span> | Tap any calendar date cell to assign/inspect.
+        </div>
+    </section>
+
+    <!-- Calendar Viewport (Year Scroll / Month Navigator) -->
+    <main class="max-w-7xl mx-auto glass-card rounded-2xl p-6 mb-24">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <div class="flex items-center gap-4">
+                <button onclick="changeMonth(-1)" class="glass-btn p-2 rounded-xl text-slate-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <h2 id="calendarTitle" class="text-xl font-bold tracking-wide text-white min-w-[200px] text-center">October 2026</h2>
+                <button onclick="changeMonth(1)" class="glass-btn p-2 rounded-xl text-slate-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+                <button onclick="jumpToCurrentMonth()" class="glass-btn px-3 py-1.5 rounded-xl text-slate-300">Today</button>
+                <select id="yearPicker" onchange="onYearChange()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-1.5">
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Days Header -->
+        <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
+            <div class="py-2">Mon</div>
+            <div class="py-2">Tue</div>
+            <div class="py-2">Wed</div>
+            <div class="py-2">Thu</div>
+            <div class="py-2">Fri</div>
+            <div class="py-2">Sat</div>
+            <div class="py-2 text-rose-400">Sun</div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div id="calendarGrid" class="grid grid-cols-7 gap-2 min-h-[420px]">
+            <!-- Rendered via JS -->
+        </div>
+    </main>
+
+    <!-- Bottom Fixed Role Filter Bar -->
+    <footer class="fixed bottom-0 left-0 right-0 glass-card border-t border-slate-700/60 p-4 z-40 bg-slate-900/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-400 uppercase tracking-wider font-bold">Quick Insights Audit:</span>
+                <button onclick="openRoleSummary('agent')" class="glass-btn px-4 py-2 rounded-xl text-xs font-bold text-sky-300 border border-sky-500/30 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
+                    Agents Leave/Status Summary
+                </button>
+                <button onclick="openRoleSummary('pharmacist')" class="glass-btn px-4 py-2 rounded-xl text-xs font-bold text-emerald-300 border border-emerald-500/30 flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Pharmacists Leave/Status Summary
+                </button>
+            </div>
+            <div class="text-[11px] text-slate-400">
+                Data auto-saves locally (Browser Storage) • GitHub ready
+            </div>
+        </div>
+    </footer>
+
+    <!-- Inspection / Date Details Modal (Tap date to see who is on leave) -->
+    <div id="dateModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card max-w-lg w-full rounded-2xl p-6 border border-slate-700 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalDateTitle" class="text-lg font-bold text-white">Date Details</h3>
+                <button onclick="closeModal('dateModal')" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+            <div id="modalDateContent" class="space-y-3 max-h-[350px] overflow-y-auto pr-2 text-sm">
+                <!-- Populated via JS -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeModal('dateModal')" class="glass-btn px-4 py-2 rounded-xl text-xs text-slate-200">Close</button>
+            </div>
+        </div>
     </div>
 
-    <div style="height: 90px;"></div>
-
-    <!-- Bottom Filter/Toggle Buttons -->
-    <div class="bottom-nav">
-        <button class="nav-btn active" id="btn-all" onclick="filterView('ALL')">👥 All Team</button>
-        <button class="nav-btn" id="btn-agent" onclick="filterView('AGENT')">🛡️ Agents (Upper)</button>
-        <button class="nav-btn" id="btn-pharmacist" onclick="filterView('PHARMACIST')">💊 Pharmacist (Lower)</button>
-    </div>
-
-    <!-- Modal for adding advance leave -->
-    <div id="leaveModal" class="modal">
-        <div class="modal-box">
-            <h3 style="margin:0 0 10px 0; color:#06b6d4;">Mention Advance Leave</h3>
-            <label>Group Category (Pic Division):</label>
-            <select id="groupType" onchange="updateEmpDropdown()">
-                <option value="AGENT">Agent / Exec (Upper Section)</option>
-                <option value="PHARMACIST">Pharmacist (Lower Section)</option>
-            </select>
-            
-            <label>Select Team Member:</label>
-            <select id="empSelect"></select>
-            
-            <label>Date (September 2026):</label>
-            <select id="dateSelect"></select>
-            
-            <label>Leave Type:</label>
-            <select id="statusSelect">
-                <option value="L">Leave (L)</option>
-                <option value="FH">First Half (FH)</option>
-                <option value="SH">Second Half (SH)</option>
-                <option value="H">Holiday (H)</option>
-                <option value="A">Absent (A)</option>
-            </select>
-
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-                <button class="btn-save" onclick="saveLeave()">Save Plan</button>
+    <!-- Role Summary Modal (Bottom Buttons Audit) -->
+    <div id="summaryModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-card max-w-3xl w-full rounded-2xl p-6 border border-slate-700 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="summaryModalTitle" class="text-lg font-bold text-white">Role Summary</h3>
+                <button onclick="closeModal('summaryModal')" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+            <div class="flex gap-2 mb-4">
+                <input type="month" id="summaryMonthFilter" onchange="renderRoleSummaryContent()" class="bg-slate-800 border border-slate-700 text-xs text-white rounded-xl px-3 py-1.5">
+            </div>
+            <div id="summaryModalContent" class="space-y-2 max-h-[400px] overflow-y-auto pr-2 text-xs">
+                <!-- Populated via JS -->
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeModal('summaryModal')" class="glass-btn px-4 py-2 rounded-xl text-xs text-slate-200">Close</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Sample data mapped from image structure [cite: 2]
-        const agentsList = [
-            { name: "Amit Sharma", id: "MS01219" },
-            { name: "Apurv Acharya", id: "MS00462" },
-            { name: "Isha Mehta", id: "MS00054" },
-            { name: "Pooja Rathore", id: "MS01266" },
-            { name: "Saurav Pal", id: "MS00405" }
-        ];
-        const pharmacistList = [
-            { name: "Abuzar Akhtar", id: "MS01347" },
-            { name: "Anjali Gupta", id: "MS00945" },
-            { name: "Ashok Pawar", id: "MS02549" },
-            { name: "Shivam Verma", id: "MS02491" },
-            { name: "Yashwant Singh", id: "MS00098" }
+        // Data Registry
+        const AGENTS = [
+            { name: "Amit Sharma", code: "MS01219", type: "agent" },
+            { name: "Apurv Acharya", code: "MS00462", type: "agent" },
+            { name: "Ashish Yadav", code: "MS00050", type: "agent" },
+            { name: "Ashok Pawar", code: "MS02549", type: "agent" },
+            { name: "Ayushi Saxena", code: "MS01370", type: "agent" },
+            { name: "Burhan Uddin", code: "MS00857", type: "agent" },
+            { name: "Chandrabhanu Sukla", code: "MS02383", type: "agent" },
+            { name: "Garvit Jha", code: "MS01034", type: "agent" },
+            { name: "Harivansh Agarwal", code: "MS00637", type: "agent" },
+            { name: "Isha Mehta", code: "MS00054", type: "agent" },
+            { name: "Jogender Singh", code: "MS02312", type: "agent" },
+            { name: "Jyoti Singh Unit 2", code: "MS00713", type: "agent" },
+            { name: "Kamni Muthoot", code: "MS00466", type: "agent" },
+            { name: "Md Anas", code: "MS01213", type: "agent" },
+            { name: "Munsi Sakil Ahmed", code: "MS00928", type: "agent" },
+            { name: "Nandani Tulsani", code: "MS00334", type: "agent" },
+            { name: "Pooja Rathore", code: "MS01266", type: "agent" },
+            { name: "Puja Chauhan", code: "MS00470", type: "agent" },
+            { name: "Rajendra Mourya", code: "MS00735", type: "agent" },
+            { name: "Rajni Saini", code: "MS00417", type: "agent" },
+            { name: "Renu Gupta", code: "MS00067", type: "agent" },
+            { name: "Renu Rani", code: "MS00633", type: "agent" },
+            { name: "Roshni Prajapati", code: "MS01386", type: "agent" },
+            { name: "Saurav Pal", code: "MS00405", type: "agent" },
+            { name: "Shivam Verma", code: "MS02491", type: "agent" },
+            { name: "Smrutirani Sahoo", code: "MS00180", type: "agent" },
+            { name: "Sushma Chaudhary", code: "MS00033", type: "agent" }
         ];
 
-        let leaves = [
-            { empId: "MS01219", name: "Amit Sharma", group: "AGENT", date: 10, status: "L" },
-            { empId: "MS02549", name: "Ashok Pawar", group: "PHARMACIST", date: 12, status: "FH" },
-            { name: "Isha Mehta", empId: "MS00054", group: "AGENT", date: 15, status: "SH" }
+        const PHARMACISTS = [
+            { name: "Abuzar Akhtar", code: "MS01347", type: "pharmacist" },
+            { name: "Anjali Gupta", code: "MS00945", type: "pharmacist" },
+            { name: "ANKUR KUMAR", code: "MS02489", type: "pharmacist" },
+            { name: "Atul Kumar", code: "MS00070", type: "pharmacist" },
+            { name: "BHAVNA KEWAT", code: "MS01283", type: "pharmacist" },
+            { name: "Hitesh Kumar", code: "MS00028", type: "pharmacist" },
+            { name: "Jayshree Choudhary", code: "MS00031", type: "pharmacist" },
+            { name: "Kiran Thakur", code: "MS01584", type: "pharmacist" },
+            { name: "Mohd Shakib", code: "MS00771", type: "pharmacist" },
+            { name: "Nikita Yadav", code: "MS02474", type: "pharmacist" },
+            { name: "PIYUSH VERMA", code: "MS00721", type: "pharmacist" },
+            { name: "Priya Patidar", code: "MS00096", type: "pharmacist" },
+            { name: "Rajesh .", code: "MS00272", type: "pharmacist" },
+            { name: "Rashi Gupta", code: "MS00100", type: "pharmacist" },
+            { name: "Roshni Chouhan", code: "MS01050", type: "pharmacist" },
+            { name: "Saifur Janam", code: "MS00899", type: "pharmacist" },
+            { name: "Samirun Nisha", code: "MS01079", type: "pharmacist" },
+            { name: "Sanjana Khuswah", code: "MS00160", type: "pharmacist" },
+            { name: "SHIVAM SHUKLA", code: "MS01150", type: "pharmacist" },
+            { name: "SHIVANSH TIWARI", code: "MS00719", type: "pharmacist" },
+            { name: "Snehal Sukhadeo Gaikwad", code: "MS00852", type: "pharmacist" },
+            { name: "SNIGDHA PAL", code: "MS01625", type: "pharmacist" },
+            { name: "Sumit H", code: "MS00203", type: "pharmacist" },
+            { name: "Vaishali Sisodiya", code: "MS00720", type: "pharmacist" },
+            { name: "Yashwant Singh", code: "MS00098", type: "pharmacist" }
         ];
 
-        let currentFilter = 'ALL';
+        const ALL_MEMBERS = [...AGENTS, ...PHARMACISTS];
 
+        // State variables
+        let currentYear = 2026;
+        let currentMonth = 9; // September (0 indexed is 8, let's use 1-12 convention: 9 = Sep)
+        let activeStatus = 'Leave';
+        let attendanceStore = JSON.parse(localStorage.getItem('mswasth_attendance_v2') || '{}');
+        let currentSummaryRole = 'agent';
+
+        // Initialize UI
         function init() {
-            populateModalDropdowns();
+            populateUserDropdown();
+            renderCalendar();
+            setupStatusButtons();
+            const now = new Date();
+            currentYear = now.getFullYear();
+            currentMonth = now.getMonth() + 1;
+            document.getElementById('yearPicker').value = currentYear;
+            document.getElementById('summaryMonthFilter').value = `${currentYear}-${String(currentMonth).padStart(2,'0')}`;
             renderCalendar();
         }
 
-        function populateModalDropdowns() {
-            let dSelect = document.getElementById('dateSelect');
-            dSelect.innerHTML = '';
-            for(let i=1; i<=30; i++) {
-                dSelect.innerHTML += `<option value="${i}">2026-09-${String(i).padStart(2,'0')}</option>`;
-            }
-            updateEmpDropdown();
-        }
-
-        function updateEmpDropdown() {
-            let g = document.getElementById('groupType').value;
-            let list = g === 'AGENT' ? agentsList : pharmacistList;
-            let eSelect = document.getElementById('empSelect');
-            eSelect.innerHTML = '';
-            list.forEach(item => {
-                eSelect.innerHTML += `<option value="${item.id}" data-name="${item.name}">${item.name} (${item.id})</option>`;
+        function populateUserDropdown() {
+            const select = document.getElementById('userSelector');
+            select.innerHTML = '';
+            
+            const optgroupAgents = document.createElement('optgroup');
+            optgroupAgents.label = '--- AGENTS (Red Line Upper) ---';
+            AGENTS.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.code;
+                opt.textContent = `${u.name} (${u.code})`;
+                optgroupAgents.appendChild(opt);
             });
+            select.appendChild(optgroupAgents);
+
+            const optgroupPharm = document.createElement('optgroup');
+            optgroupPharm.label = '--- PHARMACISTS ---';
+            PHARMACISTS.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.code;
+                opt.textContent = `${u.name} (${u.code})`;
+                optgroupPharm.appendChild(opt);
+            });
+            select.appendChild(optgroupPharm);
         }
 
-        function filterView(type) {
-            currentFilter = type;
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${type.toLowerCase()}`).classList.add('active');
+        function setActiveStatus(status) {
+            activeStatus = status;
+            document.getElementById('currentModeLabel').textContent = status || 'Eraser (Clear)';
+            document.querySelectorAll('.status-btn').forEach(btn => {
+                btn.style.opacity = '0.6';
+            });
+            if (status) {
+                const activeBtn = document.getElementById(`btn-${status}`);
+                if (activeBtn) activeBtn.style.opacity = '1';
+            }
+        }
+
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+            if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+            document.getElementById('yearPicker').value = currentYear;
             renderCalendar();
         }
+
+        function onYearChange() {
+            currentYear = parseInt(document.getElementById('yearPicker').value);
+            renderCalendar();
+        }
+
+        function jumpToCurrentMonth() {
+            const now = new Date();
+            currentYear = now.getFullYear();
+            currentMonth = now.getMonth() + 1;
+            document.getElementById('yearPicker').value = currentYear;
+            renderCalendar();
+        }
+
+        const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
         function renderCalendar() {
+            document.getElementById('calendarTitle').textContent = `${MONTH_NAMES[currentMonth - 1]} ${currentYear}`;
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
-            const daysInMonth = 30;
-            
-            ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
-                grid.innerHTML += `<div class="cal-header-day">${d}</div>`;
-            });
 
-            // Blank padding for alignment offset (assuming Sept 2026 starts on Tuesday -> 2 blanks)
-            for(let blank=0; blank<2; blank++) {
-                grid.innerHTML += `<div class="cal-cell" style="opacity:0.2; pointer-events:none;"></div>`;
+            const firstDayIndex = (new Date(currentYear, currentMonth - 1, 1).getDay() + 6) % 7; // Mon = 0
+            const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+            const selectedUserCode = document.getElementById('userSelector').value;
+
+            // Empty prefix cells
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'glass-card rounded-xl opacity-20 pointer-events-none p-3';
+                grid.appendChild(emptyCell);
             }
 
-            for(let d=1; d<=daysInMonth; d++) {
-                let cell = document.createElement('div');
-                cell.className = 'cal-cell';
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateKey = `${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell glass-card rounded-xl p-2.5 flex flex-col justify-between cursor-pointer min-h-[90px] relative border border-slate-700/50';
                 
-                let dayLeaves = leaves.filter(l => l.date === d && (currentFilter === 'ALL' || l.group === currentFilter));
-                let chipsHtml = '';
-                dayLeaves.forEach(l => {
-                    let cls = l.group === 'AGENT' ? 'chip-agent' : 'chip-pharmacist';
-                    chipsHtml += `<div class="chip ${cls}" title="${l.name} - ${l.empId}"><span>${l.name.split(' ')[0]}</span><span class="status-tag">${l.status}</span></div>`;
-                });
+                // Check status for selected user on this date
+                const userStatus = attendanceStore[dateKey]?.[selectedUserCode];
+                if (userStatus) {
+                    cell.classList.add(`status-${userStatus.toLowerCase()}`);
+                }
 
-                cell.innerHTML = `<div class="cal-cell-num">${d}</div>${chipsHtml}`;
+                // Check overall team volume count for badge indication
+                const dayEntries = attendanceStore[dateKey] || {};
+                const countMarked = Object.keys(dayEntries).length;
+
+                cell.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-sm font-bold text-slate-200">${day}</span>
+                        ${countMarked > 0 ? `<span class="text-[10px] bg-slate-800/80 text-sky-300 px-1.5 py-0.5 rounded-full border border-slate-700">${countMarked} team</span>` : ''}
+                    </div>
+                    <div class="mt-2 text-[10px] font-semibold truncate">
+                        ${userStatus ? `<span class="px-1.5 py-0.5 rounded bg-black/30">${userStatus}</span>` : '<span class="text-slate-500">Available</span>'}
+                    </div>
+                `;
+
+                // Click handler to assign status for active user or inspect date
+                cell.onclick = (e) => {
+                    handleDateCellClick(dateKey, selectedUserCode, e);
+                };
+
                 grid.appendChild(cell);
             }
         }
 
-        function openModal() { document.getElementById('leaveModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('leaveModal').style.display = 'none'; }
-
-        function saveLeave() {
-            let g = document.getElementById('groupType').value;
-            let eSelect = document.getElementById('empSelect');
-            let empId = eSelect.value;
-            let name = eSelect.options[eSelect.selectedIndex].getAttribute('data-name');
-            let date = parseInt(document.getElementById('dateSelect').value);
-            let status = document.getElementById('statusSelect').value;
-            
-            leaves.push({ empId, name, group: g, date, status });
-            closeModal();
-            renderCalendar();
+        function handleDateCellClick(dateKey, userCode, e) {
+            if (activeStatus) {
+                // Set or toggle status for selected member
+                if (!attendanceStore[dateKey]) attendanceStore[dateKey] = {};
+                if (attendanceStore[dateKey][userCode] === activeStatus) {
+                    delete attendanceStore[dateKey][userCode];
+                } else {
+                    attendanceStore[dateKey][userCode] = activeStatus;
+                }
+                saveStore();
+                renderCalendar();
+            } else {
+                // Inspect who is on leave/status on this date
+                inspectDateDetails(dateKey);
+            }
         }
 
+        function inspectDateDetails(dateKey) {
+            document.getElementById('modalDateTitle').textContent = `Status breakdown for ${dateKey}`;
+            const container = document.getElementById('modalDateContent');
+            const dayRecords = attendanceStore[dateKey] || {};
+            const keys = Object.keys(dayRecords);
+
+            if (keys.length === 0) {
+                container.innerHTML = `<p class="text-slate-400">No leaves or remarks recorded for this date.</p>`;
+            } else {
+                let html = '<div class="space-y-2">';
+                keys.forEach(code => {
+                    const member = ALL_MEMBERS.find(m => m.code === code) || { name: 'Unknown', type: 'unknown' };
+                    const status = dayRecords[code];
+                    html += `
+                        <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-white text-xs">${member.name}</div>
+                                <div class="text-[11px] text-slate-400">Emp Code: ${code} | Group: <span class="uppercase text-sky-400">${member.type}</span></div>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold status-${status.toLowerCase()}">${status}</span>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            }
+            document.getElementById('dateModal').classList.remove('hidden');
+        }
+
+        function openRoleSummary(roleType) {
+            currentSummaryRole = roleType;
+            document.getElementById('summaryModalTitle').textContent = roleType === 'agent' ? 'Agents Leave & Status Summary' : 'Pharmacists Leave & Status Summary';
+            renderRoleSummaryContent();
+            document.getElementById('summaryModal').classList.remove('hidden');
+        }
+
+        function renderRoleSummaryContent() {
+            const container = document.getElementById('summaryModalContent');
+            const monthFilterStr = document.getElementById('summaryMonthFilter').value; // YYYY-MM
+            const targetGroup = currentSummaryRole === 'agent' ? AGENTS : PHARMACISTS;
+
+            let html = '<div class="space-y-2">';
+            targetGroup.forEach(member => {
+                // Find all dates where this member has records matching monthFilterStr
+                let userLeaves = [];
+                Object.keys(attendanceStore).forEach(dateKey => {
+                    if (dateKey.startsWith(monthFilterStr)) {
+                        const st = attendanceStore[dateKey][member.code];
+                        if (st) {
+                            userLeaves.push({ date: dateKey, status: st });
+                        }
+                    }
+                });
+
+                html += `
+                    <div class="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-white text-xs">${member.name} <span class="text-slate-400 font-normal">(${member.code})</span></span>
+                            <span class="text-[10px] text-sky-400">${userLeaves.length} entries this month</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                            ${userLeaves.length === 0 ? '<span class="text-[11px] text-slate-500">No scheduled leaves/status</span>' : 
+                                userLeaves.map(item => `<span class="px-2 py-0.5 rounded text-[10px] font-semibold status-${item.status.toLowerCase()}">${item.date.split('-').slice(2).join('-')} (${item.status})</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function saveStore() {
+            localStorage.setItem('mswasth_attendance_v2', JSON.stringify(attendanceStore));
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(attendanceStore, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "mswasth_attendance_backup.json");
+            dlAnchorElem.click();
+        }
+
+        // Initialize on load
         window.onload = init;
     </script>
 </body>
