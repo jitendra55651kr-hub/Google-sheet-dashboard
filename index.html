@@ -3,113 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M-Swasth | High-Tech Attendance & Leave Planner</title>
+    <title>M-Swasth | Attendance & Leave Matrix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: radial-gradient(circle at 15% 50%, #0f172a, #090d16);
+            background: #0f172a;
             color: #f8fafc;
             min-height: 100vh;
         }
-        .glass-card {
-            background: rgba(30, 41, 59, 0.45);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-        .glass-btn {
-            background: rgba(51, 65, 85, 0.5);
-            backdrop-filter: blur(8px);
+        .m-swasth-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .glass-btn:hover {
-            background: rgba(71, 85, 105, 0.7);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
-        }
-        .status-leave { background: rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5; }
-        .status-firsthalf { background: rgba(245, 158, 11, 0.25); border-color: rgba(245, 158, 11, 0.5); color: #fde68a; }
-        .status-secondhalf { background: rgba(168, 85, 247, 0.25); border-color: rgba(168, 85, 247, 0.5); color: #d8b4fe; }
-        .status-holiday { background: rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.5); color: #6ee7b7; }
-        .status-absent { background: rgba(244, 63, 94, 0.35); border-color: rgba(244, 63, 94, 0.6); color: #fda4af; }
-        
-        .calendar-cell {
+        .light-day-cell {
+            background: #ffffff;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
             transition: all 0.2s ease;
         }
-        .calendar-cell:hover {
-            transform: scale(1.03);
-            border-color: rgba(56, 189, 248, 0.4);
+        .light-day-cell:hover {
+            transform: translateY(-2px);
+            border-color: #0284c7;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
             z-index: 10;
         }
-        /* Custom Scrollbar */
+        .status-badge-leave { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+        .status-badge-firsthalf { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+        .status-badge-secondhalf { background: #f3e8ff; color: #6b21a8; border: 1px solid #c084fc; }
+        .status-badge-holiday { background: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+        .status-badge-absent { background: #ffe4e6; color: #9f1239; border: 1px solid #fb7185; }
+        
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="p-4 md:p-6 pb-24">
+<body class="p-4 md:p-6 pb-28">
 
-    <!-- Header -->
-    <header class="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-card p-6 rounded-2xl">
-        <div>
-            <div class="flex items-center gap-2">
-                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30">M-Swasth Operations</span>
-                <span class="text-xs text-slate-400">Advance Planner v2.0</span>
+    <!-- Top M-Swasth Banner Header -->
+    <header class="max-w-7xl mx-auto mb-6 m-swasth-header p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center font-extrabold text-sky-400 text-lg">m</div>
+            <div>
+                <div class="text-xs text-sky-300 font-semibold tracking-wide uppercase">M-Swasth Operations</div>
+                <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight">Team & Pharmacist Attendance & Leave Planner</h1>
             </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold mt-2 tracking-tight bg-gradient-to-r from-white via-slate-200 to-sky-400 bg-clip-text text-transparent">
-                Team & Pharmacist Attendance Matrix
-            </h1>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
-            <select id="userSelector" class="bg-slate-800/80 border border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:border-sky-500">
-                <optgroup label="--- AGENTS (Red Line Upper) ---"></optgroup>
-                <!-- JS populated -->
-                <optgroup label="--- PHARMACISTS ---"></optgroup>
-                <!-- JS populated -->
-            </select>
-            <button onclick="exportData()" class="glass-btn text-xs font-medium px-4 py-2.5 rounded-xl text-sky-300 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                Backup Data
+        <div class="flex items-center gap-3">
+            <button onclick="exportData()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-semibold px-4 py-2.5 rounded-xl text-sky-300 flex items-center gap-2 transition">
+                <span>Backup JSON</span>
             </button>
         </div>
     </header>
 
-    <!-- Legend / Status Quick Pick Bar -->
-    <section class="max-w-7xl mx-auto mb-6 glass-card p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
-        <div class="flex flex-wrap items-center gap-2 text-xs font-medium">
-            <span class="text-slate-400 mr-2 font-semibold">MARK STATUS AS:</span>
-            <button onclick="setActiveStatus('Leave')" id="btn-Leave" class="status-btn px-3 py-1.5 rounded-xl border border-red-500/40 bg-red-500/20 text-red-300 font-semibold shadow-sm">1. Leave</button>
-            <button onclick="setActiveStatus('FirstHalf')" id="btn-FirstHalf" class="status-btn px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-300">2. FirstHalf</button>
-            <button onclick="setActiveStatus('SecondHalf')" id="btn-SecondHalf" class="status-btn px-3 py-1.5 rounded-xl border border-purple-500/40 bg-purple-500/10 text-purple-300">3. SecondHalf</button>
-            <button onclick="setActiveStatus('Holiday')" id="btn-Holiday" class="status-btn px-3 py-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-300">4. Holiday</button>
-            <button onclick="setActiveStatus('Absent')" id="btn-Absent" class="status-btn px-3 py-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300">5. Absent</button>
-            <button onclick="setActiveStatus(null)" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 hover:text-white">Clear/Eraser</button>
-        </div>
-        <div class="text-xs text-sky-400 font-medium">
-            Active Mode: <span id="currentModeLabel" class="font-bold underline text-white">Leave</span> | Tap any calendar date cell to assign/inspect.
-        </div>
-    </section>
-
-    <!-- Calendar Viewport (Year Scroll / Month Navigator) -->
-    <main class="max-w-7xl mx-auto glass-card rounded-2xl p-6 mb-24">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+    <!-- Calendar Viewport -->
+    <main class="max-w-7xl mx-auto bg-slate-900/90 border border-slate-700/80 rounded-2xl p-6 shadow-2xl mb-24">
+        <!-- Month / Year Controls -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 pb-4 border-b border-slate-800">
             <div class="flex items-center gap-4">
-                <button onclick="changeMonth(-1)" class="glass-btn p-2 rounded-xl text-slate-300">
+                <button onclick="changeMonth(-1)" class="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-xl border border-slate-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </button>
                 <h2 id="calendarTitle" class="text-xl font-bold tracking-wide text-white min-w-[200px] text-center">October 2026</h2>
-                <button onclick="changeMonth(1)" class="glass-btn p-2 rounded-xl text-slate-300">
+                <button onclick="changeMonth(1)" class="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-xl border border-slate-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
             </div>
-            <div class="flex items-center gap-2 text-xs">
-                <button onclick="jumpToCurrentMonth()" class="glass-btn px-3 py-1.5 rounded-xl text-slate-300">Today</button>
-                <select id="yearPicker" onchange="onYearChange()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-1.5">
+            <div class="flex items-center gap-3 text-xs">
+                <button onclick="jumpToCurrentMonth()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-xl border border-slate-700">Today</button>
+                <select id="yearPicker" onchange="onYearChange()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-1.5 font-semibold">
                     <option value="2026">2026</option>
                     <option value="2027">2027</option>
                     <option value="2028">2028</option>
@@ -117,80 +81,115 @@
             </div>
         </div>
 
-        <!-- Days Header -->
-        <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
-            <div class="py-2">Mon</div>
-            <div class="py-2">Tue</div>
-            <div class="py-2">Wed</div>
-            <div class="py-2">Thu</div>
-            <div class="py-2">Fri</div>
-            <div class="py-2">Sat</div>
-            <div class="py-2 text-rose-400">Sun</div>
+        <!-- Days Header (Dark Navy Theme) -->
+        <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
+            <div class="py-1">Mon</div>
+            <div class="py-1">Tue</div>
+            <div class="py-1">Wed</div>
+            <div class="py-1">Thu</div>
+            <div class="py-1">Fri</div>
+            <div class="py-1">Sat</div>
+            <div class="py-1 text-rose-400">Sun</div>
         </div>
 
-        <!-- Calendar Grid -->
-        <div id="calendarGrid" class="grid grid-cols-7 gap-2 min-h-[420px]">
+        <!-- Light Day Cells Grid -->
+        <div id="calendarGrid" class="grid grid-cols-7 gap-2.5 min-h-[460px]">
             <!-- Rendered via JS -->
         </div>
     </main>
 
-    <!-- Bottom Fixed Role Filter Bar -->
-    <footer class="fixed bottom-0 left-0 right-0 glass-card border-t border-slate-700/60 p-4 z-40 bg-slate-900/80 backdrop-blur-xl">
+    <!-- Bottom Role Summary Bar -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-slate-900/95 border-t border-slate-700/80 p-4 z-40 backdrop-blur-xl">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <span class="text-xs text-slate-400 uppercase tracking-wider font-bold">Quick Insights Audit:</span>
-                <button onclick="openRoleSummary('agent')" class="glass-btn px-4 py-2 rounded-xl text-xs font-bold text-sky-300 border border-sky-500/30 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
-                    Agents Leave/Status Summary
+                <button onclick="openRoleSummary('agent')" class="bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                    Agents Summary (Red Line Upper)
                 </button>
-                <button onclick="openRoleSummary('pharmacist')" class="glass-btn px-4 py-2 rounded-xl text-xs font-bold text-emerald-300 border border-emerald-500/30 flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Pharmacists Leave/Status Summary
+                <button onclick="openRoleSummary('pharmacist')" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    Pharmacists Summary
                 </button>
             </div>
-            <div class="text-[11px] text-slate-400">
-                Data auto-saves locally (Browser Storage) • GitHub ready
-            </div>
+            <div class="text-[11px] text-slate-400">Tap any calendar box to assign/view members • Local auto-save</div>
         </div>
     </footer>
 
-    <!-- Inspection / Date Details Modal (Tap date to see who is on leave) -->
-    <div id="dateModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-card max-w-lg w-full rounded-2xl p-6 border border-slate-700 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="modalDateTitle" class="text-lg font-bold text-white">Date Details</h3>
-                <button onclick="closeModal('dateModal')" class="text-slate-400 hover:text-white">&times;</button>
+    <!-- Interactive Date Assignment/Inspection Modal -->
+    <div id="dateAssignModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 max-w-2xl w-full rounded-2xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                <div>
+                    <span class="text-xs text-sky-400 font-semibold uppercase">Date Management</span>
+                    <h3 id="assignModalTitle" class="text-lg font-bold text-white">Date: --</h3>
+                </div>
+                <button onclick="closeModal('dateAssignModal')" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
-            <div id="modalDateContent" class="space-y-3 max-h-[350px] overflow-y-auto pr-2 text-sm">
-                <!-- Populated via JS -->
+
+            <!-- Add/Update Status Form for this Date -->
+            <div class="bg-slate-800/70 border border-slate-700/80 p-4 rounded-xl mb-4 space-y-3">
+                <div class="text-xs font-bold text-slate-300 uppercase">Assign / Update Member Status</div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <label class="block text-[11px] text-slate-400 mb-1">Select Member (Name & Employee Code)</label>
+                        <select id="modalMemberSelect" class="w-full bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Status Type</label>
+                        <select id="modalStatusSelect" class="w-full bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 font-semibold">
+                            <option value="Leave">1. Leave</option>
+                            <option value="FirstHalf">2. FirstHalf</option>
+                            <option value="SecondHalf">3. SecondHalf</option>
+                            <option value="Holiday">4. Holiday</option>
+                            <option value="Absent">5. Absent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end pt-1">
+                    <button onclick="saveAssignmentFromModal()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition">
+                        Save Status for Member
+                    </button>
+                </div>
             </div>
-            <div class="mt-6 flex justify-end">
-                <button onclick="closeModal('dateModal')" class="glass-btn px-4 py-2 rounded-xl text-xs text-slate-200">Close</button>
+
+            <!-- Existing list of records on this date -->
+            <div class="flex-1 overflow-y-auto space-y-2 pr-1">
+                <div class="text-xs font-bold text-slate-400 uppercase mb-2">Already Marked Entries on This Date:</div>
+                <div id="modalExistingList" class="space-y-2">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800 flex justify-end">
+                <button onclick="closeModal('dateAssignModal')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-4 py-2 rounded-xl">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- Role Summary Modal (Bottom Buttons Audit) -->
-    <div id="summaryModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-card max-w-3xl w-full rounded-2xl p-6 border border-slate-700 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
+    <!-- Role Summary Modal -->
+    <div id="summaryModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 max-w-3xl w-full rounded-2xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
                 <h3 id="summaryModalTitle" class="text-lg font-bold text-white">Role Summary</h3>
-                <button onclick="closeModal('summaryModal')" class="text-slate-400 hover:text-white">&times;</button>
+                <button onclick="closeModal('summaryModal')" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
-            <div class="flex gap-2 mb-4">
+            <div class="flex gap-3 mb-4 items-center">
+                <label class="text-xs text-slate-400">Filter Month:</label>
                 <input type="month" id="summaryMonthFilter" onchange="renderRoleSummaryContent()" class="bg-slate-800 border border-slate-700 text-xs text-white rounded-xl px-3 py-1.5">
             </div>
-            <div id="summaryModalContent" class="space-y-2 max-h-[400px] overflow-y-auto pr-2 text-xs">
+            <div id="summaryModalContent" class="flex-1 overflow-y-auto space-y-2 pr-2 text-xs">
                 <!-- Populated via JS -->
             </div>
-            <div class="mt-6 flex justify-end">
-                <button onclick="closeModal('summaryModal')" class="glass-btn px-4 py-2 rounded-xl text-xs text-slate-200">Close</button>
+            <div class="mt-4 pt-3 border-t border-slate-800 flex justify-end">
+                <button onclick="closeModal('summaryModal')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-4 py-2 rounded-xl">Close</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Data Registry
         const AGENTS = [
             { name: "Amit Sharma", code: "MS01219", type: "agent" },
             { name: "Apurv Acharya", code: "MS00462", type: "agent" },
@@ -250,19 +249,16 @@
         ];
 
         const ALL_MEMBERS = [...AGENTS, ...PHARMACISTS];
+        const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-        // State variables
         let currentYear = 2026;
-        let currentMonth = 9; // September (0 indexed is 8, let's use 1-12 convention: 9 = Sep)
-        let activeStatus = 'Leave';
-        let attendanceStore = JSON.parse(localStorage.getItem('mswasth_attendance_v2') || '{}');
+        let currentMonth = 9;
+        let activeDateKeyForModal = null;
         let currentSummaryRole = 'agent';
+        let attendanceStore = JSON.parse(localStorage.getItem('mswasth_attendance_v3') || '{}');
 
-        // Initialize UI
         function init() {
-            populateUserDropdown();
-            renderCalendar();
-            setupStatusButtons();
+            populateModalMemberDropdown();
             const now = new Date();
             currentYear = now.getFullYear();
             currentMonth = now.getMonth() + 1;
@@ -271,41 +267,29 @@
             renderCalendar();
         }
 
-        function populateUserDropdown() {
-            const select = document.getElementById('userSelector');
+        function populateModalMemberDropdown() {
+            const select = document.getElementById('modalMemberSelect');
             select.innerHTML = '';
             
-            const optgroupAgents = document.createElement('optgroup');
-            optgroupAgents.label = '--- AGENTS (Red Line Upper) ---';
+            const optgroupA = document.createElement('optgroup');
+            optgroupA.label = '--- AGENTS (Red Line Upper) ---';
             AGENTS.forEach(u => {
                 const opt = document.createElement('option');
                 opt.value = u.code;
-                opt.textContent = `${u.name} (${u.code})`;
-                optgroupAgents.appendChild(opt);
+                opt.textContent = `${u.name} | ${u.code}`;
+                optgroupA.appendChild(opt);
             });
-            select.appendChild(optgroupAgents);
+            select.appendChild(optgroupA);
 
-            const optgroupPharm = document.createElement('optgroup');
-            optgroupPharm.label = '--- PHARMACISTS ---';
+            const optgroupP = document.createElement('optgroup');
+            optgroupP.label = '--- PHARMACISTS ---';
             PHARMACISTS.forEach(u => {
                 const opt = document.createElement('option');
                 opt.value = u.code;
-                opt.textContent = `${u.name} (${u.code})`;
-                optgroupPharm.appendChild(opt);
+                opt.textContent = `${u.name} | ${u.code}`;
+                optgroupP.appendChild(opt);
             });
-            select.appendChild(optgroupPharm);
-        }
-
-        function setActiveStatus(status) {
-            activeStatus = status;
-            document.getElementById('currentModeLabel').textContent = status || 'Eraser (Clear)';
-            document.querySelectorAll('.status-btn').forEach(btn => {
-                btn.style.opacity = '0.6';
-            });
-            if (status) {
-                const activeBtn = document.getElementById(`btn-${status}`);
-                if (activeBtn) activeBtn.style.opacity = '1';
-            }
+            select.appendChild(optgroupP);
         }
 
         function changeMonth(delta) {
@@ -329,107 +313,119 @@
             renderCalendar();
         }
 
-        const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
         function renderCalendar() {
             document.getElementById('calendarTitle').textContent = `${MONTH_NAMES[currentMonth - 1]} ${currentYear}`;
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
 
-            const firstDayIndex = (new Date(currentYear, currentMonth - 1, 1).getDay() + 6) % 7; // Mon = 0
+            const firstDayIndex = (new Date(currentYear, currentMonth - 1, 1).getDay() + 6) % 7;
             const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-            const selectedUserCode = document.getElementById('userSelector').value;
 
-            // Empty prefix cells
             for (let i = 0; i < firstDayIndex; i++) {
                 const emptyCell = document.createElement('div');
-                emptyCell.className = 'glass-card rounded-xl opacity-20 pointer-events-none p-3';
+                emptyCell.className = 'light-day-cell rounded-xl opacity-20 pointer-events-none p-3';
                 grid.appendChild(emptyCell);
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateKey = `${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
                 const cell = document.createElement('div');
-                cell.className = 'calendar-cell glass-card rounded-xl p-2.5 flex flex-col justify-between cursor-pointer min-h-[90px] relative border border-slate-700/50';
+                cell.className = 'light-day-cell rounded-xl p-2.5 flex flex-col justify-between cursor-pointer min-h-[105px]';
                 
-                // Check status for selected user on this date
-                const userStatus = attendanceStore[dateKey]?.[selectedUserCode];
-                if (userStatus) {
-                    cell.classList.add(`status-${userStatus.toLowerCase()}`);
+                const dayRecords = attendanceStore[dateKey] || {};
+                const codesMarked = Object.keys(dayRecords);
+                
+                let pillsHtml = '';
+                codesMarked.slice(0, 3).forEach(code => {
+                    const mem = ALL_MEMBERS.find(m => m.code === code) || { name: code };
+                    const st = dayRecords[code];
+                    pillsHtml += `<div class="text-[10px] truncate px-1.5 py-0.5 rounded font-semibold status-badge-${st.toLowerCase()}">${mem.name.split(' ')[0]}: ${st}</div>`;
+                });
+                if (codesMarked.length > 3) {
+                    pillsHtml += `<div class="text-[9px] text-slate-500 font-bold">+${codesMarked.length - 3} more</div>`;
                 }
-
-                // Check overall team volume count for badge indication
-                const dayEntries = attendanceStore[dateKey] || {};
-                const countMarked = Object.keys(dayEntries).length;
 
                 cell.innerHTML = `
                     <div class="flex justify-between items-start">
-                        <span class="text-sm font-bold text-slate-200">${day}</span>
-                        ${countMarked > 0 ? `<span class="text-[10px] bg-slate-800/80 text-sky-300 px-1.5 py-0.5 rounded-full border border-slate-700">${countMarked} team</span>` : ''}
+                        <span class="text-sm font-extrabold text-slate-900">${day}</span>
+                        ${codesMarked.length > 0 ? `<span class="text-[10px] bg-slate-900 text-sky-300 px-1.5 py-0.5 rounded-full font-bold">${codesMarked.length}marked</span>` : '<span class="text-[10px] text-slate-400">Open</span>'}
                     </div>
-                    <div class="mt-2 text-[10px] font-semibold truncate">
-                        ${userStatus ? `<span class="px-1.5 py-0.5 rounded bg-black/30">${userStatus}</span>` : '<span class="text-slate-500">Available</span>'}
+                    <div class="mt-1.5 space-y-1 flex-1 overflow-hidden">
+                        ${pillsHtml || '<div class="text-[10px] text-slate-400 italic mt-2">Tap to add leaves/status</div>'}
                     </div>
                 `;
 
-                // Click handler to assign status for active user or inspect date
-                cell.onclick = (e) => {
-                    handleDateCellClick(dateKey, selectedUserCode, e);
-                };
-
+                cell.onclick = () => openDateAssignmentModal(dateKey);
                 grid.appendChild(cell);
             }
         }
 
-        function handleDateCellClick(dateKey, userCode, e) {
-            if (activeStatus) {
-                // Set or toggle status for selected member
-                if (!attendanceStore[dateKey]) attendanceStore[dateKey] = {};
-                if (attendanceStore[dateKey][userCode] === activeStatus) {
-                    delete attendanceStore[dateKey][userCode];
-                } else {
-                    attendanceStore[dateKey][userCode] = activeStatus;
-                }
-                saveStore();
-                renderCalendar();
-            } else {
-                // Inspect who is on leave/status on this date
-                inspectDateDetails(dateKey);
-            }
+        function openDateAssignmentModal(dateKey) {
+            activeDateKeyForModal = dateKey;
+            document.getElementById('assignModalTitle').textContent = `Date: ${dateKey}`;
+            renderModalExistingList();
+            document.getElementById('dateAssignModal').classList.remove('hidden');
         }
 
-        function inspectDateDetails(dateKey) {
-            document.getElementById('modalDateTitle').textContent = `Status breakdown for ${dateKey}`;
-            const container = document.getElementById('modalDateContent');
-            const dayRecords = attendanceStore[dateKey] || {};
-            const keys = Object.keys(dayRecords);
+        function renderModalExistingList() {
+            const container = document.getElementById('modalExistingList');
+            const dayRecords = attendanceStore[activeDateKeyForModal] || {};
+            const codes = Object.keys(dayRecords);
 
-            if (keys.length === 0) {
-                container.innerHTML = `<p class="text-slate-400">No leaves or remarks recorded for this date.</p>`;
-            } else {
-                let html = '<div class="space-y-2">';
-                keys.forEach(code => {
-                    const member = ALL_MEMBERS.find(m => m.code === code) || { name: 'Unknown', type: 'unknown' };
-                    const status = dayRecords[code];
-                    html += `
-                        <div class="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex justify-between items-center">
-                            <div>
-                                <div class="font-bold text-white text-xs">${member.name}</div>
-                                <div class="text-[11px] text-slate-400">Emp Code: ${code} | Group: <span class="uppercase text-sky-400">${member.type}</span></div>
-                            </div>
-                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold status-${status.toLowerCase()}">${status}</span>
-                        </div>
-                    `;
-                });
-                html += '</div>';
-                container.innerHTML = html;
+            if (codes.length === 0) {
+                container.innerHTML = `<div class="text-xs text-slate-500 italic py-2">No members marked for this date yet.</div>`;
+                return;
             }
-            document.getElementById('dateModal').classList.remove('hidden');
+
+            let html = '';
+            codes.forEach(code => {
+                const mem = ALL_MEMBERS.find(m => m.code === code) || { name: 'Unknown', type: 'unknown' };
+                const st = dayRecords[code];
+                html += `
+                    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/80 px-3 py-2 rounded-xl text-xs">
+                        <div>
+                            <span class="font-bold text-white">${mem.name}</span>
+                            <span class="text-slate-400 ml-1">(${code})</span>
+                            <span class="text-[10px] uppercase text-sky-400 ml-2">[${mem.type}]</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded text-[11px] font-bold status-badge-${st.toLowerCase()}">${st}</span>
+                            <button onclick="removeEntry('${code}')" class="text-rose-400 hover:text-rose-300 font-bold px-1">&times;</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function saveAssignmentFromModal() {
+            if (!activeDateKeyForModal) return;
+            const code = document.getElementById('modalMemberSelect').value;
+            const status = document.getElementById('modalStatusSelect').value;
+
+            if (!attendanceStore[activeDateKeyForModal]) {
+                attendanceStore[activeDateKeyForModal] = {};
+            }
+            attendanceStore[activeDateKeyForModal][code] = status;
+            saveStore();
+            renderModalExistingList();
+            renderCalendar();
+        }
+
+        function removeEntry(code) {
+            if (!activeDateKeyForModal || !attendanceStore[activeDateKeyForModal]) return;
+            delete attendanceStore[activeDateKeyForModal][code];
+            if (Object.keys(attendanceStore[activeDateKeyForModal]).length === 0) {
+                delete attendanceStore[activeDateKeyForModal];
+            }
+            saveStore();
+            renderModalExistingList();
+            renderCalendar();
         }
 
         function openRoleSummary(roleType) {
             currentSummaryRole = roleType;
-            document.getElementById('summaryModalTitle').textContent = roleType === 'agent' ? 'Agents Leave & Status Summary' : 'Pharmacists Leave & Status Summary';
+            document.getElementById('summaryModalTitle').textContent = roleType === 'agent' ? 'Agents Leave & Status Summary (Red Line Upper)' : 'Pharmacists Leave & Status Summary';
             renderRoleSummaryContent();
             document.getElementById('summaryModal').classList.remove('hidden');
         }
@@ -439,33 +435,29 @@
             const monthFilterStr = document.getElementById('summaryMonthFilter').value; // YYYY-MM
             const targetGroup = currentSummaryRole === 'agent' ? AGENTS : PHARMACISTS;
 
-            let html = '<div class="space-y-2">';
-            targetGroup.forEach(member => {
-                // Find all dates where this member has records matching monthFilterStr
-                let userLeaves = [];
+            let html = '';
+            targetGroup.forEach(mem => {
+                let userEntries = [];
                 Object.keys(attendanceStore).forEach(dateKey => {
                     if (dateKey.startsWith(monthFilterStr)) {
-                        const st = attendanceStore[dateKey][member.code];
-                        if (st) {
-                            userLeaves.push({ date: dateKey, status: st });
-                        }
+                        const st = attendanceStore[dateKey][mem.code];
+                        if (st) userEntries.push({ date: dateKey, status: st });
                     }
                 });
 
                 html += `
-                    <div class="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
+                    <div class="bg-slate-800/60 border border-slate-700/60 p-3 rounded-xl mb-2">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-white text-xs">${member.name} <span class="text-slate-400 font-normal">(${member.code})</span></span>
-                            <span class="text-[10px] text-sky-400">${userLeaves.length} entries this month</span>
+                            <span class="font-bold text-white text-xs">${mem.name} <span class="text-slate-400 font-normal">(${mem.code})</span></span>
+                            <span class="text-[10px] text-sky-400 font-semibold">${userEntries.length} records</span>
                         </div>
-                        <div class="flex flex-wrap gap-1.5 mt-2">
-                            ${userLeaves.length === 0 ? '<span class="text-[11px] text-slate-500">No scheduled leaves/status</span>' : 
-                                userLeaves.map(item => `<span class="px-2 py-0.5 rounded text-[10px] font-semibold status-${item.status.toLowerCase()}">${item.date.split('-').slice(2).join('-')} (${item.status})</span>`).join('')}
+                        <div class="flex flex-wrap gap-1.5 mt-1.5">
+                            ${userEntries.length === 0 ? '<span class="text-[11px] text-slate-500 italic">No leaves/status marked</span>' : 
+                                userEntries.map(it => `<span class="px-2 py-0.5 rounded text-[10px] font-bold status-badge-${it.status.toLowerCase()}">${it.date.split('-').slice(2).join('-')} (${it.status})</span>`).join('')}
                         </div>
                     </div>
                 `;
             });
-            html += '</div>';
             container.innerHTML = html;
         }
 
@@ -474,18 +466,17 @@
         }
 
         function saveStore() {
-            localStorage.setItem('mswasth_attendance_v2', JSON.stringify(attendanceStore));
+            localStorage.setItem('mswasth_attendance_v3', JSON.stringify(attendanceStore));
         }
 
         function exportData() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(attendanceStore, null, 2));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", "mswasth_attendance_backup.json");
-            dlAnchorElem.click();
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "mswasth_attendance_backup.json");
+            dl.click();
         }
 
-        // Initialize on load
         window.onload = init;
     </script>
 </body>
