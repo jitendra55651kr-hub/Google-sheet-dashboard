@@ -1,483 +1,3914 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M-Swasth | Attendance & Leave Matrix</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #0f172a;
-            color: #f8fafc;
-            min-height: 100vh;
-        }
-        .m-swasth-header {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .light-day-cell {
-            background: #ffffff;
-            color: #0f172a;
-            border: 1px solid #cbd5e1;
-            transition: all 0.2s ease;
-        }
-        .light-day-cell:hover {
-            transform: translateY(-2px);
-            border-color: #0284c7;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
-            z-index: 10;
-        }
-        .status-badge-leave { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
-        .status-badge-firsthalf { background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
-        .status-badge-secondhalf { background: #f3e8ff; color: #6b21a8; border: 1px solid #c084fc; }
-        .status-badge-holiday { background: #d1fae5; color: #065f46; border: 1px solid #34d399; }
-        .status-badge-absent { background: #ffe4e6; color: #9f1239; border: 1px solid #fb7185; }
-        
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>👑 CASHPOR UNIT - 2 MASTER DASHBOARD SUITE</title>
+
+  <!-- Google Fonts: Royal & Ultra-Modern -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <!-- Core Data Libraries (SheetJS, PapaParse, Chart.js, Datalabels) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* ==========================================================================
+        CASHPOR UNIT - 2 / LIGHT THEME GLOBALS (INDEX-2 STYLING)
+        ========================================================================== */
+    body {
+      background-color: #e2e8f0;
+      color: #1e293b;
+      font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .header-bg {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    /* 3D Card Effect */
+    .card-3d { 
+      background: linear-gradient(145deg, #ffffff, #f1f5f9);
+      border-radius: 16px; 
+      padding: 24px; 
+      box-shadow: 8px 8px 16px #cbd5e1, -8px -8px 16px #ffffff;
+      border: 1px solid #e2e8f0;
+      border-bottom: 5px solid #cbd5e1;
+      border-right: 2px solid #cbd5e1;
+      transition: transform 0.2s ease;
+    }
+    .card-3d:hover {
+      transform: translateY(-2px);
+    }
+
+    /* 3D Button (Orange Gradient from Index-2) */
+    .btn-3d {
+      background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+      border-bottom: 4px solid #c2410c;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.1s;
+    }
+    .btn-3d:active {
+      border-bottom: 0px solid #c2410c;
+      transform: translateY(4px);
+    }
+
+    .text-3d {
+      text-shadow: 3px 3px 0px #cbd5e1, 6px 6px 0px #94a3b8, 10px 10px 25px rgba(0,0,0,0.25);
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+    /* ==========================================================================
+        TOP NAVIGATION BAR (M-Swasth Styled)
+        ========================================================================== */
+    .royal-navbar {
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      border-bottom: 6px solid #0f172a;
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .royal-brand {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .royal-logo-container {
+      display: flex;
+      align-items: center;
+      height: 62px;
+      width: 290px;
+    }
+
+    .royal-logo-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .clock-badge {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-return-home {
+      background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+      color: #ffffff;
+      border: 1px solid #f97316;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+    }
+    .btn-return-home:hover {
+      opacity: 0.95;
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================================================
+        SECTION: MASTER 3D PORTAL HUB
+        ========================================================================== */
+    #masterPortalHub {
+      max-width: 1720px;
+      margin: 0 auto;
+      padding: 30px 24px 60px 24px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .portal-hero {
+      text-align: center;
+      margin-top: 50px;
+      margin-bottom: 70px;
+      position: relative;
+    }
+
+    /* 3D CARDS GRID */
+    .portal-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+      margin-top: 30px;
+      margin-bottom: 40px;
+    }
+
+    .portal-card-3d { 
+      background: linear-gradient(145deg, #ffffff, #f1f5f9);
+      border-radius: 16px; 
+      padding: 32px 28px; 
+      box-shadow: 8px 8px 16px #cbd5e1, -8px -8px 16px #ffffff;
+      border: 1px solid #e2e8f0;
+      border-bottom: 5px solid #cbd5e1;
+      border-right: 2px solid #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 280px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+
+    .portal-card-3d:hover {
+      transform: translateY(-4px);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .card-badge {
+      background: #e0f2fe;
+      border: 1px solid #7dd3fc;
+      color: #0369a1;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .card-icon-bubble {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: #1e3a8a;
+      box-shadow: inset 2px 2px 5px #cbd5e1;
+    }
+
+    .card-body h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Orange Gradient Button for Cards matching index-2 style */
+    .btn-upload-direct {
+      background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+      border-bottom: 4px solid #c2410c;
+      color: #ffffff;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.1s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-transform: uppercase;
+    }
+
+    .btn-upload-direct:active {
+      border-bottom: 0px solid #c2410c;
+      transform: translateY(4px);
+    }
+
+    /* ==========================================================================
+        DASHBOARDS CONTAINER & HEADER WRAPPERS
+        ========================================================================== */
+    .dashboard-view-container {
+      display: none;
+      max-width: 1840px;
+      margin: 0 auto;
+      padding: 24px;
+      animation: fadeIn 0.35s ease-out;
+    }
+
+    .dashboard-view-container.active-view {
+      display: block;
+    }
+
+    .view-control-bar {
+      display: none;
+    }
+
+    .btn-back-hub {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: #ffffff;
+      border: 1px solid #60a5fa;
+      padding: 9px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-back-hub:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
-<body class="p-4 md:p-6 pb-28">
+<body>
 
-    <!-- Top M-Swasth Banner Header -->
-    <header class="max-w-7xl mx-auto mb-6 m-swasth-header p-5 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center font-extrabold text-sky-400 text-lg">m</div>
+  <!-- M-SWASTH TOP NAVIGATION -->
+  <header class="royal-navbar">
+    <div class="royal-brand" onclick="switchView('hub')">
+      <div class="royal-logo-container">
+        <img src="https://m-swasth.in/wp-content/uploads/2022/02/m-swasth-new-logo.png" alt="M-Swasth Logo">
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button type="button" class="btn-return-home" onclick="switchView('hub')">
+        <i class="fa-solid fa-house"></i> Return to Home
+      </button>
+      <div class="clock-badge">
+        <i class="fa-regular fa-clock"></i>
+        <span id="royalLiveClock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+        SECTION: MASTER 3D PORTAL HUB
+        ======================================================================== -->
+  <main id="masterPortalHub">
+    <div class="portal-hero">
+      <h2 style="font-family: 'Cinzel', serif; font-size: 52px; font-weight: 900; color: #1e3a8a; text-transform: uppercase; letter-spacing: 3px;" class="text-3d">
+        CASHPOR UNIT - 2
+      </h2>
+    </div>
+
+    <div class="portal-cards-grid">
+      <!-- CARD 1 -->
+      <div class="card-3d-wrapper">
+        <div class="portal-card-3d" style="background: linear-gradient(145deg, #0f172a, #1e3a8a); border-color: rgba(255,255,255,0.1);">
+          <div>
+            <div class="card-top">
+              <span class="card-badge" style="background: rgba(255,255,255,0.1); color: #38bdf8; border-color: rgba(56,189,248,0.3);">Unit 2 • Operations</span>
+              <div class="card-icon-bubble" style="background: #0f172a; color: #38bdf8; border-color: #38bdf8;"><i class="fa-solid fa-user-clock"></i></div>
+            </div>
+            <div class="card-body">
+              <h3 style="color: #ffffff;">Agent Hourly Report</h3>
+            </div>
+          </div>
+          <div class="card-actions">
+            <label class="btn-upload-direct">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <span>Upload CSV, Excel, Others</span>
+              <input type="file" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleDirectUpload(event, 'd1')">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2 -->
+      <div class="card-3d-wrapper">
+        <div class="portal-card-3d" style="background: linear-gradient(145deg, #0f172a, #1e3a8a); border-color: rgba(255,255,255,0.1);">
+          <div>
+            <div class="card-top">
+              <span class="card-badge" style="background: rgba(255,255,255,0.1); color: #34d399; border-color: rgba(52,211,153,0.3);">Unit 2 • Performance</span>
+              <div class="card-icon-bubble" style="background: #0f172a; color: #34d399; border-color: #34d399;"><i class="fa-solid fa-chart-line"></i></div>
+            </div>
+            <div class="card-body">
+              <h3 style="color: #ffffff;">Productivity Report</h3>
+            </div>
+          </div>
+          <div class="card-actions">
+            <label class="btn-upload-direct">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <span>Upload CSV, Excel, Others</span>
+              <input type="file" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleDirectUpload(event, 'd2')">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3 -->
+      <div class="card-3d-wrapper">
+        <div class="portal-card-3d" style="background: linear-gradient(145deg, #0f172a, #1e3a8a); border-color: rgba(255,255,255,0.1);">
+          <div>
+            <div class="card-top">
+              <span class="card-badge" style="background: rgba(255,255,255,0.1); color: #22d3ee; border-color: rgba(34,211,238,0.3);">Unit II • Live KPI</span>
+              <div class="card-icon-bubble" style="background: #0f172a; color: #22d3ee; border-color: #22d3ee;"><i class="fa-solid fa-stopwatch-20"></i></div>
+            </div>
+            <div class="card-body">
+              <h3 style="color: #ffffff;">Hourly KPI Consultation Unit II</h3>
+            </div>
+          </div>
+          <div class="card-actions">
+            <label class="btn-upload-direct">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <span>Upload CSV, Excel, Others</span>
+              <input type="file" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleDirectUpload(event, 'd3')">
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 4 -->
+      <div class="card-3d-wrapper">
+        <div class="portal-card-3d" style="background: linear-gradient(145deg, #0f172a, #1e3a8a); border-color: rgba(255,255,255,0.1);">
+          <div>
+            <div class="card-top">
+              <span class="card-badge" style="background: rgba(255,255,255,0.1); color: #c084fc; border-color: rgba(192,132,252,0.3);">Network • Attendance</span>
+              <div class="card-icon-bubble" style="background: #0f172a; color: #c084fc; border-color: #c084fc;"><i class="fa-solid fa-hospital-user"></i></div>
+            </div>
+            <div class="card-body">
+              <h3 style="color: #ffffff;">E-Clinic Daily Login Tracker</h3>
+            </div>
+          </div>
+          <div class="card-actions">
+            <label class="btn-upload-direct">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <span>Upload CSV, Excel, Others</span>
+              <input type="file" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleDirectUpload(event, 'd5')">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- =========================================================================
+        DASHBOARD 1: AGENT HOURLY REPORT - UNIT 2
+        ======================================================================== -->
+  <section id="dashboard1View" class="dashboard-view-container">
+    <div class="d1-wrapper">
+      <style>
+        .d1-header {
+          text-align: center; margin-bottom: 25px; padding: 26px 20px;
+          background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+          border-radius: 16px; border: 1px solid #1e3a8a;
+          box-shadow: 8px 8px 16px #cbd5e1, -8px -8px 16px #ffffff;
+          color: #ffffff;
+        }
+        .d1-h1 { color: #ffffff; font-size: 32px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+        .d1-subtitle { display: none; }
+        .d1-upload-container {
+          display: inline-flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap;
+          background: rgba(255, 255, 255, 0.1); padding: 8px 18px 8px 10px; border-radius: 50px;
+          border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px);
+        }
+        .d1-custom-file-upload {
+          background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%); color: #ffffff; padding: 11px 24px;
+          border-radius: 40px; cursor: pointer; font-weight: 800; text-transform: uppercase; font-size: 13px;
+          letter-spacing: 1px; border: 1px solid #f97316; display: inline-flex; align-items: center; gap: 10px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .d1-file-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #cbd5e1; font-weight: 600; background: rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); }
+        .d1-file-badge.active { color: #38bdf8; border-color: #38bdf8; }
+        .d1-file-badge .file-dot { width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; }
+        .d1-file-badge.active .file-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
+
+        .d1-summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 30px; }
+        .d1-card { background: linear-gradient(145deg, #ffffff, #f1f5f9); padding: 18px 12px; border-radius: 12px; border: 1px solid #cbd5e1; border-top: 5px solid #2563eb; text-align: center; box-shadow: 6px 6px 12px #cbd5e1, -6px -6px 12px #ffffff; }
+        .d1-card h3 { font-size: 12px; color: #475569; text-transform: uppercase; margin-bottom: 10px; font-weight: 800; letter-spacing: 0.8px; }
+        .d1-card p { font-size: 26px; font-weight: 900; color: #0f172a; }
+
+        .d1-team-section { background: #ffffff; border-radius: 14px; border: 2px solid #cbd5e1; margin-bottom: 30px; overflow: hidden; box-shadow: 6px 6px 14px #cbd5e1; color: #0f172a; }
+        .d1-team-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 16px 20px; font-size: 19px; font-weight: 900; color: #ffffff; letter-spacing: 1px; border-bottom: 3px solid #1e3a8a; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .d1-table-responsive { overflow-x: auto; }
+        .d1-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .d1-table th { background-color: #0f172a; color: #ffffff; padding: 13px 10px; font-weight: 900; border-bottom: 3px solid #1e3a8a; border-right: 2px solid #cbd5e1; text-transform: uppercase; font-size: 12.5px; text-align: center; user-select: none; }
+        .d1-table th:first-child { text-align: left; padding-left: 16px; }
+        .d1-table th:last-child { border-right: none; }
+        .d1-sortable-th { cursor: pointer; transition: background 0.2s ease; }
+        .d1-sortable-th:hover { background-color: #1e293b; }
+        .d1-sort-icon { display: inline-block; padding: 2px 6px; font-size: 11px; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #94a3b8; }
+        .d1-sortable-th.active-primary .d1-sort-icon { background: #0284c7; color: #ffffff; border-color: #38bdf8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.6); }
+        .d1-sortable-th.active-secondary .d1-sort-icon { background: #475569; color: #38bdf8; border-color: #38bdf8; }
+
+        .d1-table td { padding: 13px 12px; border-bottom: 1.5px solid #cbd5e1; border-right: 1.5px solid #cbd5e1; color: #0f172a; font-weight: 800; font-size: 15px; }
+        .d1-table td:last-child { border-right: none; }
+        .d1-table tr:nth-child(even) { background-color: #f8fafc; }
+        .d1-table tr:nth-child(odd) { background-color: #ffffff; }
+        .d1-table tr:hover { background-color: #e0f2fe; }
+        .d1-agent-name { font-weight: 800; color: #0f172a; text-align: left; padding-left: 16px; font-size: 15px; }
+        .d1-metric-val { text-align: center; font-size: 16px; color: #0f172a; font-weight: 900; }
+
+        .d1-agent-filter-btn {
+          background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; border: 1px solid #38bdf8;
+          padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 900; cursor: pointer; text-transform: uppercase;
+        }
+      </style>
+
+      <header class="d1-header">
+        <h1 class="d1-h1">AGENT HOURLY REPORT</h1>
+        <div class="d1-upload-container">
+          <label for="d1FileInput" class="d1-custom-file-upload">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Excel / CSV File
+          </label>
+          <input type="file" id="d1FileInput" accept=".csv, .xlsx, .xls" style="display:none;">
+          <div class="d1-file-badge" id="d1FileBadge">
+            <span class="file-dot"></span>
+            <span id="d1FileName">No file chosen</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="d1-summary-cards" id="d1SummaryCards">
+        <div class="d1-card"><h3>Total Agents</h3><p id="d1TotAgents">0</p></div>
+        <div class="d1-card"><h3>Book Consultation</h3><p id="d1TotBooked">0</p></div>
+        <div class="d1-card"><h3>Done Consultation</h3><p id="d1TotDone">0</p></div>
+        <div class="d1-card"><h3>Clinic Video Call</h3><p id="d1TotVideoCall">0</p></div>
+        <div class="d1-card"><h3>Chk Doc</h3><p id="d1TotChkDoc">0</p></div>
+        <div class="d1-card"><h3>FDB</h3><p id="d1TotFdb">0</p></div>
+        <div class="d1-card"><h3>Connected FDB</h3><p id="d1TotConnFdb">0</p></div>
+        <div class="d1-card"><h3>IMM FDB</h3><p id="d1TotImmFdb">0</p></div>
+        <div class="d1-card"><h3>Connected IMM FDB</h3><p id="d1TotConnImmFdb">0</p></div>
+      </div>
+
+      <div id="d1TeamsContainer"></div>
+
+      <!-- D1 Filter Modal Overlay -->
+      <div class="modal-overlay-custom" id="d1FilterModalOverlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.85); z-index:99999; justify-content:center; align-items:center; padding:20px;">
+        <div style="background:#ffffff; border-radius:18px; max-width:540px; width:100%; max-height:85vh; display:flex; flex-direction:column; border:1px solid #cbd5e1; overflow:hidden;">
+          <div style="background:#0f172a; padding:18px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155;">
             <div>
-                <div class="text-xs text-sky-300 font-semibold tracking-wide uppercase">M-Swasth Operations</div>
-                <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight">Team & Pharmacist Attendance & Leave Planner</h1>
+              <h2 id="d1ModalTeamTitle" style="font-size:17px; font-weight:900; color:#fff; text-transform:uppercase;">⚡ Filter Team Members</h2>
+              <p style="font-size:12px; color:#38bdf8; font-weight:700;">Show / Hide active agents</p>
             </div>
+            <button type="button" onclick="closeD1FilterModal()" style="background:#0f172a; border:1px solid #475569; color:#94a3b8; width:32px; height:32px; border-radius:50%; font-size:18px; cursor:pointer;">&times;</button>
+          </div>
+          <div style="padding:12px 24px; background:#f8fafc; border-bottom:1px solid #cbd5e1; display:flex; gap:10px;">
+            <input type="text" id="d1TeamAgentSearch" placeholder="Search team member..." oninput="searchD1Agents()" style="flex:1; padding:8px 12px; background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; color:#0f172a; outline:none;">
+            <button type="button" onclick="toggleD1All(true)" style="background:#e2e8f0; border:1px solid #cbd5e1; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; color:#0f172a; cursor:pointer;">ALL</button>
+            <button type="button" onclick="toggleD1All(false)" style="background:#e2e8f0; border:1px solid #cbd5e1; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; color:#0f172a; cursor:pointer;">NONE</button>
+          </div>
+          <div id="d1FilterListBody" style="padding:16px 24px; overflow-y:auto; max-height:350px; display:flex; flex-direction:column; gap:8px;"></div>
+          <div style="padding:14px 24px; background:#f8fafc; border-top:1px solid #cbd5e1; display:flex; justify-content:flex-end; gap:12px;">
+            <button type="button" onclick="closeD1FilterModal()" style="background:transparent; color:#475569; border:1px solid #cbd5e1; padding:8px 16px; border-radius:8px; font-weight:800; font-size:12px; cursor:pointer;">CANCEL</button>
+            <button type="button" onclick="applyD1Filter()" style="background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color:#fff; border:1px solid #38bdf8; padding:8px 20px; border-radius:8px; font-weight:800; font-size:12px; cursor:pointer;">APPLY</button>
+          </div>
         </div>
-        <div class="flex items-center gap-3">
-            <button onclick="exportData()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-semibold px-4 py-2.5 rounded-xl text-sky-300 flex items-center gap-2 transition">
-                <span>Backup JSON</span>
-            </button>
-        </div>
-    </header>
+      </div>
+    </div>
+  </section>
 
-    <!-- Calendar Viewport -->
-    <main class="max-w-7xl mx-auto bg-slate-900/90 border border-slate-700/80 rounded-2xl p-6 shadow-2xl mb-24">
-        <!-- Month / Year Controls -->
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 pb-4 border-b border-slate-800">
-            <div class="flex items-center gap-4">
-                <button onclick="changeMonth(-1)" class="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-xl border border-slate-700">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                </button>
-                <h2 id="calendarTitle" class="text-xl font-bold tracking-wide text-white min-w-[200px] text-center">October 2026</h2>
-                <button onclick="changeMonth(1)" class="bg-slate-800 hover:bg-slate-700 text-white p-2 rounded-xl border border-slate-700">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </button>
+  <!-- =========================================================================
+        DASHBOARD 2: PRODUCTIVITY REPORT - UNIT 2
+        ======================================================================== -->
+  <section id="dashboard2View" class="dashboard-view-container">
+    <div class="view-control-bar">
+      <div class="view-control-title">
+        <i class="fa-solid fa-chart-line text-emerald-600 text-2xl"></i>
+        <h2>DASHBOARD 2: PRODUCTIVITY REPORT — UNIT 2</h2>
+      </div>
+      <button type="button" class="btn-back-hub" onclick="switchView('hub')">
+        <i class="fa-solid fa-arrow-left"></i> Return to Portal Hub
+      </button>
+    </div>
+
+    <div class="d2-wrapper">
+      <style>
+        .d2-header {
+          text-align: center; margin-bottom: 24px; padding: 26px 20px;
+          background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+          border-radius: 16px; border: 1px solid #1e3a8a;
+          box-shadow: 8px 8px 16px #cbd5e1, -8px -8px 16px #ffffff;
+          color: #ffffff;
+        }
+        .d2-h1 { color: #ffffff; font-size: 32px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+        .d2-subtitle { display: none; }
+        .d2-controls {
+          display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap;
+          background: rgba(255, 255, 255, 0.1); padding: 12px 20px;
+          border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px);
+          margin-bottom: 18px;
+        }
+        .d2-control-group { display: flex; align-items: center; gap: 8px; color: #cbd5e1; font-size: 13px; font-weight: 700; text-transform: uppercase; }
+        .d2-control-group input[type="date"], .d2-control-group input[type="number"] {
+          background: rgba(255, 255, 255, 0.15); border: 1.5px solid rgba(56, 189, 248, 0.5); color: #ffffff; padding: 7px 12px; border-radius: 20px; font-weight: 700; outline: none;
+        }
+        .d2-control-group input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+        .d2-upload-btn {
+          background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%); color: #ffffff; padding: 11px 24px;
+          border-radius: 40px; cursor: pointer; font-weight: 800; text-transform: uppercase; font-size: 13px;
+          letter-spacing: 1px; border: 1px solid #f97316; display: inline-flex; align-items: center; gap: 10px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .d2-summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 28px; }
+        .d2-card { background: linear-gradient(145deg, #ffffff, #f1f5f9); padding: 18px 12px; border-radius: 14px; border: 1px solid #cbd5e1; border-top: 5px solid #10b981; text-align: center; box-shadow: 6px 6px 12px #cbd5e1, -6px -6px 12px #ffffff; }
+        .d2-card h3 { font-size: 11px; color: #475569; text-transform: uppercase; margin-bottom: 10px; font-weight: 800; letter-spacing: 0.8px; }
+        .d2-card p { font-size: 24px; font-weight: 900; color: #0f172a; }
+        .d2-card.highlight { border-top-color: #059669; }
+        .d2-card.highlight p { color: #059669; }
+        .d2-card.team-card { border-top-color: #f59e0b; padding: 14px 10px; }
+        .d2-split { display: flex; gap: 8px; margin-top: 8px; }
+        .d2-subbox { flex: 1; background: #f8fafc; padding: 8px 4px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        .d2-subbox span.lbl { display: block; font-size: 10px; font-weight: 700; color: #92400e; text-transform: uppercase; margin-bottom: 4px; }
+        .d2-subbox span.val { display: block; font-size: 15px; font-weight: 900; color: #0f172a; }
+
+        .d2-team-section { background: #ffffff; border-radius: 16px; border: 2px solid #cbd5e1; margin-bottom: 32px; overflow: hidden; color: #064e3b; box-shadow: 6px 6px 14px #cbd5e1; }
+        .d2-team-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 14px 22px; font-size: 18px; font-weight: 900; color: #ffffff; border-bottom: 3px solid #1e3a8a; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+        .d2-header-avg { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 6px; }
+        .d2-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .d2-table th { background-color: #0f172a; color: #ffffff; padding: 14px 10px; font-weight: 800; border-bottom: 3px solid #1e3a8a; border-right: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 12px; text-align: center; }
+        .d2-table th:first-child { text-align: left; padding-left: 18px; }
+        .d2-table td { padding: 12px 10px; border-bottom: 1.5px solid #e2e8f0; border-right: 1.5px solid #e2e8f0; color: #0f172a; font-weight: 800; font-size: 14px; }
+        .d2-table tr:nth-child(even) { background-color: #f8fafc; }
+        .d2-table tr:hover { background-color: #f1f5f9; }
+        .d2-role-divider td { background-color: #e2e8f0 !important; color: #1e293b !important; font-size: 11px !important; text-transform: uppercase; letter-spacing: 1px; font-weight: 900 !important; padding: 6px 18px !important; }
+        .d2-agent-name { font-weight: 800; color: #0f172a; text-align: left; padding-left: 18px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .d2-metric-val { text-align: center; font-size: 14px; color: #1e293b; font-weight: 800; }
+        .d2-metric-target { text-align: center; font-size: 14px; color: #92400e; font-weight: 800; background-color: #fef3c7; }
+        .d2-metric-achieved { text-align: center; font-size: 14px; color: #065f46; font-weight: 900; background-color: #d1fae5; }
+        .d2-metric-prod { text-align: center; font-size: 14px; color: #0369a1; font-weight: 900; background-color: #e0f2fe; }
+      </style>
+
+      <header class="d2-header">
+        <h1 class="d2-h1">PRODUCTIVITY REPORT</h1>
+        <div class="d2-controls">
+          <div class="d2-control-group">
+            <label>📅 Start Date:</label>
+            <input type="date" id="d2StartDate" onchange="handleD2DateChange()">
+          </div>
+          <div class="d2-control-group">
+            <label>📅 End Date:</label>
+            <input type="date" id="d2EndDate" onchange="handleD2DateChange()">
+          </div>
+          <div class="d2-control-group">
+            <label>🎯 Working Days:</label>
+            <input type="number" id="d2WorkingDays" value="1" min="1" oninput="renderD2Dashboard(d2LatestMap)">
+          </div>
+        </div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:15px; flex-wrap:wrap;">
+          <label for="d2FileInput" class="d2-upload-btn">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Excel / CSV Data File
+          </label>
+          <input type="file" id="d2FileInput" accept=".csv, .xlsx, .xls" style="display:none;">
+          <div class="d1-file-badge" id="d2FileBadge" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#cbd5e1; padding:6px 14px; border-radius:20px;">
+            <span class="file-dot" style="width:7px; height:7px; border-radius:50%; background:#94a3b8; display:inline-block;"></span>
+            <span id="d2FileName">No file chosen</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="d2-summary-cards">
+        <div class="d2-card"><h3>👥 Total Members</h3><p id="d2TotAgents">0</p></div>
+        <div class="d2-card"><h3>📆 Working Days</h3><p id="d2DispWorkingDays">1</p></div>
+        <div class="d2-card highlight"><h3>🚀 Overall Prod %</h3><p id="d2TotProd">0%</p></div>
+        <div class="d2-card team-card">
+          <h3>🛡️ Team Jitendra</h3>
+          <div class="d2-split">
+            <div class="d2-subbox"><span class="lbl">Agent Avg</span><span class="val" id="d2JitendraAgent">0%</span></div>
+            <div class="d2-subbox"><span class="lbl">Pharm Avg</span><span class="val" id="d2JitendraPharm">0%</span></div>
+          </div>
+        </div>
+        <div class="d2-card team-card">
+          <h3>⭐ Team Deepti</h3>
+          <div class="d2-split">
+            <div class="d2-subbox"><span class="lbl">Agent Avg</span><span class="val" id="d2DeeptiAgent">0%</span></div>
+            <div class="d2-subbox"><span class="lbl">Pharm Avg</span><span class="val" id="d2DeeptiPharm">0%</span></div>
+          </div>
+        </div>
+        <div class="d2-card team-card">
+          <h3>⚡ Team Ravi</h3>
+          <div class="d2-split">
+            <div class="d2-subbox"><span class="lbl">Agent Avg</span><span class="val" id="d2RaviAgent">0%</span></div>
+            <div class="d2-subbox"><span class="lbl">Pharm Avg</span><span class="val" id="d2RaviPharm">0%</span></div>
+          </div>
+        </div>
+        <div class="d2-card team-card">
+          <h3>🔥 Team Shivam</h3>
+          <div class="d2-split">
+            <div class="d2-subbox"><span class="lbl">Agent Avg</span><span class="val" id="d2ShivamAgent">0%</span></div>
+            <div class="d2-subbox"><span class="lbl">Pharm Avg</span><span class="val" id="d2ShivamPharm">0%</span></div>
+          </div>
+        </div>
+        <div class="d2-card team-card">
+          <h3>👑 Team Ishant</h3>
+          <div class="d2-split">
+            <div class="d2-subbox"><span class="lbl">Agent Avg</span><span class="val" id="d2IshantAgent">0%</span></div>
+            <div class="d2-subbox"><span class="lbl">Pharm Avg</span><span class="val" id="d2IshantPharm">0%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="d2TeamsContainer"></div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+        DASHBOARD 3: HOURLY KPI CONSULTATION UNIT II
+        ======================================================================== -->
+  <section id="dashboard3View" class="dashboard-view-container">
+    <div class="view-control-bar">
+      <div class="view-control-title">
+        <i class="fa-solid fa-stopwatch-20 text-blue-600 text-2xl"></i>
+        <h2>DASHBOARD 3: HOURLY KPI CONSULTATION — UNIT II</h2>
+      </div>
+      <button type="button" class="btn-back-hub" onclick="switchView('hub')">
+        <i class="fa-solid fa-arrow-left"></i> Return to Portal Hub
+      </button>
+    </div>
+
+    <div class="d3-wrapper">
+      <style>
+        .d3-top-bar {
+          text-align: center; margin-bottom: 25px; padding: 26px 20px;
+          background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+          border-radius: 16px; border: 1px solid #1e3a8a;
+          box-shadow: 8px 8px 16px #cbd5e1, -8px -8px 16px #ffffff;
+          color: #ffffff;
+        }
+        .d3-header-center-content {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          margin-bottom: 16px;
+        }
+        .d3-luxury-watch-white {
+          width: 52px;
+          height: 52px;
+          background: #ffffff;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: inset 2px 2px 5px #cbd5e1, 0 0 0 3px #1e3a8a;
+          flex-shrink: 0;
+        }
+        .d3-luxury-watch-white svg {
+          width: 44px;
+          height: 44px;
+        }
+        .d3-main-heading {
+          font-size: 32px;
+          font-weight: 900;
+          color: #ffffff;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          margin-bottom: 0;
+        }
+        .d3-btn-file-upload {
+          background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+          border-bottom: 4px solid #c2410c;
+          color: #ffffff;
+          padding: 11px 24px;
+          font-size: 13px;
+          font-weight: 800;
+          letter-spacing: 1px;
+          border-radius: 40px;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          border: 1px solid #f97316;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          transition: all 0.1s;
+          text-transform: uppercase;
+        }
+        .d3-btn-file-upload:active {
+          border-bottom: 0px solid #c2410c;
+          transform: translateY(4px);
+        }
+        .d3-kpi-board {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 16px;
+          margin-bottom: 22px;
+        }
+        .d3-kpi-card-navy {
+          background: linear-gradient(145deg, #ffffff, #f1f5f9);
+          border-radius: 16px;
+          padding: 20px 22px;
+          box-shadow: 8px 8px 16px #cbd5e1, -8px -8px 16px #ffffff;
+          border: 1px solid #e2e8f0;
+          border-bottom: 5px solid #cbd5e1;
+          border-right: 2px solid #cbd5e1;
+          position: relative;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          min-height: 108px;
+          transition: transform 0.2s ease;
+        }
+        .d3-kpi-card-navy:hover {
+          transform: translateY(-2px);
+        }
+        .d3-kpi-card-navy::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 5px;
+          height: 100%;
+        }
+        .d3-card-cyan::before { background: #0284c7; box-shadow: 0 0 10px #0284c7; }
+        .d3-card-blue::before { background: #2563eb; box-shadow: 0 0 10px #2563eb; }
+        .d3-card-purple::before { background: #9333ea; box-shadow: 0 0 10px #9333ea; }
+        .d3-card-green::before { background: #10b981; box-shadow: 0 0 12px #10b981; }
+        .d3-card-red::before { background: #f43f5e; box-shadow: 0 0 12px #f43f5e; }
+
+        .d3-kpi-card-clickable {
+          cursor: pointer;
+        }
+        .d3-kpi-title {
+          font-size: 12px;
+          font-weight: 800;
+          color: #475569;
+          text-transform: uppercase;
+          letter-spacing: 0.9px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .d3-kpi-click-hint {
+          font-size: 10px;
+          letter-spacing: 0.5px;
+          opacity: 0.75;
+          font-weight: 800;
+          text-transform: none;
+        }
+        .d3-kpi-number {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 30px;
+          font-weight: 900;
+          color: #0f172a;
+          margin-top: 6px;
+          letter-spacing: -0.5px;
+        }
+        .d3-kpi-agent-name {
+          font-size: 19px;
+          font-weight: 900;
+          margin-top: 6px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .d3-text-best-green {
+          color: #059669;
+        }
+        .d3-text-worst-red {
+          color: #e11d48;
+        }
+
+        /* Team Panel */
+        .d3-team-panel {
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          border-radius: 10px;
+          margin-bottom: 26px;
+          overflow: hidden;
+          box-shadow: 6px 6px 14px #cbd5e1;
+          color: #0f172a;
+        }
+        .d3-team-title-banner {
+          background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+          color: #ffffff;
+          padding: 14px 24px;
+          font-size: 20px;
+          font-weight: 900;
+          letter-spacing: 1px;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+          border-bottom: 2px solid #1e3a8a;
+        }
+        .d3-team-left-cluster {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .d3-team-badge {
+          background: rgba(255, 255, 255, 0.16);
+          font-size: 15px;
+          font-weight: 800;
+          padding: 5px 14px;
+          border-radius: 6px;
+          letter-spacing: 0.6px;
+          border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        .d3-btn-team-break-toggle {
+          background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+          border-bottom: 4px solid #c2410c;
+          color: #ffffff;
+          padding: 8px 18px;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 800;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          transition: all 0.2s ease;
+          text-transform: uppercase;
+        }
+        .d3-btn-team-break-toggle:hover {
+          opacity: 0.95;
+          transform: translateY(-2px);
+        }
+        .d3-btn-team-break-toggle.active-open {
+          background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+          border-bottom: 4px solid #b91c1c;
+        }
+        .d3-team-tat-stats {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .d3-tat-pill-green {
+          background: #dcfce7;
+          border: 1px solid #86efac;
+          color: #15803d;
+          font-size: 14.5px;
+          font-weight: 800;
+          padding: 5px 14px;
+          border-radius: 7px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .d3-tat-pill-red {
+          background: #ffe4e6;
+          border: 1px solid #fca5a5;
+          color: #b91c1c;
+          font-size: 14.5px;
+          font-weight: 800;
+          padding: 5px 14px;
+          border-radius: 7px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .d3-table-container {
+          overflow-x: auto;
+        }
+        .d3-table {
+          width: 100%;
+          border-collapse: collapse;
+          text-align: center;
+        }
+        .d3-table thead th {
+          background-color: #0f172a !important;
+          color: #ffffff !important;
+          font-weight: 900;
+          font-size: 16px;
+          letter-spacing: 0.7px;
+          padding: 15px 10px;
+          border: 1px solid #cbd5e1;
+          white-space: nowrap;
+          text-transform: uppercase;
+        }
+        .d3-th-sortable {
+          user-select: none;
+          padding: 8px 6px !important;
+        }
+        .d3-btn-sort-filter {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: #ffffff;
+          padding: 6px 12px;
+          border-radius: 8px;
+          font-size: 13.5px;
+          font-weight: 900;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          cursor: pointer;
+          width: 100%;
+          transition: all 0.2s ease;
+          letter-spacing: 0.5px;
+        }
+        .d3-btn-sort-filter:hover {
+          background: rgba(56, 189, 248, 0.2);
+          border-color: #38bdf8;
+          color: #38bdf8;
+        }
+        .d3-btn-sort-filter.active-sort {
+          background: #0284c7;
+          border-color: #38bdf8;
+          color: #ffffff;
+        }
+        .d3-sort-icon-badge {
+          font-size: 12px;
+          font-family: 'JetBrains Mono', monospace;
+          padding: 1px 5px;
+          border-radius: 4px;
+          background: rgba(255, 255, 255, 0.2);
+        }
+        .d3-table tbody td {
+          padding: 12px 8px;
+          border: 1px solid #cbd5e1;
+          font-size: 15.5px;
+          font-weight: 800;
+          font-family: 'JetBrains Mono', monospace;
+          white-space: nowrap;
+          color: #0f172a;
+        }
+        .d3-table tbody tr:nth-child(even) { background-color: #f8fafc; }
+        .d3-table tbody tr:hover { background-color: #f1f5f9; }
+
+        .d3-col-agent-name {
+          text-align: center;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 900;
+          color: #0f172a;
+          font-size: 18px;
+          min-width: 220px;
+          cursor: pointer;
+        }
+        .d3-col-agent-name:hover {
+          color: #0284c7;
+          background-color: #f0f9ff;
+          text-decoration: underline;
+        }
+        .d3-col-shift-tag {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 13.5px;
+          font-weight: 800;
+          min-width: 140px;
+          text-align: center;
+        }
+        .d3-shift-pill {
+          background: #e0f2fe;
+          border: 1px solid #7dd3fc;
+          color: #0369a1;
+          padding: 4px 10px;
+          border-radius: 6px;
+          display: inline-block;
+          font-weight: 900;
+          white-space: nowrap;
+        }
+        .d3-col-region-tag {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 13.5px;
+          font-weight: 800;
+          color: #334155;
+          min-width: 200px;
+          text-align: center;
+        }
+        .d3-region-pill {
+          background: #f1f5f9;
+          border: 1px solid #cbd5e1;
+          padding: 5px 12px;
+          border-radius: 6px;
+          display: inline-block;
+          line-height: 1.4;
+          font-size: 14px;
+          font-weight: 800;
+          color: #0f172a;
+          cursor: pointer;
+        }
+        .d3-region-pill:hover {
+          background: #0284c7;
+          color: #ffffff;
+          border-color: #0284c7;
+        }
+        .d3-cell-val-active {
+          font-weight: 900;
+          font-size: 16px;
+          color: #070e1c;
+          background-color: rgba(2, 132, 199, 0.08);
+          cursor: pointer;
+        }
+        .d3-cell-val-active:hover {
+          background-color: #0284c7 !important;
+          color: #ffffff !important;
+        }
+        .d3-col-category-breakdown {
+          font-weight: 900;
+          font-size: 16px;
+          color: #0f172a;
+          min-width: 100px;
+          background-color: #fafaf9;
+        }
+        .d3-col-total-summary {
+          background-color: #eff6ff !important;
+          font-weight: 900;
+          font-size: 16.5px;
+          color: #1d4ed8;
+          min-width: 145px;
+          padding: 8px 12px;
+          cursor: pointer;
+        }
+        .d3-spark-wrap {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+        }
+        .d3-spark-bar-bg {
+          width: 100%;
+          height: 6px;
+          background-color: #cbd5e1;
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        .d3-spark-bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #60a5fa, #1d4ed8);
+          border-radius: 4px;
+        }
+        .d3-col-tat-summary {
+          background-color: #f0fdf4 !important;
+          font-weight: 900;
+          font-size: 18.5px;
+          color: #0f766e;
+          min-width: 145px;
+        }
+        .d3-tat-cell-flex {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+        }
+
+        /* INLINE TEAM BREAK PANEL */
+        .d3-team-inline-break-panel {
+          display: none;
+          background: #ffffff;
+          border-top: 3px solid #6366f1;
+        }
+        .d3-team-inline-break-panel.active {
+          display: block;
+        }
+        .d3-team-inline-break-header {
+          background: linear-gradient(90deg, #1e1b4b 0%, #2e2b69 100%);
+          color: #ffffff;
+          padding: 12px 22px;
+          font-size: 16.5px;
+          font-weight: 900;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          letter-spacing: 0.6px;
+        }
+        .d3-team-inline-break-table th {
+          background-color: #1e1b4b !important;
+          color: #ffffff !important;
+          font-size: 14.5px !important;
+          padding: 11px 10px !important;
+        }
+        .d3-team-inline-break-table td {
+          font-size: 15px !important;
+          padding: 11px 10px !important;
+        }
+
+        /* GLOBAL BREAK PANEL */
+        .d3-break-panel {
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          border-radius: 12px;
+          margin-top: 36px;
+          margin-bottom: 30px;
+          overflow: hidden;
+          box-shadow: 6px 6px 14px #cbd5e1;
+        }
+        .d3-break-header-banner {
+          background: linear-gradient(90deg, #1e1b4b 0%, #312e81 100%);
+          color: #ffffff;
+          padding: 16px 26px;
+          font-size: 20px;
+          font-weight: 900;
+          letter-spacing: 0.8px;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+          border-bottom: 2px solid #6366f1;
+        }
+        .d3-break-badge-danger {
+          background: rgba(239, 68, 68, 0.25);
+          border: 1px solid #f87171;
+          color: #fca5a5;
+          font-size: 14px;
+          font-weight: 800;
+          padding: 5px 14px;
+          border-radius: 6px;
+        }
+        .d3-break-table th {
+          background-color: #0f172a !important;
+          color: #ffffff !important;
+          font-size: 15.5px !important;
+          font-weight: 900;
+          padding: 14px 10px;
+        }
+        .d3-break-table td {
+          font-size: 16.5px;
+          font-weight: 800;
+          padding: 13px 10px;
+        }
+        .d3-rank-badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: #e2e8f0;
+          color: #0f172a;
+          font-weight: 900;
+          font-size: 15px;
+        }
+        .d3-rank-1 { background: #fef08a; color: #854d0e; border: 2px solid #eab308; }
+        .d3-rank-2 { background: #e2e8f0; color: #334155; border: 2px solid #94a3b8; }
+        .d3-rank-3 { background: #ffedd5; color: #9a3412; border: 2px solid #fb923c; }
+        .d3-break-time-badge {
+          background: #fee2e2;
+          color: #b91c1c;
+          border: 1px solid #fca5a5;
+          padding: 4px 14px;
+          border-radius: 6px;
+          font-weight: 900;
+          display: inline-block;
+          font-size: 16.5px;
+        }
+
+        /* MODAL STYLES */
+        .d3-modal-overlay {
+          display: none;
+          position: fixed;
+          top: 0; left: 0; width: 100vw; height: 100vh;
+          background: rgba(3, 7, 18, 0.78);
+          backdrop-filter: blur(8px);
+          z-index: 99999;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          opacity: 0;
+          transition: opacity 0.25s ease;
+        }
+        .d3-modal-overlay.active {
+          display: flex;
+          opacity: 1;
+        }
+        .d3-modal-card {
+          background: #ffffff;
+          border-radius: 18px;
+          width: 95vw;
+          max-width: 1580px;
+          max-height: 90vh;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5);
+          overflow: hidden;
+          color: #0f172a;
+        }
+        .d3-drill-header {
+          background: linear-gradient(90deg, #070e1c 0%, #111d35 100%);
+          color: #ffffff;
+          padding: 18px 28px;
+          border-bottom: 3px solid #38bdf8;
+          flex-shrink: 0;
+        }
+        .d3-drill-header-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        .d3-drill-title {
+          font-size: 21px;
+          font-weight: 900;
+          letter-spacing: 0.6px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          text-transform: uppercase;
+          color: #f8fafc;
+        }
+        .d3-btn-close-modal {
+          background: rgba(255, 255, 255, 0.12);
+          color: #ffffff;
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          padding: 8px 18px;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 900;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .d3-btn-close-modal:hover {
+          background: #ef4444;
+          border-color: #ef4444;
+        }
+        .d3-drill-details-bar {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-top: 12px;
+          padding-top: 12px;
+          border-top: 1px solid rgba(255, 255, 255, 0.14);
+        }
+        .d3-drill-info-chip {
+          background: rgba(255, 255, 255, 0.09);
+          border: 1px solid rgba(56, 189, 248, 0.35);
+          padding: 5px 14px;
+          border-radius: 8px;
+          font-size: 14.5px;
+          font-weight: 800;
+          color: #f1f5f9;
+        }
+        .d3-drill-info-chip strong {
+          color: #38bdf8;
+        }
+        .d3-modal-scroll-area {
+          overflow-x: auto;
+          overflow-y: auto;
+          flex: 1;
+          background: #ffffff;
+        }
+        .d3-drill-table th {
+          background-color: #071326 !important;
+          color: #ffffff !important;
+          font-size: 15px !important;
+          font-weight: 900 !important;
+          padding: 13px 10px !important;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+        .d3-drill-table td {
+          font-size: 15.5px !important;
+          padding: 12px 10px !important;
+          font-weight: 800 !important;
+          font-family: 'JetBrains Mono', monospace;
+          color: #0f172a;
+        }
+        .d3-time-container {
+          display: inline-flex;
+          align-items: baseline;
+          gap: 7px;
+          font-family: 'JetBrains Mono', monospace;
+        }
+        .d3-time-date-part {
+          font-size: 12.5px;
+          color: #64748b;
+          font-weight: 700;
+        }
+        .d3-time-bold-part {
+          font-size: 16px !important;
+          font-weight: 900 !important;
+          color: #070e1c !important;
+        }
+      </style>
+
+      <!-- D3 Top Bar with Watch & Upload -->
+      <header class="d3-top-bar">
+        <div class="d3-header-center-content">
+          <div class="d3-luxury-watch-white" title="Live Operations Clock">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="46" stroke="#0f1e36" stroke-width="3.5" fill="#ffffff" />
+              <line x1="50" y1="9" x2="50" y2="16" stroke="#0f1e36" stroke-width="3" stroke-linecap="round" />
+              <line x1="50" y1="84" x2="50" y2="91" stroke="#0f1e36" stroke-width="3" stroke-linecap="round" />
+              <line x1="9" y1="50" x2="16" y2="50" stroke="#0f1e36" stroke-width="3" stroke-linecap="round" />
+              <line x1="84" y1="50" x2="91" y2="50" stroke="#0f1e36" stroke-width="3" stroke-linecap="round" />
+              <line x1="50" y1="50" x2="68" y2="38" stroke="#0f1e36" stroke-width="4" stroke-linecap="round" />
+              <line x1="50" y1="50" x2="50" y2="18" stroke="#1e3a8a" stroke-width="3" stroke-linecap="round" />
+              <circle cx="50" cy="50" r="4.5" fill="#0f1e36" />
+            </svg>
+          </div>
+          <h1 class="d3-main-heading">HOURLY KPI CONSULTATION UNIT II</h1>
+        </div>
+        <div>
+          <label class="d3-btn-file-upload">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:20px; height:20px; color:#ffffff;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+            </svg>
+            <span>Upload File (CSV / Excel)</span>
+            <input type="file" id="d3CsvUploader" accept=".csv, .xlsx, .xls" style="display: none;">
+          </label>
+        </div>
+      </header>
+
+      <!-- KPI Board -->
+      <section class="d3-kpi-board">
+        <div class="d3-kpi-card-navy d3-card-cyan">
+          <div class="d3-kpi-title">Total Consultations</div>
+          <div id="d3StatTotal" class="d3-kpi-number">0</div>
+        </div>
+        <div class="d3-kpi-card-navy d3-card-blue">
+          <div class="d3-kpi-title">Average Team TAT</div>
+          <div id="d3StatTat" class="d3-kpi-number">0.0 m</div>
+        </div>
+        <div class="d3-kpi-card-navy d3-card-purple">
+          <div class="d3-kpi-title">Active Agents</div>
+          <div id="d3StatAgents" class="d3-kpi-number">0 / 27</div>
+        </div>
+        <div class="d3-kpi-card-navy d3-card-green d3-kpi-card-clickable" title="Click to view Top 5 Lowest TAT Agents (Best Performance)" onclick="openD3TatRankingModal('LOWEST')">
+          <div class="d3-kpi-title" style="color: #059669;">
+            <span>Lowest TAT (Best)</span>
+            <span class="d3-kpi-click-hint">Click for Top 5 ↗</span>
+          </div>
+          <div id="d3StatLowestAgent" class="d3-kpi-agent-name d3-text-best-green">--</div>
+        </div>
+        <div class="d3-kpi-card-navy d3-card-red d3-kpi-card-clickable" title="Click to view Top 5 Highest TAT Agents (Slowest)" onclick="openD3TatRankingModal('HIGHEST')">
+          <div class="d3-kpi-title" style="color: #e11d48;">
+            <span>Highest TAT (Slowest)</span>
+            <span class="d3-kpi-click-hint">Click for Top 5 ↗</span>
+          </div>
+          <div id="d3StatHighestAgent" class="d3-kpi-agent-name d3-text-worst-red">--</div>
+        </div>
+      </section>
+
+      <!-- Main Teams Output Hook -->
+      <main id="d3DashboardHook"></main>
+
+      <!-- Break Panel Section at Bottom -->
+      <section class="d3-break-panel" id="d3BreakPanel">
+        <div class="d3-break-header-banner">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span>AGENTS RANKING — BREAK / IDLE DURATION</span>
+          </div>
+          <span class="d3-break-badge-danger">Intervals &gt; 15 Mins Detected (Click Agent Name)</span>
+        </div>
+        <div class="d3-table-container">
+          <table class="d3-table d3-break-table">
+            <thead>
+              <tr>
+                <th style="width: 70px;">RANK</th>
+                <th style="min-width: 220px;">AGENT NAME (CLICK FOR POPUP DETAILS)</th>
+                <th class="d3-th-sortable" style="min-width: 170px;">
+                  <button type="button" class="d3-btn-sort-filter" id="d3BtnTeamFilterBreak" onclick="openD3TeamFilterModal()" title="Click to filter by single or multiple teams">
+                    <span>TEAM</span>
+                    <span class="d3-sort-icon-badge" id="d3TeamFilterBadge">ALL</span>
+                  </button>
+                </th>
+                <th style="min-width: 140px;">SHIFT</th>
+                <th style="min-width: 130px;">TOTAL CASES</th>
+                <th class="d3-th-sortable" style="min-width: 190px; background: #991b1b !important;">
+                  <button type="button" class="d3-btn-sort-filter d3-btn-sort-break" id="d3BtnSortBreakDuration" onclick="toggleD3BreakSort()" title="Filter Break Time">
+                    <span>TOTAL BREAK TIME</span>
+                    <span class="d3-sort-icon-badge" id="d3BreakSortArrowBadge">↓</span>
+                  </button>
+                </th>
+                <th style="min-width: 160px;">BREAK SESSIONS</th>
+              </tr>
+            </thead>
+            <tbody id="d3BreakTableBody">
+              <tr>
+                <td colspan="7" style="padding: 24px; color: #64748b; font-weight: 700;">Please upload an Excel or CSV file to evaluate break and idle intervals.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- MODAL 1: AGENT CASE DRILLDOWN -->
+      <div class="d3-modal-overlay" id="d3DrilldownModal" onclick="handleD3OverlayClick(event, 'd3DrilldownModal')">
+        <div class="d3-modal-card">
+          <div class="d3-drill-header">
+            <div class="d3-drill-header-top">
+              <div class="d3-drill-title">
+                <span id="d3DrillTitleText">AGENT CASE DETAILS</span>
+              </div>
+              <button type="button" class="d3-btn-close-modal" onclick="closeD3Drilldown()">✕ Close [ESC]</button>
             </div>
-            <div class="flex items-center gap-3 text-xs">
-                <button onclick="jumpToCurrentMonth()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-xl border border-slate-700">Today</button>
-                <select id="yearPicker" onchange="onYearChange()" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-xl px-3 py-1.5 font-semibold">
-                    <option value="2026">2026</option>
-                    <option value="2027">2027</option>
-                    <option value="2028">2028</option>
-                </select>
+            <div class="d3-drill-details-bar" id="d3DrillAgentDetailsBar"></div>
+          </div>
+          <div class="d3-modal-scroll-area">
+            <table class="d3-table d3-drill-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>EMR #</th>
+                  <th>DOCTOR NAME</th>
+                  <th>PHARMACIST / AGENT</th>
+                  <th>REGION</th>
+                  <th>BRANCH</th>
+                  <th>TYPE</th>
+                  <th style="background-color: #047857 !important;">TAT (MINS)</th>
+                  <th style="min-width: 175px;">APPT TIME</th>
+                  <th style="min-width: 175px;">FEEDBACK END TIME</th>
+                </tr>
+              </thead>
+              <tbody id="d3DrillTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 2: BREAK DETAILS MODAL -->
+      <div class="d3-modal-overlay" id="d3BreakModal" onclick="handleD3OverlayClick(event, 'd3BreakModal')">
+        <div class="d3-modal-card">
+          <div style="background: linear-gradient(90deg, #1e1b4b 0%, #312e81 100%); color: #ffffff; padding: 18px 28px; border-bottom: 3px solid #818cf8; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; flex-shrink: 0;">
+            <div style="font-size: 21px; font-weight: 900; letter-spacing: 0.6px; display: flex; align-items: center; gap: 10px;">
+              <span id="d3BreakDetailTitleText">AGENT BREAK TIMELINE</span>
             </div>
+            <button type="button" class="d3-btn-close-modal" onclick="closeD3BreakDetail()">✕ Close [ESC]</button>
+          </div>
+          <div class="d3-modal-scroll-area">
+            <table class="d3-table d3-drill-table">
+              <thead>
+                <tr>
+                  <th style="width: 80px; background-color: #1e1b4b !important;">SESSION</th>
+                  <th style="min-width: 170px; background-color: #1e1b4b !important;">CONSULTATION END TIME (BREAK START)</th>
+                  <th style="min-width: 170px; background-color: #1e1b4b !important;">NEXT APPT TIME (BREAK END)</th>
+                  <th style="min-width: 150px; background-color: #991b1b !important;">TOTAL BREAK</th>
+                  <th style="min-width: 220px; background-color: #1e1b4b !important;">CASE CONTEXT (PREVIOUS → NEXT)</th>
+                </tr>
+              </thead>
+              <tbody id="d3BreakDetailTableBody"></tbody>
+            </table>
+          </div>
         </div>
+      </div>
 
-        <!-- Days Header (Dark Navy Theme) -->
-        <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
-            <div class="py-1">Mon</div>
-            <div class="py-1">Tue</div>
-            <div class="py-1">Wed</div>
-            <div class="py-1">Thu</div>
-            <div class="py-1">Fri</div>
-            <div class="py-1">Sat</div>
-            <div class="py-1 text-rose-400">Sun</div>
-        </div>
-
-        <!-- Light Day Cells Grid -->
-        <div id="calendarGrid" class="grid grid-cols-7 gap-2.5 min-h-[460px]">
-            <!-- Rendered via JS -->
-        </div>
-    </main>
-
-    <!-- Bottom Role Summary Bar -->
-    <footer class="fixed bottom-0 left-0 right-0 bg-slate-900/95 border-t border-slate-700/80 p-4 z-40 backdrop-blur-xl">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <span class="text-xs text-slate-400 uppercase tracking-wider font-bold">Quick Insights Audit:</span>
-                <button onclick="openRoleSummary('agent')" class="bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-sky-400"></span>
-                    Agents Summary (Red Line Upper)
-                </button>
-                <button onclick="openRoleSummary('pharmacist')" class="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    Pharmacists Summary
-                </button>
+      <!-- MODAL 3: REGION BREAKDOWN -->
+      <div class="d3-modal-overlay" id="d3RegionModal" onclick="handleD3OverlayClick(event, 'd3RegionModal')">
+        <div class="d3-modal-card" style="max-width: 640px;">
+          <div class="d3-drill-header" style="background: linear-gradient(90deg, #070e1c 0%, #1e293b 100%);">
+            <div class="d3-drill-header-top">
+              <div class="d3-drill-title">
+                <span id="d3RegionModalTitle">AGENT REGION BREAKDOWN</span>
+              </div>
+              <button type="button" class="d3-btn-close-modal" onclick="closeD3RegionModal()">✕ Close [ESC]</button>
             </div>
-            <div class="text-[11px] text-slate-400">Tap any calendar box to assign/view members • Local auto-save</div>
+            <div class="d3-drill-details-bar" id="d3RegionDetailsBar"></div>
+          </div>
+          <div class="d3-modal-scroll-area">
+            <table class="d3-table d3-drill-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px; text-align: center;">#</th>
+                  <th style="text-align: left; padding-left: 24px;">REGION NAME</th>
+                  <th style="text-align: right; padding-right: 28px; width: 180px;">TOTAL CASES</th>
+                </tr>
+              </thead>
+              <tbody id="d3RegionTableBody"></tbody>
+            </table>
+          </div>
         </div>
-    </footer>
+      </div>
 
-    <!-- Interactive Date Assignment/Inspection Modal -->
-    <div id="dateAssignModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-700 max-w-2xl w-full rounded-2xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-                <div>
-                    <span class="text-xs text-sky-400 font-semibold uppercase">Date Management</span>
-                    <h3 id="assignModalTitle" class="text-lg font-bold text-white">Date: --</h3>
+      <!-- MODAL 4: TOP 5 TAT RANKING -->
+      <div class="d3-modal-overlay" id="d3TatRankingModal" onclick="handleD3OverlayClick(event, 'd3TatRankingModal')">
+        <div class="d3-modal-card" style="max-width: 820px;">
+          <div class="d3-drill-header" id="d3TatRankingHeader">
+            <div class="d3-drill-header-top">
+              <div class="d3-drill-title">
+                <span id="d3TatRankingTitleText">TOP 5 TAT RANKING</span>
+              </div>
+              <button type="button" class="d3-btn-close-modal" onclick="closeD3TatRankingModal()">✕ Close [ESC]</button>
+            </div>
+            <div class="d3-drill-details-bar" id="d3TatRankingDetailsBar"></div>
+          </div>
+          <div class="d3-modal-scroll-area">
+            <table class="d3-table d3-drill-table">
+              <thead>
+                <tr>
+                  <th style="width: 75px; text-align: center;">RANK</th>
+                  <th style="min-width: 220px; text-align: left; padding-left: 20px;">AGENT NAME</th>
+                  <th style="min-width: 160px;">TEAM</th>
+                  <th style="min-width: 130px;">SHIFT</th>
+                  <th style="min-width: 120px;">TOTAL CASES</th>
+                  <th id="d3TatThHeader" style="min-width: 140px;">AVERAGE TAT</th>
+                </tr>
+              </thead>
+              <tbody id="d3TatRankingTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 5: TEAM MULTI-FILTER MODAL -->
+      <div class="d3-modal-overlay" id="d3TeamFilterModal" onclick="handleD3OverlayClick(event, 'd3TeamFilterModal')">
+        <div class="d3-modal-card" style="max-width: 580px;">
+          <div class="d3-drill-header" style="background: linear-gradient(90deg, #1e1b4b 0%, #312e81 100%); border-bottom: 3px solid #818cf8;">
+            <div class="d3-drill-header-top">
+              <div class="d3-drill-title">
+                <span>FILTER BY TEAM</span>
+              </div>
+              <button type="button" class="d3-btn-close-modal" onclick="closeD3TeamFilterModal()">✕ Close [ESC]</button>
+            </div>
+            <div class="d3-drill-details-bar">
+              <div class="d3-drill-info-chip">Multi-selection: <strong>Select one or multiple teams</strong></div>
+            </div>
+          </div>
+          <div class="d3-modal-scroll-area">
+            <div style="padding: 24px 28px; display: flex; flex-direction: column; gap: 14px; background: #ffffff;" id="d3TeamFilterListContainer"></div>
+          </div>
+          <div style="padding: 18px 28px; background: #f1f5f9; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div style="display:flex; gap: 14px;">
+              <button type="button" style="background: transparent; border: none; color: #0284c7; font-weight: 900; font-size: 13.5px; cursor: pointer; text-decoration: underline;" onclick="selectD3AllTeams(true)">Select All</button>
+              <button type="button" style="background: transparent; border: none; color: #0284c7; font-weight: 900; font-size: 13.5px; cursor: pointer; text-decoration: underline;" onclick="selectD3AllTeams(false)">Clear All</button>
+            </div>
+            <button type="button" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color: #ffffff; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 900; font-size: 15px; cursor: pointer; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);" onclick="applyD3TeamFilters()">Apply Filter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+        DASHBOARD 5: E-CLINIC DAILY LOGIN REPORT
+        ======================================================================== -->
+  <section id="dashboard5View" class="dashboard-view-container">
+    <div class="view-control-bar">
+      <div class="view-control-title">
+        <i class="fa-solid fa-hospital-user text-purple-600 text-2xl"></i>
+        <h2>DASHBOARD 5: E-CLINIC DAILY LOGIN REPORT</h2>
+      </div>
+      <button type="button" class="btn-back-hub" onclick="switchView('hub')">
+        <i class="fa-solid fa-arrow-left"></i> Return to Portal Hub
+      </button>
+    </div>
+
+    <div class="d5-wrapper">
+      <style>
+        .d5-control-card {
+          background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); border: 1.5px solid #1e3a8a; border-radius: 12px;
+          padding: 14px 18px; box-shadow: 6px 6px 12px #cbd5e1, -6px -6px 12px #ffffff; color: #ffffff;
+        }
+        .d5-label { display: flex; align-items: center; gap: 8px; font-weight: 800; color: #ffffff; font-size: 1rem; margin-bottom: 8px; }
+        .d5-select {
+          width: 100%; padding: 10px 12px; font-size: 1rem; font-weight: 800; border: 2px solid rgba(255, 255, 255, 0.2);
+          border-radius: 8px; background: rgba(255, 255, 255, 0.1); color: #ffffff; outline: none; cursor: pointer;
+        }
+        .d5-select option { background: #0f172a; color: #ffffff; }
+        .d5-table { width: 100%; border-collapse: collapse; text-align: center; }
+        .d5-table th {
+          position: sticky; top: 0; z-index: 10; background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%); color: #0f172a;
+          padding: 12px 10px; font-weight: 900; font-size: 14px; border-bottom: 3.5px solid #c2410c;
+          border-right: 1.5px solid rgba(0,0,0,0.1); white-space: nowrap; text-transform: uppercase;
+        }
+        .d5-table td { padding: 11px 12px; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 1.5px solid #cbd5e1; border-right: 1.5px solid #cbd5e1; white-space: nowrap; }
+        .d5-table tr:nth-child(even) { background-color: #f8fafc; }
+        .d5-table tr:hover { background-color: #e0f2fe; }
+      </style>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:16px; margin-bottom:20px;">
+        <div class="d5-control-card">
+          <label class="d5-label"><i class="fa-solid fa-file-excel text-amber-400"></i> 1. Upload Report</label>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <label style="background:linear-gradient(135deg, #ea580c 0%, #f59e0b 100%); color:#fff; padding:9px 16px; border-radius:8px; font-weight:800; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+              <i class="fa-solid fa-upload"></i> Choose File
+              <input type="file" id="d5FileUpload" accept=".xlsx, .xls, .csv" style="display:none;">
+            </label>
+            <span id="d5FileName" style="color:#cbd5e1; font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">No file chosen</span>
+          </div>
+        </div>
+
+        <div class="d5-control-card">
+          <label class="d5-label"><i class="fa-solid fa-filter text-amber-400"></i> 2. Filter by Login Code</label>
+          <select id="d5CodeSelect" class="d5-select" disabled>
+            <option value="">-- Upload file first --</option>
+          </select>
+        </div>
+
+        <div class="d5-control-card">
+          <label class="d5-label"><i class="fa-solid fa-location-crosshairs text-amber-400"></i> 3. Filter by Region</label>
+          <select id="d5RegionSelect" class="d5-select" disabled>
+            <option value="">-- Upload file first --</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="d5Loader" style="display:none; text-align:center; padding:20px; font-weight:800; color:#38bdf8; font-size:16px;">
+        <i class="fa-solid fa-spinner fa-spin"></i> Processing file... Please wait.
+      </div>
+
+      <div id="d5TableContainer" style="display:none; max-height:calc(100vh - 280px); overflow-y:auto; overflow-x:auto; border:2px solid #cbd5e1; border-radius:12px; background:#fff; box-shadow: 6px 6px 14px #cbd5e1;">
+        <table class="d5-table">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding-left:16px;">Clinic Name</th>
+              <th>Login Id</th>
+              <th>Login Time</th>
+              <th>Logout Time</th>
+              <th>IP Address</th>
+              <th>Consultation Count</th>
+              <th>Policy Count</th>
+            </tr>
+          </thead>
+          <tbody id="d5TableBody"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+        COMPLETE JAVASCRIPT ENGINE (All Logic Intact)
+        ========================================================================== -->
+  <script>
+    // Live Clock
+    function updateRoyalClock() {
+      const now = new Date();
+      document.getElementById('royalLiveClock').innerText = now.toLocaleTimeString('en-US', { hour12: true });
+    }
+    setInterval(updateRoyalClock, 1000);
+    updateRoyalClock();
+
+    // View Navigation Controller
+    function switchView(viewId) {
+      document.getElementById('masterPortalHub').style.display = 'none';
+      document.getElementById('dashboard1View').classList.remove('active-view');
+      document.getElementById('dashboard2View').classList.remove('active-view');
+      document.getElementById('dashboard3View').classList.remove('active-view');
+      document.getElementById('dashboard5View').classList.remove('active-view');
+
+      if (viewId === 'hub') {
+        document.getElementById('masterPortalHub').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (viewId === 'd1') {
+        document.getElementById('dashboard1View').classList.add('active-view');
+      } else if (viewId === 'd2') {
+        document.getElementById('dashboard2View').classList.add('active-view');
+      } else if (viewId === 'd3') {
+        document.getElementById('dashboard3View').classList.add('active-view');
+      } else if (viewId === 'd5') {
+        document.getElementById('dashboard5View').classList.add('active-view');
+      }
+    }
+
+    // Direct Upload Handler
+    function handleDirectUpload(event, targetDashboard) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      switchView(targetDashboard);
+
+      if (targetDashboard === 'd1') {
+        handleD1FileDirect(file);
+      } else if (targetDashboard === 'd2') {
+        handleD2FileDirect(file);
+      } else if (targetDashboard === 'd3') {
+        handleD3FileDirect(file);
+      } else if (targetDashboard === 'd5') {
+        handleD5FileDirect(file);
+      }
+    }
+
+    /* =========================================================================
+        DASHBOARD 1 ENGINE (Agent Hourly Report - Unit 2)
+        ======================================================================== */
+    const D1_TEAMS = {
+      "TEAM JITENDRA": [
+        "Saurav Pal", "Md anas", "Renu Gupta", "Shivam verma", 
+        "Jogender singh", "Jayshree Choudhary", "Snigdha pal", 
+        "Kiran thakur", "Vaishali sisodiya", "ANKUR KUMAR", "Rashi Gupta"
+      ],
+      "TEAM DEEPTI": [
+        "Renu Rani", "Pooja Rathore", "ROSHNI PRAJAPATI", "GARVIT JHA", 
+        "Rajni Saini", "Puja Chauhan", "Shivansh tiwari", "Saifur Janam", 
+        "Anjali Gupta", "Roshni chouhan", "NIKITA YADAV"
+      ],
+      "TEAM RAVI": [
+        "Jyoti Singh unit 2", "Rajendra Mourya", "Apurv Acharya", 
+        "Amit Sharma", "Atul Kumar", "Sumit H", "Piyush Verma", 
+        "Shivam Shukla", "Hitesh Kumar", "Samirun Nisha", "Abuzar Akhtar"
+      ],
+      "TEAM SHIVAM": [
+        "Nandani", "Kamni Sharma", "Burhan", 
+        "Chandrabhanu", "Munsi Sakil Ahmed", "Ashish Yadav", "Chandrabhanu Sukla",
+        "MOHD SHAKIB", "Snehal Sukhadeo Gaikwad", "Kamni Muthoot"
+      ],
+      "TEAM ISHANT": [
+        "Ayushi Saxena", "Harivansh Agarwal", 
+        "Smruti Rani Sahoo", "Sushma Chaudhary", "Ashok Pawar", 
+        "PRIYA PATIDAR", "YASHWANT SINGH", "Sanjana Khuswaha", "Isha mehta", "Rajesh ."
+      ]
+    };
+
+    const D1_COLUMNS = [
+      { key: 'booked', label: 'Book Consultation' },
+      { key: 'done', label: 'Done Consultation' },
+      { key: 'videocall', label: 'Clinic Video Call' },
+      { key: 'chkdoc', label: 'Chk Doc' },
+      { key: 'fdb', label: 'FDB' },
+      { key: 'conn_fdb', label: 'Connected FDB' },
+      { key: 'imm_fdb', label: 'IMM FDB' },
+      { key: 'conn_imm_fdb', label: 'Connected IMM FDB' }
+    ];
+
+    let d1AgentStatsMap = {};
+    let d1ExcludedAgents = new Set();
+    let d1CurrentTeamForFilter = null;
+    const d1TeamSortState = {};
+
+    function resetD1Sorts() {
+      Object.keys(D1_TEAMS).forEach(team => {
+        d1TeamSortState[team] = {
+          primary: { key: 'booked', order: 'desc' },
+          secondary: { key: 'imm_fdb', order: 'desc' }
+        };
+      });
+    }
+    resetD1Sorts();
+
+    function cleanD1String(str) {
+      if (!str) return '';
+      return String(str).toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function handleD1FileDirect(file) {
+      document.getElementById('d1FileName').innerText = file.name;
+      document.getElementById('d1FileBadge').classList.add('active');
+
+      const fileName = file.name.toLowerCase();
+      const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+      const reader = new FileReader();
+
+      if (isExcel) {
+        reader.onload = function(evt) {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rawRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+          processD1Data(rawRows);
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.onload = function(evt) {
+          Papa.parse(evt.target.result, {
+            complete: function(results) {
+              processD1Data(results.data);
+            }
+          });
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function processD1Data(rows) {
+      let headerRowIndex = -1;
+      let colMap = {};
+
+      for (let i = 0; i < Math.min(25, rows.length); i++) {
+        const row = rows[i];
+        if (!row) continue;
+        row.forEach((cell, colIdx) => {
+          const val = cleanD1String(cell);
+          if (val === 'agent' || val === 'agentname' || val === 'name') colMap['agent'] = colIdx;
+          if (val.includes('booked')) colMap['booked'] = colIdx;
+          if (val.includes('done')) colMap['done'] = colIdx;
+          if (val.includes('videocall') || val.includes('clinicvideo') || val === 'teledoc') colMap['videocall'] = colIdx;
+          if (val.includes('chkdoc') || val.includes('checkdoc')) colMap['chkdoc'] = colIdx;
+          if (val === 'immfdb') colMap['imm_fdb'] = colIdx;
+          else if (val.includes('connectedimmfdb') || val.includes('connimm')) colMap['conn_imm_fdb'] = colIdx;
+          else if (val.includes('connectedfdb') || val.includes('connected')) colMap['conn_fdb'] = colIdx;
+          else if (val === 'fdb') colMap['fdb'] = colIdx;
+        });
+        if (colMap['agent'] !== undefined) {
+          headerRowIndex = i;
+          break;
+        }
+      }
+
+      if (headerRowIndex === -1) {
+        alert("Dashboard 1: Could not find 'Agent' column in uploaded file.");
+        return;
+      }
+
+      d1AgentStatsMap = {};
+      for (let i = headerRowIndex + 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || !row[colMap['agent']]) continue;
+
+        const rawName = String(row[colMap['agent']]).trim();
+        const cleanName = cleanD1String(rawName);
+
+        const getNum = (colKey) => {
+          if (colMap[colKey] === undefined) return 0;
+          const val = parseFloat(row[colMap[colKey]]);
+          return isNaN(val) ? 0 : val;
+        };
+
+        d1AgentStatsMap[cleanName] = {
+          displayName: rawName,
+          booked: getNum('booked'),
+          done: getNum('done'),
+          videocall: getNum('videocall'),
+          chkdoc: getNum('chkdoc'),
+          fdb: getNum('fdb'),
+          conn_fdb: getNum('conn_fdb'),
+          imm_fdb: getNum('imm_fdb'),
+          conn_imm_fdb: getNum('conn_imm_fdb')
+        };
+      }
+
+      resetD1Sorts();
+      renderD1Dashboard();
+    }
+
+    function handleD1TeamSort(teamName, key) {
+      const state = d1TeamSortState[teamName];
+      if (state.primary.key === key) {
+        state.primary.order = (state.primary.order === 'desc') ? 'asc' : 'desc';
+      } else if (state.secondary && state.secondary.key === key) {
+        state.secondary.order = (state.secondary.order === 'desc') ? 'asc' : 'desc';
+      } else {
+        state.secondary = { key: state.primary.key, order: state.primary.order };
+        state.primary = { key: key, order: (key === 'agent') ? 'asc' : 'desc' };
+      }
+      renderD1Dashboard();
+    }
+
+    function renderD1Dashboard() {
+      const container = document.getElementById('d1TeamsContainer');
+      container.innerHTML = '';
+
+      let gTotAgents = 0, gTotBooked = 0, gTotDone = 0, gTotVideoCall = 0,
+          gTotChk = 0, gTotFdb = 0, gTotConnFdb = 0, gTotImmFdb = 0, gTotConnImmFdb = 0;
+
+      Object.keys(D1_TEAMS).forEach(teamName => {
+        const members = D1_TEAMS[teamName];
+        const sortState = d1TeamSortState[teamName];
+        const prim = sortState.primary;
+        const sec = sortState.secondary;
+
+        const headersHtml = D1_COLUMNS.map(col => {
+          const isPrim = prim && prim.key === col.key;
+          const isSec = sec && sec.key === col.key;
+          let icon = '⇅';
+          let activeClass = 'd1-sortable-th';
+          if (isPrim) {
+            icon = (prim.order === 'desc') ? '▼ HIGH' : '▲ LOW';
+            activeClass = 'd1-sortable-th active-primary';
+          } else if (isSec) {
+            icon = (sec.order === 'desc') ? '▼ HIGH (2nd)' : '▲ LOW (2nd)';
+            activeClass = 'd1-sortable-th active-secondary';
+          }
+          return `
+            <th class="${activeClass}" onclick="handleD1TeamSort('${teamName}', '${col.key}')">
+              <span>${col.label}</span>
+              <span class="d1-sort-icon">${icon}</span>
+            </th>
+          `;
+        }).join('');
+
+        const isAgentPrim = prim && prim.key === 'agent';
+        const agentIcon = isAgentPrim ? (prim.order === 'asc' ? '▲ A-Z' : '▼ Z-A') : '⇅';
+
+        const visibleMembers = members.filter(m => !d1ExcludedAgents.has(m));
+
+        let teamData = visibleMembers.map(member => {
+          gTotAgents++;
+          const cleanMem = cleanD1String(member);
+          let stats = d1AgentStatsMap[cleanMem];
+          if (!stats) {
+            const key = Object.keys(d1AgentStatsMap).find(k => {
+              const cleanMemAlt = cleanMem.replace('saurabh', 'saurav');
+              const kAlt = k.replace('saurabh', 'saurav');
+              return k.includes(cleanMem) || cleanMem.includes(k) || kAlt.includes(cleanMemAlt) || cleanMemAlt.includes(kAlt);
+            });
+            if (key) stats = d1AgentStatsMap[key];
+          }
+          const s = stats || { booked: 0, done: 0, videocall: 0, chkdoc: 0, fdb: 0, conn_fdb: 0, imm_fdb: 0, conn_imm_fdb: 0 };
+          return { name: member, stats: s };
+        });
+
+        teamData.sort((a, b) => {
+          const primKey = prim.key;
+          const secKey = sec ? sec.key : null;
+          if (primKey === 'agent') {
+            return prim.order === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+          }
+          const pA = Number(a.stats[primKey]) || 0;
+          const pB = Number(b.stats[primKey]) || 0;
+          if (pA > 0 && pB > 0) return prim.order === 'desc' ? (pB - pA) : (pA - pB);
+          if (pA > 0 && pB === 0) return -1;
+          if (pA === 0 && pB > 0) return 1;
+
+          if (secKey && secKey !== 'agent') {
+            const sA = Number(a.stats[secKey]) || 0;
+            const sB = Number(b.stats[secKey]) || 0;
+            if (sA > 0 && sB > 0) return sec.order === 'desc' ? (sB - sA) : (sA - sB);
+            if (sA > 0 && sB === 0) return -1;
+            if (sA === 0 && sB > 0) return 1;
+          }
+          return a.name.localeCompare(b.name);
+        });
+
+        let tableRows = '';
+        teamData.forEach(item => {
+          const s = item.stats;
+          gTotBooked += s.booked;
+          gTotDone += s.done;
+          gTotVideoCall += s.videocall;
+          gTotChk += s.chkdoc;
+          gTotFdb += s.fdb;
+          gTotConnFdb += s.conn_fdb;
+          gTotImmFdb += s.imm_fdb;
+          gTotConnImmFdb += s.conn_imm_fdb;
+
+          const fmt = (val) => (!val || val === 0) ? '' : val;
+          tableRows += `
+            <tr>
+              <td class="d1-agent-name">${item.name}</td>
+              <td class="d1-metric-val">${fmt(s.booked)}</td>
+              <td class="d1-metric-val">${fmt(s.done)}</td>
+              <td class="d1-metric-val">${fmt(s.videocall)}</td>
+              <td class="d1-metric-val">${fmt(s.chkdoc)}</td>
+              <td class="d1-metric-val">${fmt(s.fdb)}</td>
+              <td class="d1-metric-val">${fmt(s.conn_fdb)}</td>
+              <td class="d1-metric-val">${fmt(s.imm_fdb)}</td>
+              <td class="d1-metric-val">${fmt(s.conn_imm_fdb)}</td>
+            </tr>
+          `;
+        });
+
+        const teamHtml = `
+          <div class="d1-team-section">
+            <div class="d1-team-header">
+              <span>${teamName} (${teamData.length}/${members.length})</span>
+              <button type="button" class="d1-agent-filter-btn" onclick="openD1FilterModal('${teamName}')">
+                ⚡ Filter Agents
+              </button>
+            </div>
+            <div class="d1-table-responsive">
+              <table class="d1-table">
+                <thead>
+                  <tr>
+                    <th class="${isAgentPrim ? 'd1-sortable-th active-primary' : 'd1-sortable-th'}">
+                      <span onclick="handleD1TeamSort('${teamName}', 'agent')">Agent Name</span>
+                      <span class="d1-sort-icon" onclick="handleD1TeamSort('${teamName}', 'agent')">${agentIcon}</span>
+                    </th>
+                    ${headersHtml}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRows}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        container.innerHTML += teamHtml;
+      });
+
+      document.getElementById('d1TotAgents').innerText = gTotAgents;
+      document.getElementById('d1TotBooked').innerText = gTotBooked.toLocaleString();
+      document.getElementById('d1TotDone').innerText = gTotDone.toLocaleString();
+      document.getElementById('d1TotVideoCall').innerText = gTotVideoCall.toLocaleString();
+      document.getElementById('d1TotChkDoc').innerText = gTotChk.toLocaleString();
+      document.getElementById('d1TotFdb').innerText = gTotFdb.toLocaleString();
+      document.getElementById('d1TotConnFdb').innerText = gTotConnFdb.toLocaleString();
+      document.getElementById('d1TotImmFdb').innerText = gTotImmFdb.toLocaleString();
+      document.getElementById('d1TotConnImmFdb').innerText = gTotConnImmFdb.toLocaleString();
+    }
+
+    function openD1FilterModal(teamName) {
+      d1CurrentTeamForFilter = teamName;
+      document.getElementById('d1ModalTeamTitle').innerText = `⚡ ${teamName}`;
+      const container = document.getElementById('d1FilterListBody');
+      container.innerHTML = '';
+      const members = D1_TEAMS[teamName] || [];
+      members.forEach(agent => {
+        const isChecked = !d1ExcludedAgents.has(agent) ? 'checked' : '';
+        container.innerHTML += `
+          <label style="display:flex; align-items:center; gap:12px; font-size:14px; font-weight:700; color:#0f172a; cursor:pointer; padding:10px 14px; background:#f8fafc; border-radius:10px; border:1px solid #cbd5e1;" data-name="${agent.toLowerCase()}">
+            <input type="checkbox" class="d1-modal-cb" value="${agent}" ${isChecked} style="accent-color:#0284c7; width:18px; height:18px;">
+            <span>${agent}</span>
+          </label>
+        `;
+      });
+      document.getElementById('d1TeamAgentSearch').value = '';
+      document.getElementById('d1FilterModalOverlay').style.display = 'flex';
+    }
+
+    function closeD1FilterModal() {
+      document.getElementById('d1FilterModalOverlay').style.display = 'none';
+      d1CurrentTeamForFilter = null;
+    }
+
+    function applyD1Filter() {
+      if (!d1CurrentTeamForFilter) return;
+      const cbs = document.querySelectorAll('.d1-modal-cb');
+      cbs.forEach(cb => {
+        if (!cb.checked) d1ExcludedAgents.add(cb.value);
+        else d1ExcludedAgents.delete(cb.value);
+      });
+      closeD1FilterModal();
+      renderD1Dashboard();
+    }
+
+    function toggleD1All(val) {
+      document.querySelectorAll('.d1-modal-cb').forEach(cb => {
+        if (cb.closest('label').style.display !== 'none') cb.checked = val;
+      });
+    }
+
+    function searchD1Agents() {
+      const q = document.getElementById('d1TeamAgentSearch').value.toLowerCase().trim();
+      document.querySelectorAll('#d1FilterListBody label').forEach(lbl => {
+        const name = lbl.getAttribute('data-name');
+        lbl.style.display = name.includes(q) ? 'flex' : 'none';
+      });
+    }
+
+    renderD1Dashboard();
+
+
+    /* =========================================================================
+        DASHBOARD 2 ENGINE (Productivity Report - Unit 2)
+        ======================================================================== */
+    const D2_TEAMS = {
+      "TEAM JITENDRA": [
+        "Saurav Pal", "Md anas", "Renu Gupta", "Shivam verma", 
+        "Jogender singh", "Jayshree Choudhary", "Snigdha pal", 
+        "Rashi Gupta", "Kiran thakur", "Vaishali sisodiya", "ANKUR KUMAR"
+      ],
+      "TEAM DEEPTI": [
+        "Renu Rani", "Pooja Rathore", "ROSHNI PRAJAPATI", "GARVIT JHA", 
+        "Rajni Saini", "Puja Chauhan", "Shivansh tiwari", "Saifur Janam", 
+        "Anjali Gupta", "Roshni chouhan", "Rajesh"
+      ],
+      "TEAM RAVI": [
+        "Jyoti Singh unit 2", "Rajendra Mourya", "Apurv Acharya", 
+        "Amit Sharma", "Atul Kumar", "Sumit H", "Piyush Verma", 
+        "Shivam Shukla", "Hitesh Kumar", "Samirun Nisha", "Abuzar Akhtar"
+      ],
+      "TEAM SHIVAM": [
+        "Kamni Muthoot", "Nandani", "Burhan", 
+        "Chandrabhanu", "Munsi Sakil Ahmed", "Ashish Yadav", "Chandrabhanu Sukla",
+        "MOHD SHAKIB", "Snehal Sukhadeo Gaikwad", "Abuzar Akhtar", "ANKUR KUMAR"
+      ],
+      "TEAM ISHANT": [
+        "Isha mehta", "Ayushi Saxena", "Harivansh Agarwal", 
+        "Smruti Rani Sahoo", "Sushma Chaudhary", "Ashok Pawar", 
+        "PRIYA PATIDAR", "YASHWANT SINGH", "Sanjana Khuswaha", "NIKITA YADAV"
+      ]
+    };
+
+    let d2LatestMap = {};
+
+    function calculateD2WorkingDays(startDateStr, endDateStr) {
+      if (!startDateStr || !endDateStr) return 1;
+      let start = new Date(startDateStr);
+      let end = new Date(endDateStr);
+      if (start > end) return 1;
+      let count = 0, cur = new Date(start);
+      while (cur <= end) {
+        let dayOfWeek = cur.getDay();
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) count++;
+        cur.setDate(cur.getDate() + 1);
+      }
+      return count === 0 ? 1 : count;
+    }
+
+    function handleD2DateChange() {
+      const sDate = document.getElementById('d2StartDate').value;
+      const eDate = document.getElementById('d2EndDate').value;
+      if (sDate && eDate) {
+        document.getElementById('d2WorkingDays').value = calculateD2WorkingDays(sDate, eDate);
+        renderD2Dashboard(d2LatestMap);
+      }
+    }
+
+    function handleD2FileDirect(file) {
+      document.getElementById('d2FileName').innerText = file.name;
+      document.getElementById('d2FileBadge').classList.add('active');
+      const fileName = file.name.toLowerCase();
+      const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+      const reader = new FileReader();
+
+      if (isExcel) {
+        reader.onload = function(evt) {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rawRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+          processD2Data(rawRows);
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.onload = function(evt) {
+          Papa.parse(evt.target.result, {
+            complete: function(results) {
+              processD2Data(results.data);
+            }
+          });
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function processD2Data(rows) {
+      let headerRowIndex = -1;
+      let colMap = {};
+      for (let i = 0; i < Math.min(25, rows.length); i++) {
+        const row = rows[i];
+        if (!row) continue;
+        row.forEach((cell, colIdx) => {
+          const val = cleanD1String(cell);
+          if (val === 'agent' || val === 'agentname' || val === 'name') colMap['agent'] = colIdx;
+          if (val.includes('done')) colMap['done'] = colIdx;
+          if (val.includes('videocall') || val.includes('clinicvideo') || val === 'teledoc') colMap['videocall'] = colIdx;
+          if (val === 'immfdb') colMap['imm_fdb'] = colIdx;
+          else if (val.includes('connectedimmfdb') || val.includes('connimm')) colMap['conn_imm_fdb'] = colIdx;
+          else if (val.includes('connectedfdb') || val.includes('connected')) colMap['conn_fdb'] = colIdx;
+          else if (val === 'fdb') colMap['fdb'] = colIdx;
+        });
+        if (colMap['agent'] !== undefined) {
+          headerRowIndex = i;
+          break;
+        }
+      }
+
+      if (headerRowIndex === -1) {
+        alert("Dashboard 2: Could not find 'Agent' column in uploaded file.");
+        return;
+      }
+
+      const agentStatsMap = {};
+      for (let i = headerRowIndex + 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || !row[colMap['agent']]) continue;
+        const rawName = String(row[colMap['agent']]).trim();
+        const cleanName = cleanD1String(rawName);
+
+        const getNum = (colKey) => {
+          if (colMap[colKey] === undefined) return 0;
+          const val = parseFloat(row[colMap[colKey]]);
+          return isNaN(val) ? 0 : val;
+        };
+
+        agentStatsMap[cleanName] = {
+          displayName: rawName,
+          done: getNum('done'),
+          videocall: getNum('videocall'),
+          fdb: getNum('fdb'),
+          conn_fdb: getNum('conn_fdb'),
+          imm_fdb: getNum('imm_fdb'),
+          conn_imm_fdb: getNum('conn_imm_fdb')
+        };
+      }
+
+      d2LatestMap = agentStatsMap;
+      renderD2Dashboard(agentStatsMap);
+    }
+
+    function renderD2Dashboard(agentStatsMap) {
+      const container = document.getElementById('d2TeamsContainer');
+      container.innerHTML = '';
+      const workingDays = parseFloat(document.getElementById('d2WorkingDays').value) || 1;
+      const targetPerAgent = workingDays * 300;
+
+      let gTotAgents = 0, gTotAchieved = 0;
+      const teamSplitResults = {};
+
+      Object.keys(D2_TEAMS).forEach(teamName => {
+        const rawMembers = D2_TEAMS[teamName];
+        let membersList = rawMembers.map(member => {
+          const cleanMem = cleanD1String(member);
+          let stats = agentStatsMap[cleanMem];
+          if (!stats) {
+            const key = Object.keys(agentStatsMap).find(k => {
+              const cleanMemAlt = cleanMem.replace('saurabh', 'saurav');
+              const kAlt = k.replace('saurabh', 'saurav');
+              return k.includes(cleanMem) || cleanMem.includes(k) || kAlt.includes(cleanMemAlt) || cleanMemAlt.includes(kAlt);
+            });
+            if (key) stats = agentStatsMap[key];
+          }
+          const s = stats || { done: 0, videocall: 0, fdb: 0, conn_fdb: 0, imm_fdb: 0, conn_imm_fdb: 0 };
+          const campVal = Math.max(0, s.done - s.videocall);
+          const achievedVal = (s.videocall * 5) + (campVal * 4) + (s.conn_fdb * 3) + (s.conn_imm_fdb * 5);
+          const prodVal = targetPerAgent > 0 ? ((achievedVal / targetPerAgent) * 100) : 0;
+
+          return { name: member, stats: s, campVal, achievedVal, prodVal };
+        });
+
+        let agentsGroup = membersList.filter(m => m.stats.done > 0);
+        let pharmGroup = membersList.filter(m => m.stats.done === 0);
+
+        agentsGroup.sort((a,b) => b.stats.done - a.stats.done);
+        pharmGroup.sort((a,b) => b.stats.imm_fdb - a.stats.imm_fdb);
+
+        agentsGroup.forEach((m, idx) => {
+          if (idx < 2 && m.achievedVal > 0) m.tag = 'top';
+          else if (idx >= agentsGroup.length - 2) m.tag = 'low';
+          else m.tag = 'normal';
+        });
+        pharmGroup.forEach((m, idx) => {
+          if (idx < 2 && m.achievedVal > 0) m.tag = 'top';
+          else if (idx >= pharmGroup.length - 2) m.tag = 'low';
+          else m.tag = 'normal';
+        });
+
+        let tableRows = '';
+        let agentAchieved = 0, agentCount = agentsGroup.length;
+        let pharmAchieved = 0, pharmCount = pharmGroup.length;
+
+        const buildRow = (item) => {
+          gTotAgents++;
+          gTotAchieved += item.achievedVal;
+          let iconHtml = item.tag === 'top' ? '🏆' : (item.tag === 'low' ? '🔻' : '');
+          const fmt = (v) => v <= 0 ? '<span style="color:#94a3b8;">0</span>' : v;
+          return `
+            <tr>
+              <td class="d2-agent-name"><span>${item.name}</span> <span>${iconHtml}</span></td>
+              <td class="d2-metric-val">${fmt(item.stats.done)}</td>
+              <td class="d2-metric-val">${fmt(item.campVal)}</td>
+              <td class="d2-metric-val">${fmt(item.stats.videocall)}</td>
+              <td class="d2-metric-val">${fmt(item.stats.fdb)}</td>
+              <td class="d2-metric-val">${fmt(item.stats.conn_fdb)}</td>
+              <td class="d2-metric-val">${fmt(item.stats.imm_fdb)}</td>
+              <td class="d2-metric-val">${fmt(item.stats.conn_imm_fdb)}</td>
+              <td class="d2-metric-target">${targetPerAgent.toLocaleString()}</td>
+              <td class="d2-metric-achieved">${fmt(item.achievedVal)}</td>
+              <td class="d2-metric-prod">${item.prodVal.toFixed(1)}%</td>
+            </tr>
+          `;
+        };
+
+        if (agentsGroup.length > 0) {
+          tableRows += `<tr class="d2-role-divider"><td colspan="11">AGENT</td></tr>`;
+          agentsGroup.forEach(item => { agentAchieved += item.achievedVal; tableRows += buildRow(item); });
+        }
+        if (pharmGroup.length > 0) {
+          tableRows += `<tr class="d2-role-divider"><td colspan="11">PHARMACIST</td></tr>`;
+          pharmGroup.forEach(item => { pharmAchieved += item.achievedVal; tableRows += buildRow(item); });
+        }
+
+        const agentTarget = agentCount * targetPerAgent;
+        const agentAvgPct = agentTarget > 0 ? ((agentAchieved / agentTarget) * 100).toFixed(1) + '%' : '0%';
+        const pharmTarget = pharmCount * targetPerAgent;
+        const pharmAvgPct = pharmTarget > 0 ? ((pharmAchieved / pharmTarget) * 100).toFixed(1) + '%' : '0%';
+        teamSplitResults[teamName] = { agentAvg: agentAvgPct, pharmAvg: pharmAvgPct };
+
+        const teamHtml = `
+          <div class="d2-team-section">
+            <div class="d2-team-header">
+              <div>📊 ${teamName}</div>
+              <div style="display:flex; gap:10px;">
+                <div class="d2-header-avg"><span>AGENT AVG:</span> <strong style="color:#6ee7b7;">${agentAvgPct}</strong></div>
+                <div class="d2-header-avg"><span>PHARM AVG:</span> <strong style="color:#6ee7b7;">${pharmAvgPct}</strong></div>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="d2-table">
+                <thead>
+                  <tr>
+                    <th>Agent Name</th>
+                    <th>Done Consultation ⬍</th>
+                    <th>Camp</th>
+                    <th>Clinic Video Call</th>
+                    <th>FDB</th>
+                    <th>Connected FDB</th>
+                    <th>IMM FDB ⬍</th>
+                    <th>Connected IMM FDB</th>
+                    <th>Total Target</th>
+                    <th>Achieved Target</th>
+                    <th>Productivity %</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRows}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        container.innerHTML += teamHtml;
+      });
+
+      const grandTotalTarget = gTotAgents * targetPerAgent;
+      const overallProdPct = grandTotalTarget > 0 ? ((gTotAchieved / grandTotalTarget) * 100) : 0;
+
+      document.getElementById('d2TotAgents').innerText = gTotAgents;
+      document.getElementById('d2DispWorkingDays').innerText = workingDays;
+      document.getElementById('d2TotProd').innerText = overallProdPct.toFixed(1) + '%';
+
+      const mapIds = {
+        "TEAM JITENDRA": ["d2JitendraAgent", "d2JitendraPharm"],
+        "TEAM DEEPTI": ["d2DeeptiAgent", "d2DeeptiPharm"],
+        "TEAM RAVI": ["d2RaviAgent", "d2RaviPharm"],
+        "TEAM SHIVAM": ["d2ShivamAgent", "d2ShivamPharm"],
+        "TEAM ISHANT": ["d2IshantAgent", "d2IshantPharm"]
+      };
+
+      Object.keys(mapIds).forEach(t => {
+        const ids = mapIds[t];
+        const res = teamSplitResults[t] || { agentAvg: "0%", pharmAvg: "0%" };
+        document.getElementById(ids[0]).innerText = res.agentAvg;
+        document.getElementById(ids[1]).innerText = res.pharmAvg;
+      });
+    }
+
+    renderD2Dashboard({});
+
+
+    /* =========================================================================
+        DASHBOARD 3 ENGINE (Hourly KPI Consultation Unit II)
+        with CP & CLINIC columns added before TOTAL
+        ======================================================================== */
+    const D3_ROSTER = [
+      {
+        team: "TEAM JITENDRA",
+        members: [
+          { name: "Saurav Pal", shift: "7:00 AM - 4:00 PM", match: ["saurav", "ms00405"] },
+          { name: "Md Anas", shift: "7:30 AM - 4:30 PM", match: ["md anas", "anas", "ms01213"] },
+          { name: "Renu Gupta", shift: "8:00 AM - 5:00 PM", match: ["renu gupta", "ms00067"] },
+          { name: "Shivam Verma", shift: "9:00 AM - 6:00 PM", match: ["shivam verma", "ms00982"] },
+          { name: "Jogender Singh", shift: "9:00 AM - 6:00 PM", match: ["jogender", "ms02312"] }
+        ]
+      },
+      {
+        team: "TEAM DEEPTI",
+        members: [
+          { name: "Renu Rani", shift: "8:00 AM - 5:00 PM", match: ["renu rani", "ms00633"] },
+          { name: "Pooja Rathore", shift: "8:00 AM - 5:00 PM", match: ["pooja rathore", "ms01266"] },
+          { name: "Roshni Prajapati", shift: "7:00 AM - 4:00 PM", match: ["roshni", "ms01386"] },
+          { name: "Garvit Jha", shift: "7:00 AM - 4:00 PM", match: ["garvit", "ms01034"] },
+          { name: "Rajni Saini", shift: "8:00 AM - 5:00 PM", match: ["rajni"] },
+          { name: "Puja Chauhan", shift: "9:00 AM - 6:00 PM", match: ["puja chauhan", "ms00470"] }
+        ]
+      },
+      {
+        team: "TEAM RAVI",
+        members: [
+          { name: "Jyoti Singh Unit 2", shift: "7:00 AM - 4:00 PM", match: ["jyoti singh", "ms01006"] },
+          { name: "Rajendra Mourya", shift: "7:00 AM - 4:00 PM", match: ["rajendra"] },
+          { name: "Apurv Acharya", shift: "7:30 AM - 4:30 PM", match: ["apurv"] },
+          { name: "Amit Sharma", shift: "9:00 AM - 6:00 PM", match: ["amit sharma", "ms01219"] }
+        ]
+      },
+      {
+        team: "TEAM SHIVAM",
+        members: [
+          { name: "Nandani", shift: "7:00 AM - 4:00 PM", match: ["nandani"] },
+          { name: "Kamni Sharma", shift: "7:00 AM - 4:00 PM", match: ["kamni", "kamini", "kamni sharma"] },
+          { name: "Burhan", shift: "9:00 AM - 6:00 PM", match: ["burhan", "ms00857"] },
+          { name: "Chandrabhanu", shift: "8:00 AM - 5:00 PM", match: ["chandrabhanu", "ms02383"] },
+          { name: "Munsi shakil Ahamed", shift: "8:00 AM - 5:00 PM", match: ["munsi", "shakil", "ms00928"] },
+          { name: "Ashish Yadav", shift: "9:00 AM - 6:00 PM", match: ["ashish"] }
+        ]
+      },
+      {
+        team: "TEAM ISHANT",
+        members: [
+          { name: "Ayushi Saxena", shift: "7:00 AM - 4:00 PM", match: ["ayushi", "ms01370"] },
+          { name: "Harivansh Agarwal", shift: "7:00 AM - 4:00 PM", match: ["harivansh", "ms00637"] },
+          { name: "Smruti Rani Sahoo", shift: "9:00 AM - 6:00 PM", match: ["smruti"] },
+          { name: "Sushma Chaudhary", shift: "9:00 AM - 6:00 PM", match: ["sushma"] },
+          { name: "Ashok Pawar", shift: "9:00 AM - 6:00 PM", match: ["ashok"] },
+          { name: "Isha Mehta", shift: "7:00 AM - 4:00 PM", match: ["isha", "mehta"] }
+        ]
+      }
+    ];
+
+    const D3_TOTAL_CAPACITY = 27;
+    const D3_SLOTS = ["7-8", "8-9", "9-10", "10-11", "11-12", "12-1", "1-2", "2-3", "3-4", "4-5", "5-6"];
+    let d3CurrentDataset = [];
+    let d3AgentCaseStore = {};
+    let d3AgentBreakStore = {};
+    let d3AgentRegionMapStore = {};
+
+    let d3TeamSortState = {
+      "TEAM JITENDRA": { column: "tat", order: "asc" },
+      "TEAM DEEPTI":   { column: "tat", order: "asc" },
+      "TEAM RAVI":     { column: "tat", order: "asc" },
+      "TEAM SHIVAM":   { column: "tat", order: "asc" },
+      "TEAM ISHANT":   { column: "tat", order: "asc" }
+    };
+
+    let d3TeamInlineBreakOpen = {};
+    let d3BreakSortOrder = "desc";
+    let d3SelectedBreakTeams = D3_ROSTER.map(t => t.team);
+
+    function toggleD3TeamBreakInline(teamName) {
+      d3TeamInlineBreakOpen[teamName] = !d3TeamInlineBreakOpen[teamName];
+      renderD3();
+    }
+
+    function toggleD3BreakSort() {
+      d3BreakSortOrder = d3BreakSortOrder === "desc" ? "asc" : "desc";
+      const arrowBadge = document.getElementById("d3BreakSortArrowBadge");
+      const btn = document.getElementById("d3BtnSortBreakDuration");
+      if (arrowBadge) arrowBadge.innerText = d3BreakSortOrder === "desc" ? "↓" : "↑";
+      if (btn) btn.classList.add("active-sort");
+      renderD3AllBreakAgents();
+    }
+
+    function toggleD3TeamSort(teamName, column) {
+      if (!d3TeamSortState[teamName]) {
+        d3TeamSortState[teamName] = { column: column, order: "desc" };
+      } else if (d3TeamSortState[teamName].column === column) {
+        d3TeamSortState[teamName].order = d3TeamSortState[teamName].order === "desc" ? "asc" : "desc";
+      } else {
+        d3TeamSortState[teamName].column = column;
+        d3TeamSortState[teamName].order = "desc";
+      }
+      renderD3();
+    }
+
+    function parseD3SafeDate(val) {
+      if (!val || val === '-' || val === 'NA' || val === 'NaN') return null;
+      if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
+
+      let str = String(val).trim();
+      if (str.includes("2050") || str.length < 4) return null;
+
+      let d = new Date(str);
+      if (!isNaN(d.getTime())) return d;
+
+      d = new Date(str.replace(' ', 'T'));
+      if (!isNaN(d.getTime())) return d;
+
+      try {
+        const parts = str.split(' ');
+        const datePart = parts[0];
+        const timePart = parts[1] || "00:00:00";
+
+        const dParts = datePart.split(/[\/\-]/);
+        const tParts = timePart.split(':');
+
+        if (dParts.length === 3) {
+          let y, m, day;
+          if (dParts[0].length === 4) {
+            y = parseInt(dParts[0], 10);
+            m = parseInt(dParts[1], 10);
+            day = parseInt(dParts[2], 10);
+          } else {
+            m = parseInt(dParts[0], 10);
+            day = parseInt(dParts[1], 10);
+            y = parseInt(dParts[2], 10);
+            if (y < 100) y += 2000;
+          }
+
+          let hr = parseInt(tParts[0] || 0, 10);
+          const min = parseInt(tParts[1] || 0, 10);
+          const sec = parseInt(tParts[2] || 0, 10);
+
+          if (str.toLowerCase().includes('pm') && hr < 12) hr += 12;
+          if (str.toLowerCase().includes('am') && hr === 12) hr = 0;
+
+          const customDate = new Date(y, m - 1, day, hr, min, sec);
+          if (!isNaN(customDate.getTime())) return customDate;
+        }
+      } catch (e) {}
+
+      return null;
+    }
+
+    function parseD3ShiftEndTime(datePrefix, shiftStr) {
+      if (!shiftStr || !shiftStr.includes('-')) return null;
+      try {
+        const endPart = shiftStr.split('-')[1].trim();
+        const match = endPart.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!match) return null;
+        let hours = parseInt(match[1], 10);
+        const mins = parseInt(match[2], 10);
+        const ampm = match[3].toUpperCase();
+
+        if (ampm === "PM" && hours < 12) hours += 12;
+        if (ampm === "AM" && hours === 12) hours = 0;
+
+        const hStr = String(hours).padStart(2, '0');
+        const mStr = String(mins).padStart(2, '0');
+        return `${datePrefix} ${hStr}:${mStr}:00`;
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function parseD3DifferenceInMinutes(startStr, endStr) {
+      const s = parseD3SafeDate(startStr);
+      const e = parseD3SafeDate(endStr);
+      if (!s || !e) return null;
+      const diffMs = e.getTime() - s.getTime();
+      const diffMins = diffMs / (1000 * 60);
+      return (diffMins >= 0 && diffMins <= 360) ? diffMins : null;
+    }
+
+    function getD3HourSlot(timeStr) {
+      if (!timeStr) return null;
+      const str = String(timeStr).trim();
+      const match = str.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?/i);
+      if (!match) return null;
+
+      let hour = parseInt(match[1], 10);
+      const ampm = match[3] ? match[3].toUpperCase() : null;
+      if (ampm === "PM" && hour < 12) hour += 12;
+      if (ampm === "AM" && hour === 12) hour = 0;
+
+      if (hour === 7) return "7-8";
+      if (hour === 8) return "8-9";
+      if (hour === 9) return "9-10";
+      if (hour === 10) return "10-11";
+      if (hour === 11) return "11-12";
+      if (hour === 12) return "12-1";
+      if (hour === 13) return "1-2";
+      if (hour === 14) return "2-3";
+      if (hour === 15) return "3-4";
+      if (hour === 16) return "4-5";
+      if (hour === 17) return "5-6";
+      return null;
+    }
+
+    function buildD3EmptyState() {
+      d3AgentCaseStore = {};
+      d3AgentBreakStore = {};
+      d3AgentRegionMapStore = {};
+      return D3_ROSTER.map(team => ({
+        team: team.team,
+        members: team.members.map(m => {
+          const hours = {};
+          D3_SLOTS.forEach(s => hours[s] = 0);
+          return {
+            name: m.name,
+            shift: m.shift || "--",
+            region: "",
+            hours: hours,
+            cpCount: 0,
+            clinicCount: 0,
+            total: 0,
+            tat: "0.0",
+            tatSum: 0,
+            tatCount: 0
+          };
+        })
+      }));
+    }
+
+    function calculateD3TeamBreakList(agentList, teamName) {
+      const breakStats = [];
+
+      agentList.forEach(agent => {
+        const store = d3AgentCaseStore[agent.name];
+        if (!store) return;
+
+        let allCases = [];
+        D3_SLOTS.forEach(s => {
+          if (store[s] && store[s].length > 0) {
+            allCases = allCases.concat(store[s]);
+          }
+        });
+
+        if (allCases.length < 1) return;
+
+        const validCases = allCases.filter(c => c.apptTime && c.apptTime !== '-');
+        if (validCases.length === 0) return;
+
+        validCases.sort((a, b) => {
+          const dateA = parseD3SafeDate(a.apptTime);
+          const dateB = parseD3SafeDate(b.apptTime);
+          const timeA = dateA ? dateA.getTime() : 0;
+          const timeB = dateB ? dateB.getTime() : 0;
+          return timeA - timeB;
+        });
+
+        let totalBreakMins = 0;
+        const breakList = [];
+
+        for (let i = 0; i < validCases.length - 1; i++) {
+          const currentEndStr = validCases[i].consultEndTime && validCases[i].consultEndTime !== '-'
+            ? validCases[i].consultEndTime
+            : (validCases[i].feedbackEndTime && validCases[i].feedbackEndTime !== '-' 
+               ? validCases[i].feedbackEndTime 
+               : validCases[i].apptTime);
+
+          const nextStartStr = validCases[i + 1].apptTime;
+          const curEnd = parseD3SafeDate(currentEndStr);
+          const nxtStart = parseD3SafeDate(nextStartStr);
+
+          if (curEnd && nxtStart) {
+            const gapMins = (nxtStart.getTime() - curEnd.getTime()) / (1000 * 60);
+            if (gapMins > 15 && gapMins <= 480) {
+              totalBreakMins += gapMins;
+              breakList.push({
+                startTime: currentEndStr,
+                endTime: nextStartStr,
+                durationMins: Math.round(gapMins),
+                prevEmr: validCases[i].emr,
+                nextEmr: validCases[i + 1].emr,
+                prevDoc: validCases[i].doctor,
+                nextDoc: validCases[i + 1].doctor,
+                type: 'INTER_CASE_BREAK'
+              });
+            }
+          }
+        }
+
+        const lastCase = validCases[validCases.length - 1];
+        const lastEndStr = lastCase.consultEndTime && lastCase.consultEndTime !== '-'
+          ? lastCase.consultEndTime
+          : (lastCase.feedbackEndTime && lastCase.feedbackEndTime !== '-' ? lastCase.feedbackEndTime : lastCase.apptTime);
+
+        const datePart = (String(lastEndStr).split(' ')[0] || "").trim();
+        const scheduledShiftEndStr = parseD3ShiftEndTime(datePart, agent.shift);
+
+        if (scheduledShiftEndStr) {
+          const lastCaseEndDate = parseD3SafeDate(lastEndStr);
+          const shiftEndDate = parseD3SafeDate(scheduledShiftEndStr);
+
+          if (lastCaseEndDate && shiftEndDate) {
+            const remainingGapMins = (shiftEndDate.getTime() - lastCaseEndDate.getTime()) / (1000 * 60);
+            if (remainingGapMins > 15 && remainingGapMins <= 480) {
+              totalBreakMins += remainingGapMins;
+              breakList.push({
+                startTime: lastEndStr,
+                endTime: scheduledShiftEndStr,
+                durationMins: Math.round(remainingGapMins),
+                prevEmr: lastCase.emr,
+                nextEmr: "SHIFT END",
+                prevDoc: lastCase.doctor,
+                nextDoc: "Scheduled End",
+                type: 'SHIFT_END_GAP'
+              });
+            }
+          }
+        }
+
+        if (totalBreakMins > 0) {
+          d3AgentBreakStore[agent.name] = breakList;
+          breakStats.push({
+            name: agent.name,
+            team: teamName,
+            shift: agent.shift || "--",
+            totalCases: allCases.length,
+            totalBreakMins: Math.round(totalBreakMins),
+            breakCount: breakList.length
+          });
+        }
+      });
+
+      breakStats.sort((a, b) => b.totalBreakMins - a.totalBreakMins);
+      return breakStats;
+    }
+
+    function renderD3() {
+      const hook = document.getElementById("d3DashboardHook");
+      if (!hook) return;
+      hook.innerHTML = "";
+
+      let grandTotal = 0;
+      let overallTatSum = 0;
+      let overallTatCases = 0;
+      let activeAgentsCount = 0;
+      let maxIndividualTotal = 1;
+
+      let globalMinAgent = { name: "--", tat: 9999 };
+      let globalMaxAgent = { name: "--", tat: -1 };
+
+      d3CurrentDataset.forEach(team => {
+        team.members.forEach(member => {
+          if (member.total > maxIndividualTotal) maxIndividualTotal = member.total;
+          if (member.total > 0) activeAgentsCount++;
+          if (member.tatCount > 0) {
+            overallTatSum += member.tatSum;
+            overallTatCases += member.tatCount;
+          }
+
+          const tatNum = parseFloat(member.tat) || 0;
+          if (tatNum > 0) {
+            if (tatNum < globalMinAgent.tat) globalMinAgent = { name: member.name, tat: tatNum };
+            if (tatNum > globalMaxAgent.tat) globalMaxAgent = { name: member.name, tat: tatNum };
+          }
+        });
+      });
+
+      d3CurrentDataset.forEach(team => {
+        const teamBox = document.createElement("div");
+        teamBox.className = "d3-team-panel";
+
+        let teamMin = { name: "--", tat: 9999 };
+        let teamMax = { name: "--", tat: -1 };
+
+        team.members.forEach(m => {
+          const t = parseFloat(m.tat) || 0;
+          if (t > 0) {
+            if (t < teamMin.tat) teamMin = { name: m.name, tat: t };
+            if (t > teamMax.tat) teamMax = { name: m.name, tat: t };
+          }
+        });
+
+        const currentSort = d3TeamSortState[team.team] || { column: "tat", order: "asc" };
+        const sortedMembers = [...team.members].sort((a, b) => {
+          const tatA = parseFloat(a.tat) || 0;
+          const tatB = parseFloat(b.tat) || 0;
+          const totA = a.total || 0;
+          const totB = b.total || 0;
+
+          if (currentSort.column === "total") {
+            if (totA === totB) return 0;
+            return currentSort.order === "desc" ? totB - totA : totA - totB;
+          } else {
+            if (tatA === 0 && tatB === 0) return 0;
+            if (tatA === 0) return 1;
+            if (tatB === 0) return -1;
+            return currentSort.order === "desc" ? tatB - tatA : tatA - tatB;
+          }
+        });
+
+        const isTotalActive = currentSort.column === "total";
+        const isTatActive = currentSort.column === "tat";
+        const totalArrow = isTotalActive ? (currentSort.order === "desc" ? "↓" : "↑") : "⇅";
+        const tatArrow = isTatActive ? (currentSort.order === "desc" ? "↓" : "↑") : "⇅";
+
+        let rowsHtml = "";
+        sortedMembers.forEach(member => {
+          grandTotal += member.total;
+
+          const slotCells = D3_SLOTS.map(s => {
+            const val = member.hours[s] || 0;
+            if (val > 0) {
+              return `<td class="d3-cell-val-active" title="Click to view cases in slot ${s}" onclick="openD3Drilldown('${member.name.replace(/'/g, "\\'")}', '${s}')">${val}</td>`;
+            } else {
+              return `<td></td>`;
+            }
+          }).join('');
+
+          const percent = maxIndividualTotal > 0 ? Math.min(100, Math.round((member.total / maxIndividualTotal) * 100)) : 0;
+          const displayTotal = member.total > 0 ? member.total : "";
+          const memberTatVal = parseFloat(member.tat) || 0;
+
+          let arrowHtml = "";
+          if (memberTatVal > 0) {
+            if (memberTatVal === teamMin.tat) {
+              arrowHtml = `<span class="d3-badge-arrow-green" title="Lowest TAT in Team (Best Performance)">↑</span>`;
+            } else if (memberTatVal === teamMax.tat) {
+              arrowHtml = `<span class="d3-badge-arrow-red" title="Highest TAT in Team (Needs Improvement)">↓</span>`;
+            }
+          }
+
+          const displayTat = member.total > 0 && member.tat ? `
+            <div class="d3-tat-cell-flex">
+              ${arrowHtml}
+              <span>${member.tat}m</span>
+            </div>
+          ` : "";
+
+          const displayRegion = member.region ? `<span class="d3-region-pill" title="Click to see all region-wise cases done by ${member.name}" onclick="openD3RegionModal('${member.name.replace(/'/g, "\\'")}')">${member.region}</span>` : "";
+
+          rowsHtml += `
+            <tr>
+              <td class="d3-col-agent-name" title="Click to view all cases for ${member.name}" onclick="openD3Drilldown('${member.name.replace(/'/g, "\\'")}', 'ALL')">
+                ${member.name}
+              </td>
+              <td class="d3-col-shift-tag"><span class="d3-shift-pill">${member.shift}</span></td>
+              <td class="d3-col-region-tag">${displayRegion}</td>
+              ${slotCells}
+              <td class="d3-col-category-breakdown">${member.cpCount || ''}</td>
+              <td class="d3-col-category-breakdown">${member.clinicCount || ''}</td>
+              <td class="d3-col-total-summary" title="Click to view all ${member.total} cases" onclick="openD3Drilldown('${member.name.replace(/'/g, "\\'")}', 'ALL')">
+                <div class="d3-spark-wrap">
+                  <span>${displayTotal}</span>
+                  ${member.total > 0 ? `
+                    <div class="d3-spark-bar-bg">
+                      <div class="d3-spark-bar-fill" style="width: ${percent}%;"></div>
+                    </div>` : ''}
                 </div>
-                <button onclick="closeModal('dateAssignModal')" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
-            </div>
+              </td>
+              <td class="d3-col-tat-summary">${displayTat}</td>
+            </tr>
+          `;
+        });
 
-            <!-- Add/Update Status Form for this Date -->
-            <div class="bg-slate-800/70 border border-slate-700/80 p-4 rounded-xl mb-4 space-y-3">
-                <div class="text-xs font-bold text-slate-300 uppercase">Assign / Update Member Status</div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="sm:col-span-2">
-                        <label class="block text-[11px] text-slate-400 mb-1">Select Member (Name & Employee Code)</label>
-                        <select id="modalMemberSelect" class="w-full bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1">Status Type</label>
-                        <select id="modalStatusSelect" class="w-full bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2.5 font-semibold">
-                            <option value="Leave">1. Leave</option>
-                            <option value="FirstHalf">2. FirstHalf</option>
-                            <option value="SecondHalf">3. SecondHalf</option>
-                            <option value="Holiday">4. Holiday</option>
-                            <option value="Absent">5. Absent</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex justify-end pt-1">
-                    <button onclick="saveAssignmentFromModal()" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition">
-                        Save Status for Member
+        const teamTatHtml = teamMin.tat !== 9999 ? `
+          <div class="d3-team-tat-stats">
+            <span class="d3-tat-pill-green">★ Best: ${teamMin.name} (${teamMin.tat}m)</span>
+            <span class="d3-tat-pill-red">⚠ Slowest: ${teamMax.name} (${teamMax.tat}m)</span>
+          </div>
+        ` : '';
+
+        const isInlineOpen = !!d3TeamInlineBreakOpen[team.team];
+        const teamBreakStats = calculateD3TeamBreakList(team.members, team.team);
+        let inlineBreakRows = "";
+
+        if (teamBreakStats.length === 0) {
+          inlineBreakRows = `<tr><td colspan="6" style="padding: 16px; color: #64748b; font-weight: 700;">No break intervals exceeding 15 minutes detected for this team.</td></tr>`;
+        } else {
+          teamBreakStats.forEach((item, index) => {
+            const rankClass = index === 0 ? "d3-rank-1" : index === 1 ? "d3-rank-2" : index === 2 ? "d3-rank-3" : "";
+            const hoursPart = Math.floor(item.totalBreakMins / 60);
+            const minsPart = item.totalBreakMins % 60;
+            const formattedTotal = hoursPart > 0 ? `${hoursPart}h ${minsPart}m` : `${minsPart}m`;
+
+            inlineBreakRows += `
+              <tr>
+                <td style="width: 70px;"><span class="d3-rank-badge ${rankClass}">#${index + 1}</span></td>
+                <td class="d3-col-agent-name" style="text-align: center; color: #4338ca;" title="Click to view detailed timeline" onclick="openD3BreakDetail('${item.name.replace(/'/g, "\\'")}')">${item.name}</td>
+                <td><span class="d3-shift-pill">${item.shift}</span></td>
+                <td style="font-weight: 900;">${item.totalCases}</td>
+                <td><span class="d3-break-time-badge">${formattedTotal}</span></td>
+                <td style="font-weight: 900; color: #b91c1c;">${item.breakCount} sessions</td>
+              </tr>
+            `;
+          });
+        }
+
+        teamBox.innerHTML = `
+          <div class="d3-team-title-banner">
+            <div class="d3-team-left-cluster">
+              <span>${team.team}</span>
+              <span class="d3-team-badge">${team.members.length} AGENTS</span>
+            </div>
+            <div>
+              <button type="button" class="d3-btn-team-break-toggle ${isInlineOpen ? 'active-open' : ''}" onclick="toggleD3TeamBreakInline('${team.team}')" title="Toggle team break duration list">
+                <span>${isInlineOpen ? '✕ Hide Break' : '⏱ Break Status'}</span>
+              </button>
+            </div>
+            ${teamTatHtml}
+          </div>
+
+          <div class="d3-table-container">
+            <table class="d3-table">
+              <thead>
+                <tr>
+                  <th style="min-width: 220px;">AGENT NAME</th>
+                  <th style="min-width: 140px;">SHIFT</th>
+                  <th style="min-width: 200px;">KEY REGIONS (TOP 3)</th>
+                  <th>7-8</th><th>8-9</th><th>9-10</th><th>10-11</th><th>11-12</th><th>12-1</th>
+                  <th>1-2</th><th>2-3</th><th>3-4</th><th>4-5</th><th>5-6</th>
+                  <th style="min-width: 100px; background-color: #0f172a !important;">CP</th>
+                  <th style="min-width: 100px; background-color: #0f172a !important;">CLINIC</th>
+                  <th class="d3-th-sortable" style="background-color: #0f172a !important; min-width: 145px;">
+                    <button type="button" class="d3-btn-sort-filter ${isTotalActive ? 'active-sort' : ''}" onclick="toggleD3TeamSort('${team.team}', 'total')" title="Filter Total Cases">
+                      <span>TOTAL</span>
+                      <span class="d3-sort-icon-badge">${totalArrow}</span>
                     </button>
-                </div>
+                  </th>
+                  <th class="d3-th-sortable" style="background-color: #0f172a !important; min-width: 145px;">
+                    <button type="button" class="d3-btn-sort-filter ${isTatActive ? 'active-sort' : ''}" onclick="toggleD3TeamSort('${team.team}', 'tat')" title="Filter Avg TAT">
+                      <span>AVG TAT</span>
+                      <span class="d3-sort-icon-badge">${tatArrow}</span>
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d3-team-inline-break-panel ${isInlineOpen ? 'active' : ''}">
+            <div class="d3-team-inline-break-header">
+              <span>${team.team} — AGENTS BREAK DURATION (&gt; 15 Mins)</span>
+              <span style="font-size: 13px; font-weight: 800; color: #cbd5e1;">Click agent name for breakdown</span>
             </div>
-
-            <!-- Existing list of records on this date -->
-            <div class="flex-1 overflow-y-auto space-y-2 pr-1">
-                <div class="text-xs font-bold text-slate-400 uppercase mb-2">Already Marked Entries on This Date:</div>
-                <div id="modalExistingList" class="space-y-2">
-                    <!-- Populated via JS -->
-                </div>
+            <div class="d3-table-container">
+              <table class="d3-table d3-team-inline-break-table">
+                <thead>
+                  <tr>
+                    <th>RANK</th>
+                    <th>AGENT NAME</th>
+                    <th>SHIFT</th>
+                    <th>TOTAL CASES</th>
+                    <th style="background-color: #991b1b !important;">TOTAL BREAK TIME</th>
+                    <th>BREAK SESSIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${inlineBreakRows}
+                </tbody>
+              </table>
             </div>
+          </div>
+        `;
 
-            <div class="mt-4 pt-3 border-t border-slate-800 flex justify-end">
-                <button onclick="closeModal('dateAssignModal')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-4 py-2 rounded-xl">Close</button>
-            </div>
-        </div>
-    </div>
+        hook.appendChild(teamBox);
+      });
 
-    <!-- Role Summary Modal -->
-    <div id="summaryModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-700 max-w-3xl w-full rounded-2xl p-6 shadow-2xl flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
-                <h3 id="summaryModalTitle" class="text-lg font-bold text-white">Role Summary</h3>
-                <button onclick="closeModal('summaryModal')" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
-            </div>
-            <div class="flex gap-3 mb-4 items-center">
-                <label class="text-xs text-slate-400">Filter Month:</label>
-                <input type="month" id="summaryMonthFilter" onchange="renderRoleSummaryContent()" class="bg-slate-800 border border-slate-700 text-xs text-white rounded-xl px-3 py-1.5">
-            </div>
-            <div id="summaryModalContent" class="flex-1 overflow-y-auto space-y-2 pr-2 text-xs">
-                <!-- Populated via JS -->
-            </div>
-            <div class="mt-4 pt-3 border-t border-slate-800 flex justify-end">
-                <button onclick="closeModal('summaryModal')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-4 py-2 rounded-xl">Close</button>
-            </div>
-        </div>
-    </div>
+      const overallAvgTat = overallTatCases > 0 ? (overallTatSum / overallTatCases).toFixed(1) : "0.0";
 
-    <script>
-        const AGENTS = [
-            { name: "Amit Sharma", code: "MS01219", type: "agent" },
-            { name: "Apurv Acharya", code: "MS00462", type: "agent" },
-            { name: "Ashish Yadav", code: "MS00050", type: "agent" },
-            { name: "Ashok Pawar", code: "MS02549", type: "agent" },
-            { name: "Ayushi Saxena", code: "MS01370", type: "agent" },
-            { name: "Burhan Uddin", code: "MS00857", type: "agent" },
-            { name: "Chandrabhanu Sukla", code: "MS02383", type: "agent" },
-            { name: "Garvit Jha", code: "MS01034", type: "agent" },
-            { name: "Harivansh Agarwal", code: "MS00637", type: "agent" },
-            { name: "Isha Mehta", code: "MS00054", type: "agent" },
-            { name: "Jogender Singh", code: "MS02312", type: "agent" },
-            { name: "Jyoti Singh Unit 2", code: "MS00713", type: "agent" },
-            { name: "Kamni Muthoot", code: "MS00466", type: "agent" },
-            { name: "Md Anas", code: "MS01213", type: "agent" },
-            { name: "Munsi Sakil Ahmed", code: "MS00928", type: "agent" },
-            { name: "Nandani Tulsani", code: "MS00334", type: "agent" },
-            { name: "Pooja Rathore", code: "MS01266", type: "agent" },
-            { name: "Puja Chauhan", code: "MS00470", type: "agent" },
-            { name: "Rajendra Mourya", code: "MS00735", type: "agent" },
-            { name: "Rajni Saini", code: "MS00417", type: "agent" },
-            { name: "Renu Gupta", code: "MS00067", type: "agent" },
-            { name: "Renu Rani", code: "MS00633", type: "agent" },
-            { name: "Roshni Prajapati", code: "MS01386", type: "agent" },
-            { name: "Saurav Pal", code: "MS00405", type: "agent" },
-            { name: "Shivam Verma", code: "MS02491", type: "agent" },
-            { name: "Smrutirani Sahoo", code: "MS00180", type: "agent" },
-            { name: "Sushma Chaudhary", code: "MS00033", type: "agent" }
-        ];
+      document.getElementById("d3StatTotal").innerText = grandTotal.toLocaleString();
+      document.getElementById("d3StatTat").innerText = `${overallAvgTat} m`;
+      document.getElementById("d3StatAgents").innerText = `${activeAgentsCount} / ${D3_TOTAL_CAPACITY}`;
 
-        const PHARMACISTS = [
-            { name: "Abuzar Akhtar", code: "MS01347", type: "pharmacist" },
-            { name: "Anjali Gupta", code: "MS00945", type: "pharmacist" },
-            { name: "ANKUR KUMAR", code: "MS02489", type: "pharmacist" },
-            { name: "Atul Kumar", code: "MS00070", type: "pharmacist" },
-            { name: "BHAVNA KEWAT", code: "MS01283", type: "pharmacist" },
-            { name: "Hitesh Kumar", code: "MS00028", type: "pharmacist" },
-            { name: "Jayshree Choudhary", code: "MS00031", type: "pharmacist" },
-            { name: "Kiran Thakur", code: "MS01584", type: "pharmacist" },
-            { name: "Mohd Shakib", code: "MS00771", type: "pharmacist" },
-            { name: "Nikita Yadav", code: "MS02474", type: "pharmacist" },
-            { name: "PIYUSH VERMA", code: "MS00721", type: "pharmacist" },
-            { name: "Priya Patidar", code: "MS00096", type: "pharmacist" },
-            { name: "Rajesh .", code: "MS00272", type: "pharmacist" },
-            { name: "Rashi Gupta", code: "MS00100", type: "pharmacist" },
-            { name: "Roshni Chouhan", code: "MS01050", type: "pharmacist" },
-            { name: "Saifur Janam", code: "MS00899", type: "pharmacist" },
-            { name: "Samirun Nisha", code: "MS01079", type: "pharmacist" },
-            { name: "Sanjana Khuswah", code: "MS00160", type: "pharmacist" },
-            { name: "SHIVAM SHUKLA", code: "MS01150", type: "pharmacist" },
-            { name: "SHIVANSH TIWARI", code: "MS00719", type: "pharmacist" },
-            { name: "Snehal Sukhadeo Gaikwad", code: "MS00852", type: "pharmacist" },
-            { name: "SNIGDHA PAL", code: "MS01625", type: "pharmacist" },
-            { name: "Sumit H", code: "MS00203", type: "pharmacist" },
-            { name: "Vaishali Sisodiya", code: "MS00720", type: "pharmacist" },
-            { name: "Yashwant Singh", code: "MS00098", type: "pharmacist" }
-        ];
+      document.getElementById("d3StatLowestAgent").innerText = globalMinAgent.tat !== 9999 ? `${globalMinAgent.name} (${globalMinAgent.tat}m)` : "--";
+      document.getElementById("d3StatHighestAgent").innerText = globalMaxAgent.tat !== -1 ? `${globalMaxAgent.name} (${globalMaxAgent.tat}m)` : "--";
 
-        const ALL_MEMBERS = [...AGENTS, ...PHARMACISTS];
-        const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      renderD3AllBreakAgents();
+    }
 
-        let currentYear = 2026;
-        let currentMonth = 9;
-        let activeDateKeyForModal = null;
-        let currentSummaryRole = 'agent';
-        let attendanceStore = JSON.parse(localStorage.getItem('mswasth_attendance_v3') || '{}');
+    function renderD3AllBreakAgents() {
+      const tbody = document.getElementById("d3BreakTableBody");
+      if (!tbody) return;
 
-        function init() {
-            populateModalMemberDropdown();
-            const now = new Date();
-            currentYear = now.getFullYear();
-            currentMonth = now.getMonth() + 1;
-            document.getElementById('yearPicker').value = currentYear;
-            document.getElementById('summaryMonthFilter').value = `${currentYear}-${String(currentMonth).padStart(2,'0')}`;
-            renderCalendar();
-        }
+      const breakStats = [];
 
-        function populateModalMemberDropdown() {
-            const select = document.getElementById('modalMemberSelect');
-            select.innerHTML = '';
-            
-            const optgroupA = document.createElement('optgroup');
-            optgroupA.label = '--- AGENTS (Red Line Upper) ---';
-            AGENTS.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.code;
-                opt.textContent = `${u.name} | ${u.code}`;
-                optgroupA.appendChild(opt);
-            });
-            select.appendChild(optgroupA);
+      D3_ROSTER.forEach(team => {
+        team.members.forEach(agent => {
+          const store = d3AgentCaseStore[agent.name];
+          if (!store) return;
 
-            const optgroupP = document.createElement('optgroup');
-            optgroupP.label = '--- PHARMACISTS ---';
-            PHARMACISTS.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.code;
-                opt.textContent = `${u.name} | ${u.code}`;
-                optgroupP.appendChild(opt);
-            });
-            select.appendChild(optgroupP);
-        }
-
-        function changeMonth(delta) {
-            currentMonth += delta;
-            if (currentMonth > 12) { currentMonth = 1; currentYear++; }
-            if (currentMonth < 1) { currentMonth = 12; currentYear--; }
-            document.getElementById('yearPicker').value = currentYear;
-            renderCalendar();
-        }
-
-        function onYearChange() {
-            currentYear = parseInt(document.getElementById('yearPicker').value);
-            renderCalendar();
-        }
-
-        function jumpToCurrentMonth() {
-            const now = new Date();
-            currentYear = now.getFullYear();
-            currentMonth = now.getMonth() + 1;
-            document.getElementById('yearPicker').value = currentYear;
-            renderCalendar();
-        }
-
-        function renderCalendar() {
-            document.getElementById('calendarTitle').textContent = `${MONTH_NAMES[currentMonth - 1]} ${currentYear}`;
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
-
-            const firstDayIndex = (new Date(currentYear, currentMonth - 1, 1).getDay() + 6) % 7;
-            const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
-
-            for (let i = 0; i < firstDayIndex; i++) {
-                const emptyCell = document.createElement('div');
-                emptyCell.className = 'light-day-cell rounded-xl opacity-20 pointer-events-none p-3';
-                grid.appendChild(emptyCell);
+          let allCases = [];
+          D3_SLOTS.forEach(s => {
+            if (store[s] && store[s].length > 0) {
+              allCases = allCases.concat(store[s]);
             }
+          });
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateKey = `${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-                const cell = document.createElement('div');
-                cell.className = 'light-day-cell rounded-xl p-2.5 flex flex-col justify-between cursor-pointer min-h-[105px]';
-                
-                const dayRecords = attendanceStore[dateKey] || {};
-                const codesMarked = Object.keys(dayRecords);
-                
-                let pillsHtml = '';
-                codesMarked.slice(0, 3).forEach(code => {
-                    const mem = ALL_MEMBERS.find(m => m.code === code) || { name: code };
-                    const st = dayRecords[code];
-                    pillsHtml += `<div class="text-[10px] truncate px-1.5 py-0.5 rounded font-semibold status-badge-${st.toLowerCase()}">${mem.name.split(' ')[0]}: ${st}</div>`;
+          if (allCases.length < 1) return;
+
+          const validCases = allCases.filter(c => c.apptTime && c.apptTime !== '-');
+          if (validCases.length === 0) return;
+
+          validCases.sort((a, b) => {
+            const dateA = parseD3SafeDate(a.apptTime);
+            const dateB = parseD3SafeDate(b.apptTime);
+            const timeA = dateA ? dateA.getTime() : 0;
+            const timeB = dateB ? dateB.getTime() : 0;
+            return timeA - timeB;
+          });
+
+          let totalBreakMins = 0;
+          const breakList = [];
+
+          for (let i = 0; i < validCases.length - 1; i++) {
+            const currentEndStr = validCases[i].consultEndTime && validCases[i].consultEndTime !== '-'
+              ? validCases[i].consultEndTime
+              : (validCases[i].feedbackEndTime && validCases[i].feedbackEndTime !== '-' 
+                 ? validCases[i].feedbackEndTime 
+                 : validCases[i].apptTime);
+
+            const nextStartStr = validCases[i + 1].apptTime;
+            const curEnd = parseD3SafeDate(currentEndStr);
+            const nxtStart = parseD3SafeDate(nextStartStr);
+
+            if (curEnd && nxtStart) {
+              const gapMins = (nxtStart.getTime() - curEnd.getTime()) / (1000 * 60);
+              if (gapMins > 15 && gapMins <= 480) {
+                totalBreakMins += gapMins;
+                breakList.push({
+                  startTime: currentEndStr,
+                  endTime: nextStartStr,
+                  durationMins: Math.round(gapMins),
+                  prevEmr: validCases[i].emr,
+                  nextEmr: validCases[i + 1].emr,
+                  prevDoc: validCases[i].doctor,
+                  nextDoc: validCases[i + 1].doctor,
+                  type: 'INTER_CASE_BREAK'
                 });
-                if (codesMarked.length > 3) {
-                    pillsHtml += `<div class="text-[9px] text-slate-500 font-bold">+${codesMarked.length - 3} more</div>`;
-                }
-
-                cell.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <span class="text-sm font-extrabold text-slate-900">${day}</span>
-                        ${codesMarked.length > 0 ? `<span class="text-[10px] bg-slate-900 text-sky-300 px-1.5 py-0.5 rounded-full font-bold">${codesMarked.length}marked</span>` : '<span class="text-[10px] text-slate-400">Open</span>'}
-                    </div>
-                    <div class="mt-1.5 space-y-1 flex-1 overflow-hidden">
-                        ${pillsHtml || '<div class="text-[10px] text-slate-400 italic mt-2">Tap to add leaves/status</div>'}
-                    </div>
-                `;
-
-                cell.onclick = () => openDateAssignmentModal(dateKey);
-                grid.appendChild(cell);
+              }
             }
-        }
+          }
 
-        function openDateAssignmentModal(dateKey) {
-            activeDateKeyForModal = dateKey;
-            document.getElementById('assignModalTitle').textContent = `Date: ${dateKey}`;
-            renderModalExistingList();
-            document.getElementById('dateAssignModal').classList.remove('hidden');
-        }
+          const lastCase = validCases[validCases.length - 1];
+          const lastEndStr = lastCase.consultEndTime && lastCase.consultEndTime !== '-'
+            ? lastCase.consultEndTime
+            : (lastCase.feedbackEndTime && lastCase.feedbackEndTime !== '-' ? lastCase.feedbackEndTime : lastCase.apptTime);
 
-        function renderModalExistingList() {
-            const container = document.getElementById('modalExistingList');
-            const dayRecords = attendanceStore[activeDateKeyForModal] || {};
-            const codes = Object.keys(dayRecords);
+          const datePart = (String(lastEndStr).split(' ')[0] || "").trim();
+          const scheduledShiftEndStr = parseD3ShiftEndTime(datePart, agent.shift);
 
-            if (codes.length === 0) {
-                container.innerHTML = `<div class="text-xs text-slate-500 italic py-2">No members marked for this date yet.</div>`;
-                return;
-            }
+          if (scheduledShiftEndStr) {
+            const lastCaseEndDate = parseD3SafeDate(lastEndStr);
+            const shiftEndDate = parseD3SafeDate(scheduledShiftEndStr);
 
-            let html = '';
-            codes.forEach(code => {
-                const mem = ALL_MEMBERS.find(m => m.code === code) || { name: 'Unknown', type: 'unknown' };
-                const st = dayRecords[code];
-                html += `
-                    <div class="flex items-center justify-between bg-slate-800/80 border border-slate-700/80 px-3 py-2 rounded-xl text-xs">
-                        <div>
-                            <span class="font-bold text-white">${mem.name}</span>
-                            <span class="text-slate-400 ml-1">(${code})</span>
-                            <span class="text-[10px] uppercase text-sky-400 ml-2">[${mem.type}]</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded text-[11px] font-bold status-badge-${st.toLowerCase()}">${st}</span>
-                            <button onclick="removeEntry('${code}')" class="text-rose-400 hover:text-rose-300 font-bold px-1">&times;</button>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        function saveAssignmentFromModal() {
-            if (!activeDateKeyForModal) return;
-            const code = document.getElementById('modalMemberSelect').value;
-            const status = document.getElementById('modalStatusSelect').value;
-
-            if (!attendanceStore[activeDateKeyForModal]) {
-                attendanceStore[activeDateKeyForModal] = {};
-            }
-            attendanceStore[activeDateKeyForModal][code] = status;
-            saveStore();
-            renderModalExistingList();
-            renderCalendar();
-        }
-
-        function removeEntry(code) {
-            if (!activeDateKeyForModal || !attendanceStore[activeDateKeyForModal]) return;
-            delete attendanceStore[activeDateKeyForModal][code];
-            if (Object.keys(attendanceStore[activeDateKeyForModal]).length === 0) {
-                delete attendanceStore[activeDateKeyForModal];
-            }
-            saveStore();
-            renderModalExistingList();
-            renderCalendar();
-        }
-
-        function openRoleSummary(roleType) {
-            currentSummaryRole = roleType;
-            document.getElementById('summaryModalTitle').textContent = roleType === 'agent' ? 'Agents Leave & Status Summary (Red Line Upper)' : 'Pharmacists Leave & Status Summary';
-            renderRoleSummaryContent();
-            document.getElementById('summaryModal').classList.remove('hidden');
-        }
-
-        function renderRoleSummaryContent() {
-            const container = document.getElementById('summaryModalContent');
-            const monthFilterStr = document.getElementById('summaryMonthFilter').value; // YYYY-MM
-            const targetGroup = currentSummaryRole === 'agent' ? AGENTS : PHARMACISTS;
-
-            let html = '';
-            targetGroup.forEach(mem => {
-                let userEntries = [];
-                Object.keys(attendanceStore).forEach(dateKey => {
-                    if (dateKey.startsWith(monthFilterStr)) {
-                        const st = attendanceStore[dateKey][mem.code];
-                        if (st) userEntries.push({ date: dateKey, status: st });
-                    }
+            if (lastCaseEndDate && shiftEndDate) {
+              const remainingGapMins = (shiftEndDate.getTime() - lastCaseEndDate.getTime()) / (1000 * 60);
+              if (remainingGapMins > 15 && remainingGapMins <= 480) {
+                totalBreakMins += remainingGapMins;
+                breakList.push({
+                  startTime: lastEndStr,
+                  endTime: scheduledShiftEndStr,
+                  durationMins: Math.round(remainingGapMins),
+                  prevEmr: lastCase.emr,
+                  nextEmr: "SHIFT END",
+                  prevDoc: lastCase.doctor,
+                  nextDoc: "Scheduled End",
+                  type: 'SHIFT_END_GAP'
                 });
+              }
+            }
+          }
 
-                html += `
-                    <div class="bg-slate-800/60 border border-slate-700/60 p-3 rounded-xl mb-2">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-white text-xs">${mem.name} <span class="text-slate-400 font-normal">(${mem.code})</span></span>
-                            <span class="text-[10px] text-sky-400 font-semibold">${userEntries.length} records</span>
-                        </div>
-                        <div class="flex flex-wrap gap-1.5 mt-1.5">
-                            ${userEntries.length === 0 ? '<span class="text-[11px] text-slate-500 italic">No leaves/status marked</span>' : 
-                                userEntries.map(it => `<span class="px-2 py-0.5 rounded text-[10px] font-bold status-badge-${it.status.toLowerCase()}">${it.date.split('-').slice(2).join('-')} (${it.status})</span>`).join('')}
-                        </div>
-                    </div>
-                `;
+          if (totalBreakMins > 0) {
+            d3AgentBreakStore[agent.name] = breakList;
+            breakStats.push({
+              name: agent.name,
+              team: team.team,
+              shift: agent.shift || "--",
+              totalCases: allCases.length,
+              totalBreakMins: Math.round(totalBreakMins),
+              breakCount: breakList.length
             });
-            container.innerHTML = html;
+          }
+        });
+      });
+
+      const filteredStats = breakStats.filter(item => d3SelectedBreakTeams.includes(item.team));
+
+      filteredStats.sort((a, b) => {
+        return d3BreakSortOrder === "desc" 
+          ? b.totalBreakMins - a.totalBreakMins 
+          : a.totalBreakMins - b.totalBreakMins;
+      });
+
+      const teamBadge = document.getElementById("d3TeamFilterBadge");
+      const btnTeamFilter = document.getElementById("d3BtnTeamFilterBreak");
+      if (teamBadge && btnTeamFilter) {
+        if (d3SelectedBreakTeams.length === D3_ROSTER.length) {
+          teamBadge.innerText = "ALL";
+          btnTeamFilter.classList.remove("active-sort");
+        } else {
+          teamBadge.innerText = `${d3SelectedBreakTeams.length} TEAMS`;
+          btnTeamFilter.classList.add("active-sort");
+        }
+      }
+
+      if (filteredStats.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="padding: 24px; color: #64748b; font-weight: 700;">No break intervals exceeding 15 minutes found for the selected filter.</td></tr>`;
+        return;
+      }
+
+      let html = "";
+      filteredStats.forEach((item, index) => {
+        const rankClass = index === 0 ? "d3-rank-1" : index === 1 ? "d3-rank-2" : index === 2 ? "d3-rank-3" : "";
+        const hoursPart = Math.floor(item.totalBreakMins / 60);
+        const minsPart = item.totalBreakMins % 60;
+        const formattedTotal = hoursPart > 0 ? `${hoursPart}h ${minsPart}m` : `${minsPart}m`;
+
+        html += `
+          <tr>
+            <td><span class="d3-rank-badge ${rankClass}">#${index + 1}</span></td>
+            <td class="d3-col-agent-name" style="text-align: center; color: #4338ca;" title="Click to open popup break breakdown" onclick="openD3BreakDetail('${item.name.replace(/'/g, "\\'")}')">${item.name}</td>
+            <td style="color: #4338ca; font-weight: 900;">${item.team}</td>
+            <td><span class="d3-shift-pill">${item.shift}</span></td>
+            <td style="font-weight: 900;">${item.totalCases}</td>
+            <td><span class="d3-break-time-badge">${formattedTotal}</span></td>
+            <td style="font-weight: 900; color: #b91c1c;">${item.breakCount} sessions</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    // MODAL 1: AGENT CASE DRILLDOWN
+    function openD3Drilldown(agentName, slot) {
+      const modal = document.getElementById("d3DrilldownModal");
+      const titleText = document.getElementById("d3DrillTitleText");
+      const detailsBar = document.getElementById("d3DrillAgentDetailsBar");
+      const tbody = document.getElementById("d3DrillTableBody");
+
+      if (!d3AgentCaseStore[agentName]) {
+        alert(`No records found for agent: ${agentName}.`);
+        return;
+      }
+
+      let agentShift = "--";
+      D3_ROSTER.forEach(t => {
+        const found = t.members.find(m => m.name === agentName);
+        if (found) agentShift = found.shift || "--";
+      });
+
+      let casesToShow = [];
+      if (slot === 'ALL') {
+        D3_SLOTS.forEach(s => {
+          if (d3AgentCaseStore[agentName][s]) {
+            casesToShow = casesToShow.concat(d3AgentCaseStore[agentName][s]);
+          }
+        });
+        titleText.innerText = `${agentName.toUpperCase()} — COMPLETE CASE LOGS`;
+      } else {
+        casesToShow = d3AgentCaseStore[agentName][slot] || [];
+        titleText.innerText = `${agentName.toUpperCase()} — HOURLY SLOT [ ${slot} ]`;
+      }
+
+      const regionCounts = {};
+      let tatSum = 0, tatCount = 0;
+
+      casesToShow.forEach(c => {
+        if (c.region && c.region !== '-') {
+          regionCounts[c.region] = (regionCounts[c.region] || 0) + 1;
+        }
+        const parsedTat = parseFloat(c.tat);
+        if (!isNaN(parsedTat)) {
+          tatSum += parsedTat;
+          tatCount++;
+        }
+      });
+
+      const avgTat = tatCount > 0 ? (tatSum / tatCount).toFixed(1) + ' m' : '--';
+      const sortedRegions = Object.entries(regionCounts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([reg, count]) => `${reg} (${count})`)
+        .join(', ');
+
+      detailsBar.innerHTML = `
+        <div class="d3-drill-info-chip">Agent: <strong>${agentName}</strong></div>
+        <div class="d3-drill-info-chip">Shift: <strong>${agentShift}</strong></div>
+        <div class="d3-drill-info-chip">Cases: <strong>${casesToShow.length}</strong></div>
+        <div class="d3-drill-info-chip">Average TAT: <strong>${avgTat}</strong></div>
+        <div class="d3-drill-info-chip">Top Regions: <strong>${sortedRegions || 'None'}</strong></div>
+      `;
+
+      tbody.innerHTML = "";
+      if (casesToShow.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="padding: 24px; color: #64748b; font-size: 16px; font-weight: 800;">No consult records found for this selection.</td></tr>`;
+      } else {
+        casesToShow.forEach((c, idx) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td style="color: #64748b; font-weight: 900;">${idx + 1}</td>
+            <td style="font-weight:900; color:#0284c7;">${c.emr || '-'}</td>
+            <td style="color:#070e1c; font-weight:900;">${c.doctor || '-'}</td>
+            <td style="color:#1e293b; font-weight:800;">${c.medAgent || '-'}</td>
+            <td><span class="d3-region-pill">${c.region || '-'}</span></td>
+            <td style="color:#334155; font-weight:800;">${c.branch || '-'}</td>
+            <td><span style="background:#e2e8f0; padding:3px 8px; border-radius:5px; font-weight:900;">${c.type || '-'}</span></td>
+            <td style="color:#059669; font-weight:900; font-size:17px;">${c.tat && c.tat !== '-' ? c.tat + ' m' : '-'}</td>
+            <td>${formatD3DateTimeBold(c.apptTime)}</td>
+            <td>${formatD3DateTimeBold(c.feedbackEndTime)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeD3Drilldown() {
+      document.getElementById("d3DrilldownModal").classList.remove("active");
+      document.body.style.overflow = "auto";
+    }
+
+    // MODAL 2: BREAK DETAILS
+    function openD3BreakDetail(agentName) {
+      const modal = document.getElementById("d3BreakModal");
+      const titleText = document.getElementById("d3BreakDetailTitleText");
+      const tbody = document.getElementById("d3BreakDetailTableBody");
+
+      const breaks = d3AgentBreakStore[agentName] || [];
+      if (breaks.length === 0) {
+        alert(`No break intervals exceeding 15 minutes found for ${agentName}.`);
+        return;
+      }
+
+      titleText.innerHTML = `${agentName.toUpperCase()} — BREAK SCHEDULE (${breaks.length} SESSIONS)`;
+      tbody.innerHTML = "";
+
+      breaks.forEach((b, idx) => {
+        const hours = Math.floor(b.durationMins / 60);
+        const mins = b.durationMins % 60;
+        const durFormatted = hours > 0 ? `${hours}h ${mins}m` : `${mins} mins`;
+
+        const tr = document.createElement("tr");
+        let contextHtml = `
+          <span>Case ${b.prevEmr || '-'} (${b.prevDoc || '-'})</span> ➔ 
+          <span style="font-weight: 900; color: #0284c7;">Case ${b.nextEmr || '-'} (${b.nextDoc || '-'})</span>
+        `;
+        if (b.type === 'SHIFT_END_GAP') {
+          contextHtml = `
+            <span>Last Case ${b.prevEmr || '-'}</span> ➔ 
+            <span style="font-weight: 900; color: #e11d48;">[SHIFT LOGOFF GAP / IDLE TILL SHIFT END]</span>
+          `;
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
+        tr.innerHTML = `
+          <td><span class="d3-rank-badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #f87171;">#${idx + 1}</span></td>
+          <td>${formatD3DateTimeBold(b.startTime)}</td>
+          <td>${formatD3DateTimeBold(b.endTime)}</td>
+          <td><span class="d3-break-time-badge">${durFormatted}</span></td>
+          <td style="font-size: 14.5px; color: #334155;">${contextHtml}</td>
+        `;
+        tbody.appendChild(tr);
+      });
 
-        function saveStore() {
-            localStorage.setItem('mswasth_attendance_v3', JSON.stringify(attendanceStore));
-        }
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
 
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(attendanceStore, null, 2));
-            const dl = document.createElement('a');
-            dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", "mswasth_attendance_backup.json");
-            dl.click();
-        }
+    function closeD3BreakDetail() {
+      document.getElementById("d3BreakModal").classList.remove("active");
+      document.body.style.overflow = "auto";
+    }
 
-        window.onload = init;
-    </script>
+    // MODAL 3: REGION BREAKDOWN
+    function openD3RegionModal(agentName) {
+      const modal = document.getElementById("d3RegionModal");
+      const title = document.getElementById("d3RegionModalTitle");
+      const detailsBar = document.getElementById("d3RegionDetailsBar");
+      const tbody = document.getElementById("d3RegionTableBody");
+
+      const regMap = d3AgentRegionMapStore[agentName] || {};
+      const entries = Object.entries(regMap).sort((a, b) => b[1] - a[1]);
+      let totalCases = entries.reduce((sum, item) => sum + item[1], 0);
+
+      title.innerHTML = `${agentName.toUpperCase()} — REGIONS SUMMARY`;
+      detailsBar.innerHTML = `
+        <div class="d3-drill-info-chip">Agent: <strong>${agentName}</strong></div>
+        <div class="d3-drill-info-chip">Unique Regions: <strong>${entries.length}</strong></div>
+        <div class="d3-drill-info-chip">Total Region Cases: <strong>${totalCases}</strong></div>
+      `;
+
+      tbody.innerHTML = "";
+      if (entries.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" style="padding: 24px; color: #64748b; font-size: 16px; font-weight: 800;">No region records available for this agent.</td></tr>`;
+      } else {
+        entries.forEach(([regionName, count], idx) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td style="text-align: center; color: #64748b; font-weight: 900;">${idx + 1}</td>
+            <td style="text-align: left; padding-left: 24px; font-weight: 800; color: #0f172a;">${regionName}</td>
+            <td style="text-align: right; padding-right: 28px; font-weight: 900; color: #0284c7; font-size: 17px;">${count}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeD3RegionModal() {
+      document.getElementById("d3RegionModal").classList.remove("active");
+      document.body.style.overflow = "auto";
+    }
+
+    // MODAL 4: TOP 5 TAT RANKING
+    function openD3TatRankingModal(type) {
+      const modal = document.getElementById("d3TatRankingModal");
+      const title = document.getElementById("d3TatRankingTitleText");
+      const header = document.getElementById("d3TatRankingHeader");
+      const detailsBar = document.getElementById("d3TatRankingDetailsBar");
+      const tbody = document.getElementById("d3TatRankingTableBody");
+      const tatTh = document.getElementById("d3TatThHeader");
+
+      const activeAgents = [];
+      d3CurrentDataset.forEach(team => {
+        team.members.forEach(m => {
+          const tatNum = parseFloat(m.tat) || 0;
+          if (m.total > 0 && tatNum > 0) {
+            activeAgents.push({
+              name: m.name,
+              team: team.team,
+              shift: m.shift || "--",
+              total: m.total,
+              tat: tatNum
+            });
+          }
+        });
+      });
+
+      if (activeAgents.length === 0) {
+        alert("Please upload a file to evaluate TAT metrics.");
+        return;
+      }
+
+      let sorted = [];
+      const isLowest = type === 'LOWEST';
+
+      if (isLowest) {
+        sorted = [...activeAgents].sort((a, b) => a.tat - b.tat).slice(0, 5);
+        header.style.background = "linear-gradient(90deg, #064e3b 0%, #065f46 100%)";
+        header.style.borderBottom = "3px solid #10b981";
+        tatTh.style.backgroundColor = "#047857";
+        title.innerHTML = `★ TOP 5 LOWEST TAT (BEST EFFICIENCY)`;
+        detailsBar.innerHTML = `
+          <div class="d3-drill-info-chip">Category: <strong style="color:#6ee7b7;">Fastest Turnaround Time</strong></div>
+          <div class="d3-drill-info-chip">Qualified Agents: <strong>${activeAgents.length}</strong></div>
+          <div class="d3-drill-info-chip">Top Rank: <strong>${sorted[0].name} (${sorted[0].tat.toFixed(1)}m)</strong></div>
+        `;
+      } else {
+        sorted = [...activeAgents].sort((a, b) => b.tat - a.tat).slice(0, 5);
+        header.style.background = "linear-gradient(90deg, #881337 0%, #9f1239 100%)";
+        header.style.borderBottom = "3px solid #f43f5e";
+        tatTh.style.backgroundColor = "#9f1239";
+        title.innerHTML = `⚠ TOP 5 HIGHEST TAT (SLOWEST / NEEDS ATTENTION)`;
+        detailsBar.innerHTML = `
+          <div class="d3-drill-info-chip">Category: <strong style="color:#fda4af;">Highest Turnaround Time</strong></div>
+          <div class="d3-drill-info-chip">Qualified Agents: <strong>${activeAgents.length}</strong></div>
+          <div class="d3-drill-info-chip">Peak Slowest: <strong>${sorted[0].name} (${sorted[0].tat.toFixed(1)}m)</strong></div>
+        `;
+      }
+
+      tbody.innerHTML = "";
+      sorted.forEach((agent, idx) => {
+        const tr = document.createElement("tr");
+        const rankClass = isLowest ? "d3-rank-1" : "d3-rank-3";
+        const pillColor = isLowest ? "background:#dcfce7; color:#15803d; border:1px solid #86efac;" : "background:#ffe4e6; color:#b91c1c; border:1px solid #fca5a5;";
+
+        tr.innerHTML = `
+          <td style="text-align: center;"><span class="d3-rank-badge ${rankClass}">#${idx + 1}</span></td>
+          <td class="d3-col-agent-name" style="text-align: left; padding-left: 20px;" title="Click to view all cases for ${agent.name}" onclick="closeD3TatRankingModal(); openD3Drilldown('${agent.name.replace(/'/g, "\\'")}', 'ALL');">
+            ${agent.name}
+          </td>
+          <td style="font-weight: 800; color: #334155;">${agent.team}</td>
+          <td><span class="d3-shift-pill">${agent.shift}</span></td>
+          <td style="font-weight: 900; color: #0f172a;">${agent.total}</td>
+          <td><span style="${pillColor} padding:4px 14px; border-radius:6px; font-weight:900; font-size:17px;">${agent.tat.toFixed(1)} m</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeD3TatRankingModal() {
+      document.getElementById("d3TatRankingModal").classList.remove("active");
+      document.body.style.overflow = "auto";
+    }
+
+    // MODAL 5: TEAM MULTI-FILTER MODAL
+    function openD3TeamFilterModal() {
+      const modal = document.getElementById("d3TeamFilterModal");
+      const container = document.getElementById("d3TeamFilterListContainer");
+      if (!modal || !container) return;
+
+      container.innerHTML = "";
+      D3_ROSTER.forEach(teamObj => {
+        const isChecked = d3SelectedBreakTeams.includes(teamObj.team);
+        const label = document.createElement("label");
+        label.style.cssText = `display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-radius:10px; border:1.5px solid #e2e8f0; background:${isChecked ? '#eff6ff' : '#f8fafc'}; cursor:pointer; font-weight:800; font-size:15.5px; color:#0f172a;`;
+        label.innerHTML = `
+          <span>${teamObj.team} (${teamObj.members.length} Agents)</span>
+          <input type="checkbox" value="${teamObj.team}" ${isChecked ? 'checked' : ''} style="width:20px; height:20px; accent-color:#2563eb; cursor:pointer;" onchange="this.parentElement.style.background = this.checked ? '#eff6ff' : '#f8fafc'">
+        `;
+        container.appendChild(label);
+      });
+
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeD3TeamFilterModal() {
+      document.getElementById("d3TeamFilterModal").classList.remove("active");
+      document.body.style.overflow = "auto";
+    }
+
+    function selectD3AllTeams(check) {
+      const cbs = document.querySelectorAll("#d3TeamFilterListContainer input[type='checkbox']");
+      cbs.forEach(cb => {
+        cb.checked = check;
+        cb.parentElement.style.background = check ? '#eff6ff' : '#f8fafc';
+      });
+    }
+
+    function applyD3TeamFilters() {
+      const cbs = document.querySelectorAll("#d3TeamFilterListContainer input[type='checkbox']");
+      const selected = [];
+      cbs.forEach(cb => {
+        if (cb.checked) selected.push(cb.value);
+      });
+
+      if (selected.length === 0) {
+        alert("Please select at least one team.");
+        return;
+      }
+
+      d3SelectedBreakTeams = selected;
+      closeD3TeamFilterModal();
+      renderD3AllBreakAgents();
+    }
+
+    function handleD3OverlayClick(e, modalId) {
+      if (e.target.id === modalId) {
+        if (modalId === 'd3DrilldownModal') closeD3Drilldown();
+        if (modalId === 'd3BreakModal') closeD3BreakDetail();
+        if (modalId === 'd3RegionModal') closeD3RegionModal();
+        if (modalId === 'd3TatRankingModal') closeD3TatRankingModal();
+        if (modalId === 'd3TeamFilterModal') closeD3TeamFilterModal();
+      }
+    }
+
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeD3Drilldown();
+        closeD3BreakDetail();
+        closeD3RegionModal();
+        closeD3TatRankingModal();
+        closeD3TeamFilterModal();
+      }
+    });
+
+    function formatD3DateTimeBold(str) {
+      if (!str || str === '-') return '-';
+      const parts = String(str).trim().split(' ');
+      if (parts.length >= 2) {
+        return `<div class="d3-time-container"><span class="d3-time-date-part">${parts[0]}</span><span class="d3-time-bold-part">${parts[1]}</span></div>`;
+      }
+      return `<span class="d3-time-bold-part">${str}</span>`;
+    }
+
+    function parseCSVLine(line) {
+      const arr = [];
+      let entry = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') inQuotes = !inQuotes;
+        else if (c === ',' && !inQuotes) {
+          arr.push(entry.trim());
+          entry = '';
+        } else entry += c;
+      }
+      arr.push(entry.trim());
+      return arr.map(s => s.replace(/^"|"$/g, ''));
+    }
+
+    document.getElementById("d3CsvUploader").addEventListener("change", function(e) {
+      if (e.target.files[0]) handleD3FileDirect(e.target.files[0]);
+    });
+
+    function handleD3FileDirect(file) {
+      const fileName = file.name.toLowerCase();
+      const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+      const reader = new FileReader();
+
+      if (isExcel) {
+        reader.onload = function(evt) {
+          try {
+            const data = new Uint8Array(evt.target.result);
+            const workbook = XLSX.read(data, { 
+              type: 'array', 
+              cellDates: true, 
+              dateNF: 'yyyy-mm-dd hh:mm:ss' 
+            });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+
+            const rawRows = XLSX.utils.sheet_to_json(worksheet, { 
+              header: 1, 
+              raw: false, 
+              dateNF: 'yyyy-mm-dd hh:mm:ss', 
+              defval: "" 
+            });
+
+            let headerIdx = -1;
+            for (let i = 0; i < Math.min(rawRows.length, 25); i++) {
+              const rowStr = rawRows[i].map(c => String(c).toLowerCase()).join(" ");
+              if (rowStr.includes("med agent") || rowStr.includes("appt time") || rowStr.includes("consult starttime")) {
+                headerIdx = i;
+                break;
+              }
+            }
+
+            if (headerIdx === -1) {
+              alert("Dashboard 3: Invalid Excel file. Required columns ('Med Agent', 'Appt Time') could not be found.");
+              return;
+            }
+
+            const headers = rawRows[headerIdx].map(h => String(h).trim());
+            const rows = [];
+
+            for (let i = headerIdx + 1; i < rawRows.length; i++) {
+              const rowData = rawRows[i];
+              if (!rowData || rowData.length === 0) continue;
+              const rowObj = {};
+              headers.forEach((h, idx) => {
+                if (h) rowObj[h] = rowData[idx] !== undefined ? String(rowData[idx]).trim() : "";
+              });
+              rows.push(rowObj);
+            }
+
+            processD3RawRows(rows);
+          } catch (err) {
+            console.error(err);
+            alert("Dashboard 3 Error reading Excel file: " + err.message);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.onload = function(evt) {
+          try {
+            const text = evt.target.result;
+            const lines = text.split(/\r\n|\n/).filter(l => l.trim().length > 0);
+
+            let headerIdx = -1;
+            for (let i = 0; i < Math.min(lines.length, 25); i++) {
+              const lower = lines[i].toLowerCase();
+              if (lower.includes("med agent") || lower.includes("appt time") || lower.includes("consult starttime")) {
+                headerIdx = i;
+                break;
+              }
+            }
+
+            if (headerIdx === -1) {
+              alert("Dashboard 3: Invalid CSV format. Required columns could not be found.");
+              return;
+            }
+
+            const headers = parseCSVLine(lines[headerIdx]);
+            const rows = [];
+
+            for (let i = headerIdx + 1; i < lines.length; i++) {
+              const cols = parseCSVLine(lines[i]);
+              if (cols.length < 3) continue;
+              const rowObj = {};
+              headers.forEach((h, idx) => {
+                rowObj[h] = cols[idx] !== undefined ? cols[idx] : "";
+              });
+              rows.push(rowObj);
+            }
+
+            processD3RawRows(rows);
+          } catch (err) {
+            console.error(err);
+            alert("Dashboard 3 Error reading CSV file: " + err.message);
+          }
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function processD3RawRows(rows) {
+      d3AgentCaseStore = {};
+      d3AgentRegionMapStore = {};
+
+      d3CurrentDataset = D3_ROSTER.map(team => ({
+        team: team.team,
+        members: team.members.map(agentObj => {
+          const hours = {};
+          D3_SLOTS.forEach(s => hours[s] = 0);
+          const regionMap = {};
+          let tatSum = 0;
+          let tatCount = 0;
+          let cpCount = 0;
+          let clinicCount = 0;
+
+          if (!d3AgentCaseStore[agentObj.name]) {
+            d3AgentCaseStore[agentObj.name] = {};
+            D3_SLOTS.forEach(s => d3AgentCaseStore[agentObj.name][s] = []);
+          }
+
+          const matches = rows.filter(r => {
+            const medAgent = (r["Med Agent"] || r["Pharmacist"] || r["Agent Name"] || r["Agent"] || "").toLowerCase().trim();
+            const empCode = (r["Med Agent Emp Code"] || r["Emp Code"] || r["Agent Emp Code"] || "").toLowerCase().trim();
+
+            if (agentObj.name === "Kamni Sharma") {
+              return medAgent === "kamni" || medAgent.startsWith("kamni") || medAgent.includes("kamini");
+            }
+
+            return agentObj.match.some(m => {
+              const query = m.toLowerCase().trim();
+              return (empCode !== "" && empCode !== "na" && empCode === query) || 
+                     medAgent === query || 
+                     medAgent.includes(query);
+            });
+          });
+
+          matches.forEach(row => {
+            const status = (row["Status"] || "").trim().toUpperCase();
+            if (status !== "DONE" && status !== "COMPLETED") return;
+
+            const apptTime = row["Appt Time"] || row["Consult StartTime"] || "";
+            const slot = getD3HourSlot(apptTime);
+            if (!slot || hours[slot] === undefined) return;
+
+            hours[slot] += 1;
+
+            const consultType = (row["Type"] || row["Consult Type"] || row["Category"] || "").trim().toUpperCase();
+            if (consultType.includes("CP")) {
+              cpCount++;
+            } else if (consultType.includes("CLINIC")) {
+              clinicCount++;
+            }
+
+            const reg = (row["Region Name"] || row["Clinic State"] || "").trim();
+            if (reg && reg.length > 0 && reg !== "-") {
+              regionMap[reg] = (regionMap[reg] || 0) + 1;
+            }
+
+            const fbEndTime = row["Immediate Feedback End Time"] || "";
+            const consultEndTime = row["Consult EndTime"] || row["Doc Consult EndTime"] || row["Consultation End Time"] || row["Immediate Feedback End Time"] || "";
+
+            const calculatedTatMins = parseD3DifferenceInMinutes(apptTime, fbEndTime);
+
+            if (calculatedTatMins !== null) {
+              tatSum += calculatedTatMins;
+              tatCount++;
+            }
+
+            let doctorName = (row["Doc Consult"] || row["Scheduled Doc"] || row["Docs"] || "").replace(/,/g, '').trim();
+
+            d3AgentCaseStore[agentObj.name][slot].push({
+              emr: row["EMR #"] || row["Member Id"] || "-",
+              doctor: doctorName || "-",
+              medAgent: row["Med Agent"] || agentObj.name,
+              region: reg || "-",
+              branch: row["Branch Name"] || "-",
+              type: row["Type"] || "-",
+              tat: calculatedTatMins !== null ? calculatedTatMins.toFixed(1) : "-",
+              apptTime: apptTime,
+              consultEndTime: consultEndTime,
+              feedbackEndTime: fbEndTime
+            });
+          });
+
+          d3AgentRegionMapStore[agentObj.name] = regionMap;
+
+          const totalOutput = Object.values(hours).reduce((a, b) => a + b, 0);
+          const sortedRegions = Object.keys(regionMap).sort((a, b) => regionMap[b] - regionMap[a]);
+          const displayRegion = sortedRegions.length > 0 ? sortedRegions.slice(0, 3).join(", ") : "";
+          const avgTat = tatCount > 0 ? (tatSum / tatCount).toFixed(1) : "";
+
+          return {
+            name: agentObj.name,
+            shift: agentObj.shift || "--",
+            region: displayRegion,
+            hours: hours,
+            cpCount: cpCount,
+            clinicCount: clinicCount,
+            total: totalOutput,
+            tat: avgTat,
+            tatSum: tatSum,
+            tatCount: tatCount
+          };
+        })
+      }));
+
+      closeD3Drilldown();
+      closeD3BreakDetail();
+      closeD3RegionModal();
+      closeD3TatRankingModal();
+      closeD3TeamFilterModal();
+      renderD3();
+    }
+
+    d3CurrentDataset = buildD3EmptyState();
+    renderD3();
+
+
+    /* =========================================================================
+        DASHBOARD 5 ENGINE (E-Clinic Daily Login Dashboard)
+        ======================================================================== */
+    let d5GlobalData = [];
+
+    document.getElementById('d5FileUpload').addEventListener('change', e => {
+      if (e.target.files[0]) handleD5FileDirect(e.target.files[0]);
+    });
+
+    function extractD5Prefix(str) {
+      if (!str) return 'OTHER';
+      const match = str.match(/(?:EC|ec)?(\d{2,3}:)/i);
+      return match ? match[1] : 'OTHER';
+    }
+
+    function handleD5FileDirect(file) {
+      document.getElementById('d5FileName').textContent = file.name;
+      document.getElementById('d5Loader').style.display = 'block';
+      document.getElementById('d5TableContainer').style.display = 'none';
+
+      const fileName = file.name.toLowerCase();
+      const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+      const reader = new FileReader();
+
+      if (isExcel) {
+        reader.onload = function(e) {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+            processD5Data(json);
+          } catch (err) {
+            console.error(err);
+            alert("Dashboard 5 Error reading Excel file: " + err.message);
+            document.getElementById('d5Loader').style.display = 'none';
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.onload = function(e) {
+          try {
+            Papa.parse(e.target.result, {
+              complete: function(results) {
+                const rows = results.data.map(r => Array.isArray(r) ? r : Object.values(r));
+                processD5Data(rows);
+              },
+              error: function(err) {
+                console.error(err);
+                alert("Dashboard 5 Error reading CSV file: " + err.message);
+                document.getElementById('d5Loader').style.display = 'none';
+              }
+            });
+          } catch (err) {
+            console.error(err);
+            alert("Dashboard 5 Error reading CSV file: " + err.message);
+            document.getElementById('d5Loader').style.display = 'none';
+          }
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function processD5Data(rows) {
+      let headerRowIndex = -1;
+      for (let i = 0; i < rows.length; i++) {
+        if (rows[i] && rows[i].some(c => typeof c === 'string' && c.toLowerCase().includes('clinic name'))) {
+          headerRowIndex = i;
+          break;
+        }
+      }
+
+      if (headerRowIndex === -1) {
+        alert("Dashboard 5: Could not find 'Clinic Name' column.");
+        document.getElementById('d5Loader').style.display = 'none';
+        return;
+      }
+
+      const headers = rows[headerRowIndex].map(h => typeof h === 'string' ? h.toLowerCase().trim() : '');
+      const clinicIdx = headers.findIndex(h => h.includes('clinic name'));
+      const loginIdIdx = headers.findIndex(h => h.includes('login id'));
+      const loginTimeIdx = headers.findIndex(h => h.includes('login time'));
+      const logoutTimeIdx = headers.findIndex(h => h.includes('logout time'));
+      const ipIdx = headers.findIndex(h => h.includes('ip'));
+      const consultIdx = headers.findIndex(h => h.includes('consultation count'));
+      const policyIdx = headers.findIndex(h => h.includes('policy count'));
+
+      d5GlobalData = [];
+      const regionsSet = new Set();
+      const codesSet = new Set();
+      const seen = new Set();
+
+      for (let i = headerRowIndex + 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || !row[clinicIdx]) continue;
+        const clinicName = (row[clinicIdx] || '').toString().trim();
+        if (!clinicName) continue;
+
+        const unique = clinicName.toLowerCase();
+        if (seen.has(unique)) continue;
+        seen.add(unique);
+
+        const loginId = loginIdIdx !== -1 ? (row[loginIdIdx] || '-').toString().trim() : '-';
+        let codePrefix = extractD5Prefix(loginId);
+        if (codePrefix === 'OTHER') codePrefix = extractD5Prefix(clinicName);
+        if (codePrefix !== 'OTHER') codesSet.add(codePrefix);
+
+        const parts = clinicName.split(' ');
+        const region = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : 'UNKNOWN';
+        regionsSet.add(region);
+
+        d5GlobalData.push({
+          clinicName, loginId,
+          loginTime: loginTimeIdx !== -1 ? (row[loginTimeIdx] || '-') : '-',
+          logoutTime: logoutTimeIdx !== -1 ? (row[logoutTimeIdx] || '-') : '-',
+          ip: ipIdx !== -1 ? (row[ipIdx] || '-') : '-',
+          consultCount: consultIdx !== -1 ? (row[consultIdx] || '0') : '0',
+          policyCount: policyIdx !== -1 ? (row[policyIdx] || '0') : '0',
+          codePrefix, region
+        });
+      }
+
+      const codeSelect = document.getElementById('d5CodeSelect');
+      codeSelect.innerHTML = '<option value="">-- Select Login Code --</option>';
+      Array.from(codesSet).sort((a,b) => parseInt(a) - parseInt(b)).forEach(c => {
+        codeSelect.innerHTML += `<option value="${c}">${c}</option>`;
+      });
+      codeSelect.disabled = false;
+
+      const regionSelect = document.getElementById('d5RegionSelect');
+      regionSelect.innerHTML = '<option value="">-- Select Region --</option>';
+      Array.from(regionsSet).sort().forEach(r => {
+        regionSelect.innerHTML += `<option value="${r}">${r}</option>`;
+      });
+      regionSelect.disabled = false;
+
+      codeSelect.onchange = function() {
+        const code = this.value;
+        document.getElementById('d5RegionSelect').value = '';
+        if (!code) { document.getElementById('d5TableContainer').style.display = 'none'; return; }
+        renderD5Table(d5GlobalData.filter(item => item.codePrefix === code));
+      };
+
+      regionSelect.onchange = function() {
+        const reg = this.value;
+        document.getElementById('d5CodeSelect').value = '';
+        if (!reg) { document.getElementById('d5TableContainer').style.display = 'none'; return; }
+        renderD5Table(d5GlobalData.filter(item => item.region === reg));
+      };
+
+      document.getElementById('d5Loader').style.display = 'none';
+      renderD5Table(d5GlobalData);
+    }
+
+    function renderD5Table(list) {
+      const tbody = document.getElementById('d5TableBody');
+      tbody.innerHTML = '';
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="padding:20px; text-align:center; color:#ef4444;">No matching records found.</td></tr>`;
+      } else {
+        list.forEach(item => {
+          tbody.innerHTML += `
+            <tr>
+              <td style="text-align:left; padding-left:16px; font-weight:900;">${item.clinicName}</td>
+              <td>${item.loginId}</td>
+              <td>${item.loginTime}</td>
+              <td>${item.logoutTime}</td>
+              <td style="font-family:'Courier New', monospace;">${item.ip}</td>
+              <td style="color:#0284c7; font-weight:900;">${item.consultCount}</td>
+              <td style="color:#0284c7; font-weight:900;">${item.policyCount}</td>
+            </tr>
+          `;
+        });
+      }
+      document.getElementById('d5TableContainer').style.display = 'block';
+    }
+  </script>
 </body>
 </html>
