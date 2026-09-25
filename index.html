@@ -650,12 +650,15 @@
           </label>
           <input type="file" id="d2FileInput" accept=".csv, .xlsx, .xls" style="display:none;" onchange="handleD2FileSelect(event)">
           
-          <!-- AGENT & PHARMACIST BUTTONS -->
+          <!-- AGENT, PHARMACIST & TEAM VIEW BUTTONS -->
           <button type="button" class="d2-upload-btn" onclick="setD2FilterMode('AGENT')">
             <i class="fa-solid fa-user-tie"></i> Agent
           </button>
           <button type="button" class="d2-upload-btn" onclick="setD2FilterMode('PHARMACIST')">
             <i class="fa-solid fa-user-nurse"></i> Pharmacist
+          </button>
+          <button type="button" class="d2-upload-btn" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); border-color: #1d4ed8;" onclick="setD2FilterMode('TEAMS')">
+            <i class="fa-solid fa-users"></i> Team View
           </button>
 
           <div class="d1-file-badge" id="d2FileBadge" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#cbd5e1; padding:6px 14px; border-radius:20px;">
@@ -2631,6 +2634,7 @@
       });
     }
 
+    // Auto trigger sample/initial empty map render on start so cards show up properly
     renderD2Dashboard({});
 
 
