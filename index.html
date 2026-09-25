@@ -625,7 +625,10 @@
         .d2-team-section { background: #ffffff; border-radius: 16px; border: 2px solid #cbd5e1; margin-bottom: 32px; overflow: hidden; color: #064e3b; box-shadow: 6px 6px 14px #cbd5e1; }
         .d2-team-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 14px 22px; font-size: 18px; font-weight: 900; color: #ffffff; border-bottom: 3px solid #1e3a8a; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
         .d2-header-avg { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 6px; }
-        .d2-table-container-scroll { max-height: 650px; overflow-y: auto; overflow-x: auto; }
+        
+        /* Mobile Fix: max-height hata diya gaya hai taaki list poori neeche tak dikhe aur scroll window-level ya proper ho sake */
+        .d2-table-container-scroll { overflow-x: auto; }
+        
         .d2-table { width: 100%; border-collapse: collapse; text-align: left; }
         .d2-table th { background-color: #0f172a; color: #ffffff; padding: 14px 10px; font-weight: 800; border-bottom: 3px solid #1e3a8a; border-right: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 12px; text-align: center; position: sticky; top: 0; z-index: 10; }
         .d2-table th:first-child { text-align: left; padding-left: 18px; }
@@ -1761,7 +1764,7 @@
 
     /* =========================================================================
         DASHBOARD 1 ENGINE (Agent Hourly Report - Unit 2)
-        ======================================================================== */
+        ======================================================================== -->
     const D1_TEAMS = {
       "TEAM JITENDRA": [
         "Saurav Pal", "Md anas", "Renu Gupta", "Shivam verma", 
