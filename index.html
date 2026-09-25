@@ -638,6 +638,8 @@
         .d2-metric-target { text-align: center; font-size: 14px; color: #92400e; font-weight: 800; background-color: #fef3c7; }
         .d2-metric-achieved { text-align: center; font-size: 14px; color: #065f46; font-weight: 900; background-color: #d1fae5; }
         .d2-metric-prod { text-align: center; font-size: 14px; color: #0369a1; font-weight: 900; background-color: #e0f2fe; }
+        .d2-grand-total-row { background-color: #0f172a !important; color: #ffffff !important; font-weight: 900 !important; }
+        .d2-grand-total-row td { background-color: #0f172a !important; color: #ffffff !important; font-weight: 900 !important; border-top: 3px solid #2563eb; }
       </style>
 
       <header class="d2-header">
@@ -653,7 +655,7 @@
           </label>
           <input type="file" id="d2FileInput" accept=".csv, .xlsx, .xls" style="display:none;" onchange="handleD2FileSelect(event)">
           
-          <!-- AGENT, PHARMACIST & TEAM VIEW BUTTONS -->
+          <!-- AGENT, PHARMACIST & TEAM VIEW BUTTONS (Exact Same Style) -->
           <button type="button" class="d2-action-btn" onclick="setD2FilterMode('AGENT')">
             <i class="fa-solid fa-user-tie"></i> Agent
           </button>
@@ -2398,11 +2400,21 @@
         list.sort((a, b) => b.achievedVal - a.achievedVal);
 
         let tableRows = '';
-        let totAchieved = 0;
+        let totDone = 0, totCamp = 0, totVideo = 0, totFdb = 0, totConnFdb = 0, totImm = 0, totConnImm = 0, totTarget = 0, totAch = 0;
+
         list.forEach((item, idx) => {
           gTotAgents++;
-          totAchieved += item.achievedVal;
+          totDone += item.stats.done;
+          totCamp += item.campVal;
+          totVideo += item.stats.videocall;
+          totFdb += item.stats.fdb;
+          totConnFdb += item.stats.conn_fdb;
+          totImm += item.stats.imm_fdb;
+          totConnImm += item.stats.conn_imm_fdb;
+          totTarget += targetPerAgent;
+          totAch += item.achievedVal;
           gTotDoneCases += item.stats.done;
+
           let iconHtml = idx < 2 && item.achievedVal > 0 ? '🏆' : '';
           const fmt = (v) => v <= 0 ? '' : v;
           tableRows += `
@@ -2421,10 +2433,27 @@
             </tr>
           `;
         });
-        gTotAchieved = totAchieved;
+        gTotAchieved = totAch;
 
         const overallTarget = gTotAgents * targetPerAgent;
         const overallProdPct = overallTarget > 0 ? ((gTotAchieved / overallTarget) * 100) : 0;
+
+        const fmtTot = (v) => v === 0 ? '' : v.toLocaleString();
+        tableRows += `
+          <tr class="d2-grand-total-row">
+            <td style="text-align:left; padding-left:18px;">GRAND TOTAL</td>
+            <td style="text-align:center;">${fmtTot(totDone)}</td>
+            <td style="text-align:center;">${fmtTot(totCamp)}</td>
+            <td style="text-align:center;">${fmtTot(totVideo)}</td>
+            <td style="text-align:center;">${fmtTot(totFdb)}</td>
+            <td style="text-align:center;">${fmtTot(totConnFdb)}</td>
+            <td style="text-align:center;">${fmtTot(totImm)}</td>
+            <td style="text-align:center;">${fmtTot(totConnImm)}</td>
+            <td style="text-align:center;">${fmtTot(totTarget)}</td>
+            <td style="text-align:center;">${fmtTot(totAch)}</td>
+            <td style="text-align:center;">${overallProdPct.toFixed(1)}%</td>
+          </tr>
+        `;
 
         container.innerHTML = `
           <div class="d2-team-section">
@@ -2466,11 +2495,21 @@
         list.sort((a, b) => b.achievedVal - a.achievedVal);
 
         let tableRows = '';
-        let totAchieved = 0;
+        let totDone = 0, totCamp = 0, totVideo = 0, totFdb = 0, totConnFdb = 0, totImm = 0, totConnImm = 0, totTarget = 0, totAch = 0;
+
         list.forEach((item, idx) => {
           gTotAgents++;
-          totAchieved += item.achievedVal;
+          totDone += item.stats.done;
+          totCamp += item.campVal;
+          totVideo += item.stats.videocall;
+          totFdb += item.stats.fdb;
+          totConnFdb += item.stats.conn_fdb;
+          totImm += item.stats.imm_fdb;
+          totConnImm += item.stats.conn_imm_fdb;
+          totTarget += targetPerAgent;
+          totAch += item.achievedVal;
           gTotDoneCases += item.stats.done;
+
           let iconHtml = idx < 2 && item.achievedVal > 0 ? '🏆' : '';
           const fmt = (v) => v <= 0 ? '' : v;
           tableRows += `
@@ -2489,10 +2528,27 @@
             </tr>
           `;
         });
-        gTotAchieved = totAchieved;
+        gTotAchieved = totAch;
 
         const overallTarget = gTotAgents * targetPerAgent;
         const overallProdPct = overallTarget > 0 ? ((gTotAchieved / overallTarget) * 100) : 0;
+
+        const fmtTot = (v) => v === 0 ? '' : v.toLocaleString();
+        tableRows += `
+          <tr class="d2-grand-total-row">
+            <td style="text-align:left; padding-left:18px;">GRAND TOTAL</td>
+            <td style="text-align:center;">${fmtTot(totDone)}</td>
+            <td style="text-align:center;">${fmtTot(totCamp)}</td>
+            <td style="text-align:center;">${fmtTot(totVideo)}</td>
+            <td style="text-align:center;">${fmtTot(totFdb)}</td>
+            <td style="text-align:center;">${fmtTot(totConnFdb)}</td>
+            <td style="text-align:center;">${fmtTot(totImm)}</td>
+            <td style="text-align:center;">${fmtTot(totConnImm)}</td>
+            <td style="text-align:center;">${fmtTot(totTarget)}</td>
+            <td style="text-align:center;">${fmtTot(totAch)}</td>
+            <td style="text-align:center;">${overallProdPct.toFixed(1)}%</td>
+          </tr>
+        `;
 
         container.innerHTML = `
           <div class="d2-team-section">
