@@ -648,9 +648,9 @@
           <label for="d2FileInput" class="d2-upload-btn">
             <i class="fa-solid fa-cloud-arrow-up"></i> Upload Excel / CSV Data File
           </label>
-          <input type="file" id="d2FileInput" accept=".csv, .xlsx, .xls" style="display:none;">
+          <input type="file" id="d2FileInput" accept=".csv, .xlsx, .xls" style="display:none;" onchange="handleD2FileSelect(event)">
           
-          <!-- NEW AGENT & PHARMACIST BUTTONS -->
+          <!-- AGENT & PHARMACIST BUTTONS -->
           <button type="button" class="d2-upload-btn" onclick="setD2FilterMode('AGENT')">
             <i class="fa-solid fa-user-tie"></i> Agent
           </button>
@@ -1768,7 +1768,7 @@
 
     /* =========================================================================
         DASHBOARD 1 ENGINE (Agent Hourly Report - Unit 2)
-        ======================================================================== -->
+        ======================================================================== */
     const D1_TEAMS = {
       "TEAM JITENDRA": [
         "Saurav Pal", "Md anas", "Renu Gupta", "Shivam verma", 
@@ -2247,7 +2247,9 @@
       }
     }
 
-    function handleD2FileDirect(file) {
+    function handleD2FileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
       document.getElementById('d2FileName').innerText = file.name;
       document.getElementById('d2FileBadge').classList.add('active');
       const fileName = file.name.toLowerCase();
@@ -2339,7 +2341,6 @@
       let gTotAgents = 0, gTotAchieved = 0;
       const teamSplitResults = {};
 
-      // Helper to compute stats for a given member name
       const getMemberItem = (memberName, memberCode = "") => {
         const cleanMem = cleanD1String(memberName);
         let stats = agentStatsMap[cleanMem];
@@ -2359,7 +2360,6 @@
         return { name: displayName, stats: s, campVal, achievedVal, prodVal };
       };
 
-      // Compute general team split values for the top cards first
       Object.keys(D2_TEAMS).forEach(teamName => {
         const rawMembers = D2_TEAMS[teamName];
         let membersList = rawMembers.map(member => getMemberItem(member));
@@ -2378,7 +2378,6 @@
         teamSplitResults[teamName] = { agentAvg: agentAvgPct, pharmAvg: pharmAvgPct };
       });
 
-      // Render based on selected filter mode
       if (d2CurrentFilterMode === 'AGENT') {
         let list = D2_ALL_AGENTS.map(a => getMemberItem(a.name, a.code));
         list.sort((a, b) => b.achievedVal - a.achievedVal);
@@ -2514,7 +2513,6 @@
         document.getElementById('d2TotProd').innerText = overallProdPct.toFixed(1) + '%';
 
       } else {
-        // Default Team-wise mode
         Object.keys(D2_TEAMS).forEach(teamName => {
           const rawMembers = D2_TEAMS[teamName];
           let membersList = rawMembers.map(member => getMemberItem(member));
@@ -3516,7 +3514,7 @@
       document.body.style.overflow = "auto";
     }
 
-    // MODAL 3: REGION BREAKDOWN (Enhanced with CP & Clinic counts)
+    // MODAL 3: REGION BREAKDOWN
     function openD3RegionModal(agentName) {
       const modal = document.getElementById("d3RegionModal");
       const title = document.getElementById("d3RegionModalTitle");
