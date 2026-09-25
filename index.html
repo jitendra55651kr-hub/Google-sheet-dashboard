@@ -2280,6 +2280,35 @@
       }
     }
 
+    function handleD2FileDirect(file) {
+      switchView('d2');
+      document.getElementById('d2FileName').innerText = file.name;
+      document.getElementById('d2FileBadge').classList.add('active');
+      const fileName = file.name.toLowerCase();
+      const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+      const reader = new FileReader();
+
+      if (isExcel) {
+        reader.onload = function(evt) {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rawRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+          processD2Data(rawRows);
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.onload = function(evt) {
+          Papa.parse(evt.target.result, {
+            complete: function(results) {
+              processD2Data(results.data);
+            }
+          });
+        };
+        reader.readAsText(file);
+      }
+    }
+
     function processD2Data(rows) {
       let headerRowIndex = -1;
       let colMap = {};
@@ -2634,7 +2663,6 @@
       });
     }
 
-    // Auto trigger sample/initial empty map render on start so cards show up properly
     renderD2Dashboard({});
 
 
