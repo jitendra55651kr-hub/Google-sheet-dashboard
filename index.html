@@ -649,6 +649,15 @@
             <i class="fa-solid fa-cloud-arrow-up"></i> Upload Excel / CSV Data File
           </label>
           <input type="file" id="d2FileInput" accept=".csv, .xlsx, .xls" style="display:none;">
+          
+          <!-- NEW AGENT & PHARMACIST BUTTONS -->
+          <button type="button" class="d2-upload-btn" onclick="setD2FilterMode('AGENT')">
+            <i class="fa-solid fa-user-tie"></i> Agent
+          </button>
+          <button type="button" class="d2-upload-btn" onclick="setD2FilterMode('PHARMACIST')">
+            <i class="fa-solid fa-user-nurse"></i> Pharmacist
+          </button>
+
           <div class="d1-file-badge" id="d2FileBadge" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#cbd5e1; padding:6px 14px; border-radius:20px;">
             <span class="file-dot" style="width:7px; height:7px; border-radius:50%; background:#94a3b8; display:inline-block;"></span>
             <span id="d2FileName">No file chosen</span>
@@ -1759,7 +1768,7 @@
 
     /* =========================================================================
         DASHBOARD 1 ENGINE (Agent Hourly Report - Unit 2)
-        ======================================================================== */
+        ======================================================================== -->
     const D1_TEAMS = {
       "TEAM JITENDRA": [
         "Saurav Pal", "Md anas", "Renu Gupta", "Shivam verma", 
@@ -2149,7 +2158,71 @@
       ]
     };
 
+    const D2_ALL_AGENTS = [
+      { name: "Amit Sharma", code: "MS01219" },
+      { name: "Apurv Acharya", code: "MS00462" },
+      { name: "Ashish Yadav", code: "MS00050" },
+      { name: "Ashok Pawar", code: "MS02549" },
+      { name: "Ayushi Saxena", code: "MS01370" },
+      { name: "Burhan Uddin", code: "MS00857" },
+      { name: "Chandrabhanu Sukla", code: "MS02383" },
+      { name: "Garvit Jha", code: "MS01034" },
+      { name: "Harivansh Agarwal", code: "MS00637" },
+      { name: "Isha Mehta", code: "MS00054" },
+      { name: "Jogender Singh", code: "MS02312" },
+      { name: "Jyoti Singh Unit 2", code: "MS00713" },
+      { name: "Kamni Muthoot", code: "MS00466" },
+      { name: "Md Anas", code: "MS01213" },
+      { name: "Munsi Sakil Ahmed", code: "MS00928" },
+      { name: "Nandani Tulsani", code: "MS00334" },
+      { name: "Pooja Rathore", code: "MS01266" },
+      { name: "Puja Chauhan", code: "MS00470" },
+      { name: "Rajendra Mourya", code: "MS00735" },
+      { name: "Rajni Saini", code: "MS00417" },
+      { name: "Renu Gupta", code: "MS00067" },
+      { name: "Renu Rani", code: "MS00633" },
+      { name: "Roshni Prajapati", code: "MS01386" },
+      { name: "Saurav Pal", code: "MS00405" },
+      { name: "Shivam Verma", code: "MS02491" },
+      { name: "Smrutirani Sahoo", code: "MS00180" },
+      { name: "Sushma Chaudhary", code: "MS00033" }
+    ];
+
+    const D2_ALL_PHARMACISTS = [
+      { name: "Abuzar Akhtar", code: "MS01347" },
+      { name: "Anjali Gupta", code: "MS00945" },
+      { name: "ANKUR KUMAR", code: "MS02489" },
+      { name: "Atul Kumar", code: "MS00070" },
+      { name: "BHAVNA KEWAT", code: "MS01283" },
+      { name: "Hitesh Kumar", code: "MS00028" },
+      { name: "Jayshree Choudhary", code: "MS00031" },
+      { name: "Kiran Thakur", code: "MS01584" },
+      { name: "Mohd Shakib", code: "MS00771" },
+      { name: "Nikita Yadav", code: "MS02474" },
+      { name: "PIYUSH VERMA", code: "MS00721" },
+      { name: "Priya Patidar", code: "MS00096" },
+      { name: "Rajesh .", code: "MS00272" },
+      { name: "Rashi Gupta", code: "MS00100" },
+      { name: "Roshni Chouhan", code: "MS01050" },
+      { name: "Saifur Janam", code: "MS00899" },
+      { name: "Samirun Nisha", code: "MS01079" },
+      { name: "Sanjana Khuswah", code: "MS00160" },
+      { name: "SHIVAM SHUKLA", code: "MS01150" },
+      { name: "SHIVANSH TIWARI", code: "MS00719" },
+      { name: "Snehal Sukhadeo Gaikwad", code: "MS00852" },
+      { name: "SNIGDHA PAL", code: "MS01625" },
+      { name: "Sumit H", code: "MS00203" },
+      { name: "Vaishali Sisodiya", code: "MS00720" },
+      { name: "Yashwant Singh", code: "MS00098" }
+    ];
+
     let d2LatestMap = {};
+    let d2CurrentFilterMode = 'TEAMS'; // 'TEAMS', 'AGENT', 'PHARMACIST'
+
+    function setD2FilterMode(mode) {
+      d2CurrentFilterMode = mode;
+      renderD2Dashboard(d2LatestMap);
+    }
 
     function calculateD2WorkingDays(startDateStr, endDateStr) {
       if (!startDateStr || !endDateStr) return 1;
@@ -2266,54 +2339,58 @@
       let gTotAgents = 0, gTotAchieved = 0;
       const teamSplitResults = {};
 
+      // Helper to compute stats for a given member name
+      const getMemberItem = (memberName, memberCode = "") => {
+        const cleanMem = cleanD1String(memberName);
+        let stats = agentStatsMap[cleanMem];
+        if (!stats) {
+          const key = Object.keys(agentStatsMap).find(k => {
+            const cleanMemAlt = cleanMem.replace('saurabh', 'saurav');
+            const kAlt = k.replace('saurabh', 'saurav');
+            return k.includes(cleanMem) || cleanMem.includes(k) || kAlt.includes(cleanMemAlt) || cleanMemAlt.includes(kAlt);
+          });
+          if (key) stats = agentStatsMap[key];
+        }
+        const s = stats || { done: 0, videocall: 0, fdb: 0, conn_fdb: 0, imm_fdb: 0, conn_imm_fdb: 0 };
+        const campVal = Math.max(0, s.done - s.videocall);
+        const achievedVal = (s.videocall * 5) + (campVal * 4) + (s.conn_fdb * 3) + (s.conn_imm_fdb * 5);
+        const prodVal = targetPerAgent > 0 ? ((achievedVal / targetPerAgent) * 100) : 0;
+        const displayName = memberCode ? `${memberName} - ${memberCode}` : memberName;
+        return { name: displayName, stats: s, campVal, achievedVal, prodVal };
+      };
+
+      // Compute general team split values for the top cards first
       Object.keys(D2_TEAMS).forEach(teamName => {
         const rawMembers = D2_TEAMS[teamName];
-        let membersList = rawMembers.map(member => {
-          const cleanMem = cleanD1String(member);
-          let stats = agentStatsMap[cleanMem];
-          if (!stats) {
-            const key = Object.keys(agentStatsMap).find(k => {
-              const cleanMemAlt = cleanMem.replace('saurabh', 'saurav');
-              const kAlt = k.replace('saurabh', 'saurav');
-              return k.includes(cleanMem) || cleanMem.includes(k) || kAlt.includes(cleanMemAlt) || cleanMemAlt.includes(kAlt);
-            });
-            if (key) stats = agentStatsMap[key];
-          }
-          const s = stats || { done: 0, videocall: 0, fdb: 0, conn_fdb: 0, imm_fdb: 0, conn_imm_fdb: 0 };
-          const campVal = Math.max(0, s.done - s.videocall);
-          const achievedVal = (s.videocall * 5) + (campVal * 4) + (s.conn_fdb * 3) + (s.conn_imm_fdb * 5);
-          const prodVal = targetPerAgent > 0 ? ((achievedVal / targetPerAgent) * 100) : 0;
-
-          return { name: member, stats: s, campVal, achievedVal, prodVal };
-        });
-
+        let membersList = rawMembers.map(member => getMemberItem(member));
         let agentsGroup = membersList.filter(m => m.stats.done > 0);
         let pharmGroup = membersList.filter(m => m.stats.done === 0);
 
-        agentsGroup.sort((a,b) => b.stats.done - a.stats.done);
-        pharmGroup.sort((a,b) => b.stats.imm_fdb - a.stats.imm_fdb);
-
-        agentsGroup.forEach((m, idx) => {
-          if (idx < 2 && m.achievedVal > 0) m.tag = 'top';
-          else if (idx >= agentsGroup.length - 2) m.tag = 'low';
-          else m.tag = 'normal';
-        });
-        pharmGroup.forEach((m, idx) => {
-          if (idx < 2 && m.achievedVal > 0) m.tag = 'top';
-          else if (idx >= pharmGroup.length - 2) m.tag = 'low';
-          else m.tag = 'normal';
-        });
-
-        let tableRows = '';
         let agentAchieved = 0, agentCount = agentsGroup.length;
         let pharmAchieved = 0, pharmCount = pharmGroup.length;
+        agentsGroup.forEach(item => agentAchieved += item.achievedVal);
+        pharmGroup.forEach(item => pharmAchieved += item.achievedVal);
 
-        const buildRow = (item) => {
+        const agentTarget = agentCount * targetPerAgent;
+        const agentAvgPct = agentTarget > 0 ? ((agentAchieved / agentTarget) * 100).toFixed(1) + '%' : '0%';
+        const pharmTarget = pharmCount * targetPerAgent;
+        const pharmAvgPct = pharmTarget > 0 ? ((pharmAchieved / pharmTarget) * 100).toFixed(1) + '%' : '0%';
+        teamSplitResults[teamName] = { agentAvg: agentAvgPct, pharmAvg: pharmAvgPct };
+      });
+
+      // Render based on selected filter mode
+      if (d2CurrentFilterMode === 'AGENT') {
+        let list = D2_ALL_AGENTS.map(a => getMemberItem(a.name, a.code));
+        list.sort((a, b) => b.achievedVal - a.achievedVal);
+
+        let tableRows = '';
+        let totAchieved = 0;
+        list.forEach((item, idx) => {
           gTotAgents++;
-          gTotAchieved += item.achievedVal;
-          let iconHtml = item.tag === 'top' ? '🏆' : (item.tag === 'low' ? '🔻' : '');
+          totAchieved += item.achievedVal;
+          let iconHtml = idx < 2 && item.achievedVal > 0 ? '🏆' : '';
           const fmt = (v) => v <= 0 ? '<span style="color:#94a3b8;">0</span>' : v;
-          return `
+          tableRows += `
             <tr>
               <td class="d2-agent-name"><span>${item.name}</span> <span>${iconHtml}</span></td>
               <td class="d2-metric-val">${fmt(item.stats.done)}</td>
@@ -2328,43 +2405,29 @@
               <td class="d2-metric-prod">${item.prodVal.toFixed(1)}%</td>
             </tr>
           `;
-        };
+        });
+        gTotAchieved = totAchieved;
 
-        if (agentsGroup.length > 0) {
-          tableRows += `<tr class="d2-role-divider"><td colspan="11">AGENT</td></tr>`;
-          agentsGroup.forEach(item => { agentAchieved += item.achievedVal; tableRows += buildRow(item); });
-        }
-        if (pharmGroup.length > 0) {
-          tableRows += `<tr class="d2-role-divider"><td colspan="11">PHARMACIST</td></tr>`;
-          pharmGroup.forEach(item => { pharmAchieved += item.achievedVal; tableRows += buildRow(item); });
-        }
+        const overallTarget = gTotAgents * targetPerAgent;
+        const overallProdPct = overallTarget > 0 ? ((gTotAchieved / overallTarget) * 100) : 0;
 
-        const agentTarget = agentCount * targetPerAgent;
-        const agentAvgPct = agentTarget > 0 ? ((agentAchieved / agentTarget) * 100).toFixed(1) + '%' : '0%';
-        const pharmTarget = pharmCount * targetPerAgent;
-        const pharmAvgPct = pharmTarget > 0 ? ((pharmAchieved / pharmTarget) * 100).toFixed(1) + '%' : '0%';
-        teamSplitResults[teamName] = { agentAvg: agentAvgPct, pharmAvg: pharmAvgPct };
-
-        const teamHtml = `
+        container.innerHTML = `
           <div class="d2-team-section">
             <div class="d2-team-header">
-              <div>📊 ${teamName}</div>
-              <div style="display:flex; gap:10px;">
-                <div class="d2-header-avg"><span>AGENT AVG:</span> <strong style="color:#6ee7b7;">${agentAvgPct}</strong></div>
-                <div class="d2-header-avg"><span>PHARM AVG:</span> <strong style="color:#6ee7b7;">${pharmAvgPct}</strong></div>
-              </div>
+              <div>👑 ALL UNIT 2 AGENTS</div>
+              <div class="d2-header-avg"><span>TOTAL AGENTS:</span> <strong style="color:#6ee7b7;">${gTotAgents}</strong></div>
             </div>
             <div style="overflow-x:auto;">
               <table class="d2-table">
                 <thead>
                   <tr>
-                    <th>Agent Name</th>
-                    <th>Done Consultation ⬍</th>
+                    <th>Agent Name & Code</th>
+                    <th>Done Consultation</th>
                     <th>Camp</th>
                     <th>Clinic Video Call</th>
                     <th>FDB</th>
                     <th>Connected FDB</th>
-                    <th>IMM FDB ⬍</th>
+                    <th>IMM FDB</th>
                     <th>Connected IMM FDB</th>
                     <th>Total Target</th>
                     <th>Achieved Target</th>
@@ -2378,15 +2441,181 @@
             </div>
           </div>
         `;
-        container.innerHTML += teamHtml;
-      });
 
-      const grandTotalTarget = gTotAgents * targetPerAgent;
-      const overallProdPct = grandTotalTarget > 0 ? ((gTotAchieved / grandTotalTarget) * 100) : 0;
+        document.getElementById('d2TotAgents').innerText = gTotAgents;
+        document.getElementById('d2DispWorkingDays').innerText = workingDays;
+        document.getElementById('d2TotProd').innerText = overallProdPct.toFixed(1) + '%';
 
-      document.getElementById('d2TotAgents').innerText = gTotAgents;
-      document.getElementById('d2DispWorkingDays').innerText = workingDays;
-      document.getElementById('d2TotProd').innerText = overallProdPct.toFixed(1) + '%';
+      } else if (d2CurrentFilterMode === 'PHARMACIST') {
+        let list = D2_ALL_PHARMACISTS.map(p => getMemberItem(p.name, p.code));
+        list.sort((a, b) => b.achievedVal - a.achievedVal);
+
+        let tableRows = '';
+        let totAchieved = 0;
+        list.forEach((item, idx) => {
+          gTotAgents++;
+          totAchieved += item.achievedVal;
+          let iconHtml = idx < 2 && item.achievedVal > 0 ? '🏆' : '';
+          const fmt = (v) => v <= 0 ? '<span style="color:#94a3b8;">0</span>' : v;
+          tableRows += `
+            <tr>
+              <td class="d2-agent-name"><span>${item.name}</span> <span>${iconHtml}</span></td>
+              <td class="d2-metric-val">${fmt(item.stats.done)}</td>
+              <td class="d2-metric-val">${fmt(item.campVal)}</td>
+              <td class="d2-metric-val">${fmt(item.stats.videocall)}</td>
+              <td class="d2-metric-val">${fmt(item.stats.fdb)}</td>
+              <td class="d2-metric-val">${fmt(item.stats.conn_fdb)}</td>
+              <td class="d2-metric-val">${fmt(item.stats.imm_fdb)}</td>
+              <td class="d2-metric-val">${fmt(item.stats.conn_imm_fdb)}</td>
+              <td class="d2-metric-target">${targetPerAgent.toLocaleString()}</td>
+              <td class="d2-metric-achieved">${fmt(item.achievedVal)}</td>
+              <td class="d2-metric-prod">${item.prodVal.toFixed(1)}%</td>
+            </tr>
+          `;
+        });
+        gTotAchieved = totAchieved;
+
+        const overallTarget = gTotAgents * targetPerAgent;
+        const overallProdPct = overallTarget > 0 ? ((gTotAchieved / overallTarget) * 100) : 0;
+
+        container.innerHTML = `
+          <div class="d2-team-section">
+            <div class="d2-team-header">
+              <div>🛡️ ALL UNIT 2 PHARMACISTS</div>
+              <div class="d2-header-avg"><span>TOTAL PHARMACISTS:</span> <strong style="color:#6ee7b7;">${gTotAgents}</strong></div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="d2-table">
+                <thead>
+                  <tr>
+                    <th>Pharmacist Name & Code</th>
+                    <th>Done Consultation</th>
+                    <th>Camp</th>
+                    <th>Clinic Video Call</th>
+                    <th>FDB</th>
+                    <th>Connected FDB</th>
+                    <th>IMM FDB</th>
+                    <th>Connected IMM FDB</th>
+                    <th>Total Target</th>
+                    <th>Achieved Target</th>
+                    <th>Productivity %</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRows}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('d2TotAgents').innerText = gTotAgents;
+        document.getElementById('d2DispWorkingDays').innerText = workingDays;
+        document.getElementById('d2TotProd').innerText = overallProdPct.toFixed(1) + '%';
+
+      } else {
+        // Default Team-wise mode
+        Object.keys(D2_TEAMS).forEach(teamName => {
+          const rawMembers = D2_TEAMS[teamName];
+          let membersList = rawMembers.map(member => getMemberItem(member));
+
+          let agentsGroup = membersList.filter(m => m.stats.done > 0);
+          let pharmGroup = membersList.filter(m => m.stats.done === 0);
+
+          agentsGroup.sort((a,b) => b.stats.done - a.stats.done);
+          pharmGroup.sort((a,b) => b.stats.imm_fdb - a.stats.imm_fdb);
+
+          agentsGroup.forEach((m, idx) => {
+            if (idx < 2 && m.achievedVal > 0) m.tag = 'top';
+            else if (idx >= agentsGroup.length - 2) m.tag = 'low';
+            else m.tag = 'normal';
+          });
+          pharmGroup.forEach((m, idx) => {
+            if (idx < 2 && m.achievedVal > 0) m.tag = 'top';
+            else if (idx >= pharmGroup.length - 2) m.tag = 'low';
+            else m.tag = 'normal';
+          });
+
+          let tableRows = '';
+          let agentAchieved = 0, agentCount = agentsGroup.length;
+          let pharmAchieved = 0, pharmCount = pharmGroup.length;
+
+          const buildRow = (item) => {
+            gTotAgents++;
+            gTotAchieved += item.achievedVal;
+            let iconHtml = item.tag === 'top' ? '🏆' : (item.tag === 'low' ? '🔻' : '');
+            const fmt = (v) => v <= 0 ? '<span style="color:#94a3b8;">0</span>' : v;
+            return `
+              <tr>
+                <td class="d2-agent-name"><span>${item.name}</span> <span>${iconHtml}</span></td>
+                <td class="d2-metric-val">${fmt(item.stats.done)}</td>
+                <td class="d2-metric-val">${fmt(item.campVal)}</td>
+                <td class="d2-metric-val">${fmt(item.stats.videocall)}</td>
+                <td class="d2-metric-val">${fmt(item.stats.fdb)}</td>
+                <td class="d2-metric-val">${fmt(item.stats.conn_fdb)}</td>
+                <td class="d2-metric-val">${fmt(item.stats.imm_fdb)}</td>
+                <td class="d2-metric-val">${fmt(item.stats.conn_imm_fdb)}</td>
+                <td class="d2-metric-target">${targetPerAgent.toLocaleString()}</td>
+                <td class="d2-metric-achieved">${fmt(item.achievedVal)}</td>
+                <td class="d2-metric-prod">${item.prodVal.toFixed(1)}%</td>
+              </tr>
+            `;
+          };
+
+          if (agentsGroup.length > 0) {
+            tableRows += `<tr class="d2-role-divider"><td colspan="11">AGENT</td></tr>`;
+            agentsGroup.forEach(item => { agentAchieved += item.achievedVal; tableRows += buildRow(item); });
+          }
+          if (pharmGroup.length > 0) {
+            tableRows += `<tr class="d2-role-divider"><td colspan="11">PHARMACIST</td></tr>`;
+            pharmGroup.forEach(item => { pharmAchieved += item.achievedVal; tableRows += buildRow(item); });
+          }
+
+          const res = teamSplitResults[teamName];
+
+          const teamHtml = `
+            <div class="d2-team-section">
+              <div class="d2-team-header">
+                <div>📊 ${teamName}</div>
+                <div style="display:flex; gap:10px;">
+                  <div class="d2-header-avg"><span>AGENT AVG:</span> <strong style="color:#6ee7b7;">${res.agentAvg}</strong></div>
+                  <div class="d2-header-avg"><span>PHARM AVG:</span> <strong style="color:#6ee7b7;">${res.pharmAvg}</strong></div>
+                </div>
+              </div>
+              <div style="overflow-x:auto;">
+                <table class="d2-table">
+                  <thead>
+                    <tr>
+                      <th>Agent Name</th>
+                      <th>Done Consultation ⬍</th>
+                      <th>Camp</th>
+                      <th>Clinic Video Call</th>
+                      <th>FDB</th>
+                      <th>Connected FDB</th>
+                      <th>IMM FDB ⬍</th>
+                      <th>Connected IMM FDB</th>
+                      <th>Total Target</th>
+                      <th>Achieved Target</th>
+                      <th>Productivity %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${tableRows}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+          container.innerHTML += teamHtml;
+        });
+
+        const grandTotalTarget = gTotAgents * targetPerAgent;
+        const overallProdPct = grandTotalTarget > 0 ? ((gTotAchieved / grandTotalTarget) * 100) : 0;
+
+        document.getElementById('d2TotAgents').innerText = gTotAgents;
+        document.getElementById('d2DispWorkingDays').innerText = workingDays;
+        document.getElementById('d2TotProd').innerText = overallProdPct.toFixed(1) + '%';
+      }
 
       const mapIds = {
         "TEAM JITENDRA": ["d2JitendraAgent", "d2JitendraPharm"],
@@ -2409,7 +2638,6 @@
 
     /* =========================================================================
         DASHBOARD 3 ENGINE (Hourly KPI Consultation Unit II)
-        with CP & CLINIC columns added before TOTAL
         ======================================================================== */
     const D3_ROSTER = [
       {
