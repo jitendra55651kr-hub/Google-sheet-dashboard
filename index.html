@@ -1531,7 +1531,7 @@
 
       <!-- MODAL 3: REGION BREAKDOWN -->
       <div class="d3-modal-overlay" id="d3RegionModal" onclick="handleD3OverlayClick(event, 'd3RegionModal')">
-        <div class="d3-modal-card" style="max-width: 640px;">
+        <div class="d3-modal-card" style="max-width: 780px;">
           <div class="d3-drill-header" style="background: linear-gradient(90deg, #070e1c 0%, #1e293b 100%);">
             <div class="d3-drill-header-top">
               <div class="d3-drill-title">
@@ -1547,7 +1547,9 @@
                 <tr>
                   <th style="width: 70px; text-align: center;">#</th>
                   <th style="text-align: left; padding-left: 24px;">REGION NAME</th>
-                  <th style="text-align: right; padding-right: 28px; width: 180px;">TOTAL CASES</th>
+                  <th style="text-align: center; width: 130px;">CP</th>
+                  <th style="text-align: center; width: 130px;">CLINIC</th>
+                  <th style="text-align: right; padding-right: 28px; width: 160px;">TOTAL CASES</th>
                 </tr>
               </thead>
               <tbody id="d3RegionTableBody"></tbody>
@@ -3286,16 +3288,42 @@
       document.body.style.overflow = "auto";
     }
 
-    // MODAL 3: REGION BREAKDOWN
+    // MODAL 3: REGION BREAKDOWN (Enhanced with CP & Clinic counts)
     function openD3RegionModal(agentName) {
       const modal = document.getElementById("d3RegionModal");
       const title = document.getElementById("d3RegionModalTitle");
       const detailsBar = document.getElementById("d3RegionDetailsBar");
       const tbody = document.getElementById("d3RegionTableBody");
 
-      const regMap = d3AgentRegionMapStore[agentName] || {};
-      const entries = Object.entries(regMap).sort((a, b) => b[1] - a[1]);
-      let totalCases = entries.reduce((sum, item) => sum + item[1], 0);
+      if (!d3AgentCaseStore[agentName]) {
+        alert(`No records found for agent: ${agentName}.`);
+        return;
+      }
+
+      let allCases = [];
+      D3_SLOTS.forEach(s => {
+        if (d3AgentCaseStore[agentName][s]) {
+          allCases = allCases.concat(d3AgentCaseStore[agentName][s]);
+        }
+      });
+
+      const regionStats = {};
+      allCases.forEach(c => {
+        const reg = (c.region && c.region !== '-') ? c.region : 'UNKNOWN';
+        if (!regionStats[reg]) {
+          regionStats[reg] = { cp: 0, clinic: 0, total: 0 };
+        }
+        regionStats[reg].total++;
+        const typeStr = (c.type || '').toUpperCase();
+        if (typeStr.includes('CP')) {
+          regionStats[reg].cp++;
+        } else if (typeStr.includes('CLINIC')) {
+          regionStats[reg].clinic++;
+        }
+      });
+
+      const entries = Object.entries(regionStats).sort((a, b) => b[1].total - a[1].total);
+      let totalCases = entries.reduce((sum, item) => sum + item[1].total, 0);
 
       title.innerHTML = `${agentName.toUpperCase()} — REGIONS SUMMARY`;
       detailsBar.innerHTML = `
@@ -3306,14 +3334,16 @@
 
       tbody.innerHTML = "";
       if (entries.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" style="padding: 24px; color: #64748b; font-size: 16px; font-weight: 800;">No region records available for this agent.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="padding: 24px; color: #64748b; font-size: 16px; font-weight: 800;">No region records available for this agent.</td></tr>`;
       } else {
-        entries.forEach(([regionName, count], idx) => {
+        entries.forEach(([regionName, stats], idx) => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td style="text-align: center; color: #64748b; font-weight: 900;">${idx + 1}</td>
             <td style="text-align: left; padding-left: 24px; font-weight: 800; color: #0f172a;">${regionName}</td>
-            <td style="text-align: right; padding-right: 28px; font-weight: 900; color: #0284c7; font-size: 17px;">${count}</td>
+            <td style="text-align: center; font-weight: 900; color: #1e3a8a;">${stats.cp > 0 ? stats.cp : '<span style="color:#94a3b8;">0</span>'}</td>
+            <td style="text-align: center; font-weight: 900; color: #059669;">${stats.clinic > 0 ? stats.clinic : '<span style="color:#94a3b8;">0</span>'}</td>
+            <td style="text-align: right; padding-right: 28px; font-weight: 900; color: #0284c7; font-size: 17px;">${stats.total}</td>
           `;
           tbody.appendChild(tr);
         });
