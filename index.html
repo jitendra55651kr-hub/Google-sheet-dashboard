@@ -626,8 +626,8 @@
         .d2-team-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 14px 22px; font-size: 18px; font-weight: 900; color: #ffffff; border-bottom: 3px solid #1e3a8a; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
         .d2-header-avg { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 6px; }
         
-        /* Controlled max-height with sticky headers to prevent extra space while freezing headers */
-        .d2-table-container-scroll { max-height: 520px; overflow-y: auto; overflow-x: auto; }
+        /* Removed max-height restriction so list flows down naturally */
+        .d2-table-container-scroll { overflow-y: visible; overflow-x: auto; }
         .d2-table { width: 100%; border-collapse: collapse; text-align: left; }
         .d2-table th { background-color: #0f172a; color: #ffffff; padding: 10px 6px; font-weight: 800; border-bottom: 3px solid #1e3a8a; border-right: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 11px; text-align: center; position: sticky; top: 0; z-index: 10; }
         .d2-table th:first-child { text-align: left; padding-left: 12px; }
@@ -641,7 +641,7 @@
         .d2-metric-achieved { text-align: center; font-size: 13px; color: #065f46; font-weight: 900; background-color: #d1fae5; }
         .d2-metric-prod { text-align: center; font-size: 13px; color: #0369a1; font-weight: 900; background-color: #e0f2fe; }
         .d2-grand-total-row { background-color: #0f172a !important; color: #ffffff !important; font-weight: 900 !important; }
-        .d2-grand-total-row td { background-color: #0f172a !important; color: #ffffff !important; font-weight: 900 !important; border-top: 3px solid #2563eb; position: sticky; bottom: 0; z-index: 5; }
+        .d2-grand-total-row td { background-color: #0f172a !important; color: #ffffff !important; font-weight: 900 !important; border-top: 3px solid #2563eb; }
       </style>
 
       <header class="d2-header">
