@@ -626,10 +626,10 @@
         .d2-team-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 14px 22px; font-size: 18px; font-weight: 900; color: #ffffff; border-bottom: 3px solid #1e3a8a; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
         .d2-header-avg { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 6px; }
         
-        /* Fixed mobile height spacing and tight table sizing */
-        .d2-table-container-scroll { overflow-y: visible; overflow-x: auto; }
+        /* Freeze Header with Sticky Table Scroll container */
+        .d2-table-container-scroll { max-height: 600px; overflow-y: auto; overflow-x: auto; }
         .d2-table { width: 100%; border-collapse: collapse; text-align: left; }
-        .d2-table th { background-color: #0f172a; color: #ffffff; padding: 10px 6px; font-weight: 800; border-bottom: 3px solid #1e3a8a; border-right: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 11px; text-align: center; }
+        .d2-table th { background-color: #0f172a; color: #ffffff; padding: 10px 6px; font-weight: 800; border-bottom: 3px solid #1e3a8a; border-right: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 11px; text-align: center; position: sticky; top: 0; z-index: 10; }
         .d2-table th:first-child { text-align: left; padding-left: 12px; }
         .d2-table td { padding: 9px 6px; border-bottom: 1.5px solid #e2e8f0; border-right: 1.5px solid #e2e8f0; color: #0f172a; font-weight: 800; font-size: 13px; }
         .d2-table tr:nth-child(even) { background-color: #f8fafc; }
@@ -641,7 +641,7 @@
         .d2-metric-achieved { text-align: center; font-size: 13px; color: #065f46; font-weight: 900; background-color: #d1fae5; }
         .d2-metric-prod { text-align: center; font-size: 13px; color: #0369a1; font-weight: 900; background-color: #e0f2fe; }
         .d2-grand-total-row { background-color: #0f172a !important; color: #ffffff !important; font-weight: 900 !important; }
-        .d2-grand-total-row td { background-color: #0f172a !important; color: #ffffff !important; font-weight: 900 !important; border-top: 3px solid #2563eb; }
+        .d2-grand-total-row td { background-color: #0f172a !important; color: #ffffff !important; font-weight: 900 !important; border-top: 3px solid #2563eb; position: sticky; bottom: 0; z-index: 5; }
       </style>
 
       <header class="d2-header">
@@ -1022,6 +1022,25 @@
         }
         .d3-table tbody tr:nth-child(even) { background-color: #f8fafc; }
         .d3-table tbody tr:hover { background-color: #f1f5f9; }
+
+        /* Sticky Agent Name Column for Dashboard 3 */
+        .d3-table th:first-child,
+        .d3-col-agent-name {
+          position: sticky;
+          left: 0;
+          z-index: 5;
+          background-color: #ffffff;
+        }
+        .d3-table thead th:first-child {
+          background-color: #0f172a !important;
+          z-index: 6;
+        }
+        .d3-table tbody tr:nth-child(even) .d3-col-agent-name {
+          background-color: #f8fafc;
+        }
+        .d3-table tbody tr:hover .d3-col-agent-name {
+          background-color: #f1f5f9;
+        }
 
         .d3-col-agent-name {
           text-align: center;
@@ -2401,7 +2420,7 @@
         list.sort((a, b) => b.achievedVal - a.achievedVal);
 
         let tableRows = '';
-        let totDone = 0, totCamp = 0, totVideo = 0, totFdb = 0, totConnFdb = 0, totImm = 0, totConnImm = 0, totTarget = 0, totAch = 0;
+        let totDone = 0, totCamp = 0, totVideo = 0, totFdb = 0, totConnFdb = 0, totTarget = 0, totAch = 0;
 
         list.forEach((item, idx) => {
           gTotAgents++;
@@ -2410,8 +2429,6 @@
           totVideo += item.stats.videocall;
           totFdb += item.stats.fdb;
           totConnFdb += item.stats.conn_fdb;
-          totImm += item.stats.imm_fdb;
-          totConnImm += item.stats.conn_imm_fdb;
           totTarget += targetPerAgent;
           totAch += item.achievedVal;
           gTotDoneCases += item.stats.done;
@@ -2426,8 +2443,6 @@
               <td class="d2-metric-val">${fmt(item.stats.videocall)}</td>
               <td class="d2-metric-val">${fmt(item.stats.fdb)}</td>
               <td class="d2-metric-val">${fmt(item.stats.conn_fdb)}</td>
-              <td class="d2-metric-val">${fmt(item.stats.imm_fdb)}</td>
-              <td class="d2-metric-val">${fmt(item.stats.conn_imm_fdb)}</td>
               <td class="d2-metric-target">${targetPerAgent.toLocaleString()}</td>
               <td class="d2-metric-achieved">${fmt(item.achievedVal)}</td>
               <td class="d2-metric-prod">${item.prodVal.toFixed(1)}%</td>
@@ -2448,8 +2463,6 @@
             <td style="text-align:center;">${fmtTot(totVideo)}</td>
             <td style="text-align:center;">${fmtTot(totFdb)}</td>
             <td style="text-align:center;">${fmtTot(totConnFdb)}</td>
-            <td style="text-align:center;">${fmtTot(totImm)}</td>
-            <td style="text-align:center;">${fmtTot(totConnImm)}</td>
             <td style="text-align:center;">${fmtTot(totTarget)}</td>
             <td style="text-align:center;">${fmtTot(totAch)}</td>
             <td style="text-align:center;">${overallProdPct.toFixed(1)}%</td>
@@ -2472,8 +2485,6 @@
                     <th>Clinic Video Call</th>
                     <th>FDB</th>
                     <th>Connected FDB</th>
-                    <th>IMM FDB</th>
-                    <th>Connected IMM FDB</th>
                     <th>Total Target</th>
                     <th>Achieved Target</th>
                     <th>Productivity %</th>
