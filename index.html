@@ -626,7 +626,6 @@
         .d2-team-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 14px 22px; font-size: 18px; font-weight: 900; color: #ffffff; border-bottom: 3px solid #1e3a8a; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
         .d2-header-avg { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 6px; }
         
-        /* Removed max-height restriction so list flows down naturally */
         .d2-table-container-scroll { overflow-y: visible; overflow-x: auto; }
         .d2-table { width: 100%; border-collapse: collapse; text-align: left; }
         .d2-table th { background-color: #0f172a; color: #ffffff; padding: 10px 6px; font-weight: 800; border-bottom: 3px solid #1e3a8a; border-right: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 11px; text-align: center; position: sticky; top: 0; z-index: 10; }
@@ -1730,7 +1729,7 @@
 
   <!-- =========================================================================
         COMPLETE JAVASCRIPT ENGINE
-        ========================================================================= -->
+        ======================================================================== -->
   <script>
     // Live Clock
     function updateRoyalClock() {
@@ -2784,10 +2783,10 @@
 
     let d3TeamSortState = {
       "TEAM JITENDRA": { column: "tat", order: "asc" },
-      "TEAM DEEPTI":   { column: "tat", order: "asc" },
-      "TEAM RAVI":     { column: "tat", order: "asc" },
-      "TEAM SHIVAM":   { column: "tat", order: "asc" },
-      "TEAM ISHANT":   { column: "tat", order: "asc" }
+      "TEAM DEEPTI":    { column: "tat", order: "asc" },
+      "TEAM RAVI":      { column: "tat", order: "asc" },
+      "TEAM SHIVAM":    { column: "tat", order: "asc" },
+      "TEAM ISHANT":    { column: "tat", order: "asc" }
     };
 
     let d3TeamInlineBreakOpen = {};
@@ -2867,6 +2866,27 @@
       } catch (e) {}
 
       return null;
+    }
+
+    function parseD3ShiftStartTime(datePrefix, shiftStr) {
+      if (!shiftStr || !shiftStr.includes('-')) return null;
+      try {
+        const startPart = shiftStr.split('-')[0].trim();
+        const match = startPart.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!match) return null;
+        let hours = parseInt(match[1], 10);
+        const mins = parseInt(match[2], 10);
+        const ampm = match[3].toUpperCase();
+
+        if (ampm === "PM" && hours < 12) hours += 12;
+        if (ampm === "AM" && hours === 12) hours = 0;
+
+        const hStr = String(hours).padStart(2, '0');
+        const mStr = String(mins).padStart(2, '0');
+        return `${datePrefix} ${hStr}:${mStr}:00`;
+      } catch (err) {
+        return null;
+      }
     }
 
     function parseD3ShiftEndTime(datePrefix, shiftStr) {
@@ -2979,6 +2999,35 @@
         let totalBreakMins = 0;
         const breakList = [];
 
+        // 1. Check Pre-Shift / Late Start Gap (Between Scheduled Shift Start and First Case Appt Time)
+        const firstCase = validCases[0];
+        const firstApptStr = firstCase.apptTime;
+        const datePart = (String(firstApptStr).split(' ')[0] || "").trim();
+        const scheduledShiftStartStr = parseD3ShiftStartTime(datePart, agent.shift);
+
+        if (scheduledShiftStartStr) {
+          const shiftStartDate = parseD3SafeDate(scheduledShiftStartStr);
+          const firstCaseDate = parseD3SafeDate(firstApptStr);
+
+          if (shiftStartDate && firstCaseDate) {
+            const preShiftGapMins = (firstCaseDate.getTime() - shiftStartDate.getTime()) / (1000 * 60);
+            if (preShiftGapMins > 15 && preShiftGapMins <= 480) {
+              totalBreakMins += preShiftGapMins;
+              breakList.push({
+                startTime: scheduledShiftStartStr,
+                endTime: firstApptStr,
+                durationMins: Math.round(preShiftGapMins),
+                prevEmr: "SHIFT START",
+                nextEmr: firstCase.emr,
+                prevDoc: "Scheduled Start",
+                nextDoc: firstCase.doctor,
+                type: 'PRE_SHIFT_GAP'
+              });
+            }
+          }
+        }
+
+        // 2. Inter-case Gaps
         for (let i = 0; i < validCases.length - 1; i++) {
           const currentEndStr = validCases[i].consultEndTime && validCases[i].consultEndTime !== '-'
             ? validCases[i].consultEndTime
@@ -3008,13 +3057,14 @@
           }
         }
 
+        // 3. Post-Shift End Gap
         const lastCase = validCases[validCases.length - 1];
         const lastEndStr = lastCase.consultEndTime && lastCase.consultEndTime !== '-'
           ? lastCase.consultEndTime
           : (lastCase.feedbackEndTime && lastCase.feedbackEndTime !== '-' ? lastCase.feedbackEndTime : lastCase.apptTime);
 
-        const datePart = (String(lastEndStr).split(' ')[0] || "").trim();
-        const scheduledShiftEndStr = parseD3ShiftEndTime(datePart, agent.shift);
+        const lastDatePart = (String(lastEndStr).split(' ')[0] || "").trim();
+        const scheduledShiftEndStr = parseD3ShiftEndTime(lastDatePart, agent.shift);
 
         if (scheduledShiftEndStr) {
           const lastCaseEndDate = parseD3SafeDate(lastEndStr);
@@ -3335,6 +3385,35 @@
           let totalBreakMins = 0;
           const breakList = [];
 
+          // 1. Pre-Shift / Late Start Gap
+          const firstCase = validCases[0];
+          const firstApptStr = firstCase.apptTime;
+          const datePart = (String(firstApptStr).split(' ')[0] || "").trim();
+          const scheduledShiftStartStr = parseD3ShiftStartTime(datePart, agent.shift);
+
+          if (scheduledShiftStartStr) {
+            const shiftStartDate = parseD3SafeDate(scheduledShiftStartStr);
+            const firstCaseDate = parseD3SafeDate(firstApptStr);
+
+            if (shiftStartDate && firstCaseDate) {
+              const preShiftGapMins = (firstCaseDate.getTime() - shiftStartDate.getTime()) / (1000 * 60);
+              if (preShiftGapMins > 15 && preShiftGapMins <= 480) {
+                totalBreakMins += preShiftGapMins;
+                breakList.push({
+                  startTime: scheduledShiftStartStr,
+                  endTime: firstApptStr,
+                  durationMins: Math.round(preShiftGapMins),
+                  prevEmr: "SHIFT START",
+                  nextEmr: firstCase.emr,
+                  prevDoc: "Scheduled Start",
+                  nextDoc: firstCase.doctor,
+                  type: 'PRE_SHIFT_GAP'
+                });
+              }
+            }
+          }
+
+          // 2. Inter-case Gaps
           for (let i = 0; i < validCases.length - 1; i++) {
             const currentEndStr = validCases[i].consultEndTime && validCases[i].consultEndTime !== '-'
               ? validCases[i].consultEndTime
@@ -3364,13 +3443,14 @@
             }
           }
 
+          // 3. Post-Shift End Gap
           const lastCase = validCases[validCases.length - 1];
           const lastEndStr = lastCase.consultEndTime && lastCase.consultEndTime !== '-'
             ? lastCase.consultEndTime
             : (lastCase.feedbackEndTime && lastCase.feedbackEndTime !== '-' ? lastCase.feedbackEndTime : lastCase.apptTime);
 
-          const datePart = (String(lastEndStr).split(' ')[0] || "").trim();
-          const scheduledShiftEndStr = parseD3ShiftEndTime(datePart, agent.shift);
+          const lastDatePart = (String(lastEndStr).split(' ')[0] || "").trim();
+          const scheduledShiftEndStr = parseD3ShiftEndTime(lastDatePart, agent.shift);
 
           if (scheduledShiftEndStr) {
             const lastCaseEndDate = parseD3SafeDate(lastEndStr);
@@ -3575,6 +3655,11 @@
           contextHtml = `
             <span>Last Case ${b.prevEmr || '-'}</span> ➔ 
             <span style="font-weight: 900; color: #e11d48;">[SHIFT LOGOFF GAP / IDLE TILL SHIFT END]</span>
+          `;
+        } else if (b.type === 'PRE_SHIFT_GAP') {
+          contextHtml = `
+            <span style="font-weight: 900; color: #e11d48;">[SCHEDULED START / LATE LOGIN GAP]</span> ➔ 
+            <span>First Case ${b.nextEmr || '-'} (${b.nextDoc || '-'})</span>
           `;
         }
 
