@@ -1795,7 +1795,7 @@
         "Anjali Gupta", "Roshni chouhan", "NIKITA YADAV"
       ],
       "TEAM RAVI": [
-        "Jyoti Singh unit 2", "Rajendra Mourya", "Apurv Acharya", 
+        "Jyoti", "Rajendra Mourya", "Apurv Acharya", 
         "Amit Sharma", "Atul Kumar", "Sumit H", "Piyush Verma", 
         "Shivam Shukla", "Hitesh Kumar", "Samirun Nisha", "Abuzar Akhtar"
       ],
@@ -2156,7 +2156,7 @@
         "Anjali Gupta", "Roshni chouhan", "Rajesh"
       ],
       "TEAM RAVI": [
-        "Jyoti Singh unit 2", "Rajendra Mourya", "Apurv Acharya", 
+        "Jyoti", "Rajendra Mourya", "Apurv Acharya", 
         "Amit Sharma", "Atul Kumar", "Sumit H", "Piyush Verma", 
         "Shivam Shukla", "Hitesh Kumar", "Samirun Nisha", "Abuzar Akhtar"
       ],
@@ -2184,7 +2184,7 @@
       { name: "Harivansh Agarwal" },
       { name: "Isha Mehta" },
       { name: "Jogender Singh" },
-      { name: "Jyoti Singh Unit 2" },
+      { name: "Jyoti" },
       { name: "Kamni Muthoot" },
       { name: "Md Anas" },
       { name: "Munsi Sakil Ahmed" },
@@ -2745,7 +2745,7 @@
       {
         team: "TEAM RAVI",
         members: [
-          { name: "Jyoti Singh Unit 2", shift: "7:00 AM - 4:00 PM", match: ["jyoti singh", "ms01006"] },
+          { name: "Jyoti", shift: "7:00 AM - 4:00 PM", match: ["jyoti", "ms00713"] },
           { name: "Rajendra Mourya", shift: "7:00 AM - 4:00 PM", match: ["rajendra"] },
           { name: "Apurv Acharya", shift: "7:30 AM - 4:30 PM", match: ["apurv"] },
           { name: "Amit Sharma", shift: "9:00 AM - 6:00 PM", match: ["amit sharma", "ms01219"] }
@@ -3000,7 +3000,7 @@
         let totalBreakMins = 0;
         const breakList = [];
 
-        // 1. Shift Start Gap (शिफ्ट की शुरुआत और पहले केस के बीच का गैप)
+        // 1. Shift Start Gap
         const firstCase = validCases[0];
         const firstApptTimeStr = firstCase.apptTime;
         const datePart = (String(firstApptTimeStr).split(' ')[0] || "").trim();
@@ -3027,7 +3027,7 @@
           }
         }
 
-        // 2. Inter-Case Breaks (दो केस के बीच के गैप)
+        // 2. Inter-Case Breaks
         for (let i = 0; i < validCases.length - 1; i++) {
           const currentEndStr = validCases[i].consultEndTime && validCases[i].consultEndTime !== '-'
             ? validCases[i].consultEndTime
@@ -3057,7 +3057,7 @@
           }
         }
 
-        // 3. Shift End Gap (आखिरी केस और शिफ्ट समाप्ति के बीच का गैप)
+        // 3. Shift End Gap
         const lastCase = validCases[validCases.length - 1];
         const lastEndStr = lastCase.consultEndTime && lastCase.consultEndTime !== '-'
           ? lastCase.consultEndTime
@@ -3215,14 +3215,12 @@
                 ${member.name}
               </td>
               <td class="d3-col-shift-tag"><span class="d3-shift-pill">${member.shift}</span></td>
-              <td class="d3-col-region-tag">${displayRegion}</td>
-              ${slotCells}
+              <td class="d3-col-region-tag">${displayRegion}</td>${slotCells}
               <td class="d3-col-category-breakdown">${member.cpCount || ''}</td>
               <td class="d3-col-category-breakdown">${member.clinicCount || ''}</td>
               <td class="d3-col-total-summary" title="Click to view all ${member.total} cases" onclick="openD3Drilldown('${member.name.replace(/'/g, "\\'")}', 'ALL')">
                 <div class="d3-spark-wrap">
-                  <span>${displayTotal}</span>
-                  ${member.total > 0 ? `
+                  <span>${displayTotal}</span>${member.total > 0 ? `
                     <div class="d3-spark-bar-bg">
                       <div class="d3-spark-bar-fill" style="width: ${percent}%;"></div>
                     </div>` : ''}
@@ -3251,7 +3249,7 @@
             const rankClass = index === 0 ? "d3-rank-1" : index === 1 ? "d3-rank-2" : index === 2 ? "d3-rank-3" : "";
             const hoursPart = Math.floor(item.totalBreakMins / 60);
             const minsPart = item.totalBreakMins % 60;
-            const formattedTotal = hoursPart > 0 ? `${hoursPart}h ${minsPart}m` : `${minsPart}m`;
+            const formattedTotal = hoursPart > 0 ? `${hoursPart}h${minsPart}m` : `${minsPart}m`;
 
             inlineBreakRows += `
               <tr>
@@ -3343,7 +3341,7 @@
 
       document.getElementById("d3StatTotal").innerText = grandTotal.toLocaleString();
       document.getElementById("d3StatTat").innerText = `${overallAvgTat} m`;
-      document.getElementById("d3StatAgents").innerText = `${activeAgentsCount} / ${D3_TOTAL_CAPACITY}`;
+      document.getElementById("d3StatAgents").innerText = `${activeAgentsCount} /${D3_TOTAL_CAPACITY}`;
 
       document.getElementById("d3StatLowestAgent").innerText = globalMinAgent.tat !== 9999 ? `${globalMinAgent.name} (${globalMinAgent.tat}m)` : "--";
       document.getElementById("d3StatHighestAgent").innerText = globalMaxAgent.tat !== -1 ? `${globalMaxAgent.name} (${globalMaxAgent.tat}m)` : "--";
@@ -3517,7 +3515,7 @@
         const rankClass = index === 0 ? "d3-rank-1" : index === 1 ? "d3-rank-2" : index === 2 ? "d3-rank-3" : "";
         const hoursPart = Math.floor(item.totalBreakMins / 60);
         const minsPart = item.totalBreakMins % 60;
-        const formattedTotal = hoursPart > 0 ? `${hoursPart}h ${minsPart}m` : `${minsPart}m`;
+        const formattedTotal = hoursPart > 0 ? `${hoursPart}h${minsPart}m` : `${minsPart}m`;
 
         html += `
           <tr>
@@ -3563,7 +3561,7 @@
         titleText.innerText = `${agentName.toUpperCase()} — COMPLETE CASE LOGS`;
       } else {
         casesToShow = d3AgentCaseStore[agentName][slot] || [];
-        titleText.innerText = `${agentName.toUpperCase()} — HOURLY SLOT [ ${slot} ]`;
+        titleText.innerText = `${agentName.toUpperCase()} — HOURLY SLOT [${slot} ]`;
       }
 
       const regionCounts = {};
@@ -3643,17 +3641,17 @@
       breaks.forEach((b, idx) => {
         const hours = Math.floor(b.durationMins / 60);
         const mins = b.durationMins % 60;
-        const durFormatted = hours > 0 ? `${hours}h ${mins}m` : `${mins} mins`;
+        const durFormatted = hours > 0 ? `${hours}h${mins}m` : `${mins} mins`;
 
         const tr = document.createElement("tr");
         let contextHtml = `
-          <span>Case ${b.prevEmr || '-'} (${b.prevDoc || '-'})</span> ➔ 
-          <span style="font-weight: 900; color: #0284c7;">Case ${b.nextEmr || '-'} (${b.nextDoc || '-'})</span>
+          <span>Case ${b.prevEmr \vert{}\vert{} '-'} (${b.prevDoc || '-'})</span> ➔ 
+          <span style="font-weight: 900; color: #0284c7;">Case ${b.nextEmr \vert{}\vert{} '-'} (${b.nextDoc || '-'})</span>
         `;
         if (b.type === 'SHIFT_START_GAP') {
           contextHtml = `
             <span style="font-weight: 900; color: #e11d48;">[SHIFT START GAP / IDLE FROM SHIFT START]</span> ➔ 
-            <span>Case ${b.nextEmr || '-'} (${b.nextDoc || '-'})</span>
+            <span>Case ${b.nextEmr \vert{}\vert{} '-'} (${b.nextDoc || '-'})</span>
           `;
         } else if (b.type === 'SHIFT_END_GAP') {
           contextHtml = `
@@ -4062,6 +4060,9 @@
             const medAgent = (r["Med Agent"] || r["Pharmacist"] || r["Agent Name"] || r["Agent"] || "").toLowerCase().trim();
             const empCode = (r["Med Agent Emp Code"] || r["Emp Code"] || r["Agent Emp Code"] || "").toLowerCase().trim();
 
+            if (agentObj.name === "Jyoti") {
+              return medAgent === "jyoti" || medAgent.startsWith("jyoti") || empCode === "ms00713";
+            }
             if (agentObj.name === "Kamni Sharma") {
               return medAgent === "kamni" || medAgent.startsWith("kamni") || medAgent.includes("kamini");
             }
@@ -4312,7 +4313,7 @@
 
     function renderD5Table(list) {
       const tbody = document.getElementById('d5TableBody');
-      tbody.innerHTML = '';
+      tbody.innerHTML = ``;
       if (!list || list.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" style="padding:20px; text-align:center; color:#ef4444;">No matching records found.</td></tr>`;
       } else {
