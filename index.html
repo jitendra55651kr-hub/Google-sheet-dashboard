@@ -1795,7 +1795,7 @@
         "Anjali Gupta", "Roshni chouhan", "NIKITA YADAV"
       ],
       "TEAM RAVI": [
-        "Jyoti Singh Unit 2", "Rajendra Mourya", "Apurv Acharya", 
+        "Jyoti Singh unit 2", "Rajendra Mourya", "Apurv Acharya", 
         "Amit Sharma", "Atul Kumar", "Sumit H", "Piyush Verma", 
         "Shivam Shukla", "Hitesh Kumar", "Samirun Nisha", "Abuzar Akhtar"
       ],
@@ -2156,7 +2156,7 @@
         "Anjali Gupta", "Roshni chouhan", "Rajesh"
       ],
       "TEAM RAVI": [
-        "Jyoti Singh Unit 2", "Rajendra Mourya", "Apurv Acharya", 
+        "Jyoti Singh unit 2", "Rajendra Mourya", "Apurv Acharya", 
         "Amit Sharma", "Atul Kumar", "Sumit H", "Piyush Verma", 
         "Shivam Shukla", "Hitesh Kumar", "Samirun Nisha", "Abuzar Akhtar"
       ],
@@ -2745,7 +2745,7 @@
       {
         team: "TEAM RAVI",
         members: [
-          { name: "Jyoti Singh Unit 2", shift: "7:00 AM - 4:00 PM", match: ["jyoti", "ms00713", "jyoti singh"] },
+          { name: "Jyoti Singh Unit 2", shift: "7:00 AM - 4:00 PM", match: ["ms00713"] },
           { name: "Rajendra Mourya", shift: "7:00 AM - 4:00 PM", match: ["rajendra"] },
           { name: "Apurv Acharya", shift: "7:30 AM - 4:30 PM", match: ["apurv"] },
           { name: "Amit Sharma", shift: "9:00 AM - 6:00 PM", match: ["amit sharma", "ms01219"] }
@@ -4061,6 +4061,10 @@
           const matches = rows.filter(r => {
             const medAgent = (r["Med Agent"] || r["Pharmacist"] || r["Agent Name"] || r["Agent"] || "").toLowerCase().trim();
             const empCode = (r["Med Agent Emp Code"] || r["Emp Code"] || r["Agent Emp Code"] || "").toLowerCase().trim();
+
+            if (agentObj.name === "Jyoti Singh Unit 2") {
+              return empCode === "ms00713";
+            }
 
             if (agentObj.name === "Kamni Sharma") {
               return medAgent === "kamni" || medAgent.startsWith("kamni") || medAgent.includes("kamini");
