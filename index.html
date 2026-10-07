@@ -9,119 +9,120 @@
     <!-- Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f1f38; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #fff; }
         .navy-header { background-color: #0f1f38; }
         .orange-btn { background-color: #ff7a00; transition: all 0.3s ease; }
         .orange-btn:hover { background-color: #e06b00; }
-        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
 <body class="min-h-screen pb-12">
 
     <!-- Top Navigation Bar -->
-    <header class="navy-header text-white px-6 py-4 flex flex-wrap justify-between items-center shadow-md">
+    <header class="navy-header text-white px-8 py-5 flex flex-wrap justify-between items-center border-b border-blue-900 shadow-lg">
         <div class="flex items-center space-x-3">
             <span class="text-2xl font-black tracking-wider text-orange-400">m-swasth</span>
-            <span class="text-sm bg-blue-900 px-3 py-1 rounded-full border border-blue-700">Team Wise Consultation Portal</span>
+            <span class="text-xs bg-blue-900 px-3 py-1.5 rounded-full border border-blue-700 tracking-wide uppercase font-semibold">Region Branch Consultation Portal</span>
         </div>
-        <div>
-            <label for="fileUpload" class="orange-btn text-white px-5 py-2.5 rounded-lg cursor-pointer font-semibold shadow-lg inline-flex items-center gap-2">
-                📁 UPLOAD FILE (CSV / EXCEL)
+        <div class="flex items-center gap-3">
+            <label for="fileUpload" class="orange-btn text-white px-5 py-2.5 rounded-xl cursor-pointer font-bold text-sm shadow-md inline-flex items-center gap-2">
+                📁 UPLOAD EXCEL / CSV FILE
             </label>
             <input type="file" id="fileUpload" accept=".csv, .xlsx, .xls" class="hidden">
+            <span id="fileNameDisplay" class="text-xs bg-blue-900/80 px-3 py-2 rounded-xl border border-blue-700 text-blue-200 hidden">No file chosen</span>
         </div>
     </header>
 
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 mt-6">
 
-        <!-- Summary KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-orange-500">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Done Consultation</p>
-                <h3 id="kpiDone" class="text-3xl font-bold text-gray-800 mt-2">0</h3>
+        <!-- Summary KPI Cards (Exact Match to Image 2 & 3 Styling) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-orange-500">
+                <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL DONE CONSULTATION</p>
+                <h3 id="kpiDone" class="text-3xl font-black text-gray-900 mt-2">0</h3>
             </div>
-            <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-blue-600">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Clinic Video Consultation</p>
-                <h3 id="kpiVideo" class="text-3xl font-bold text-gray-800 mt-2">0</h3>
+            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-blue-600">
+                <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL CLINIC VIDEO CALL</p>
+                <h3 id="kpiVideo" class="text-3xl font-black text-gray-900 mt-2">0</h3>
             </div>
-            <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-emerald-500">
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Camp Consultation</p>
-                <h3 id="kpiCamp" class="text-3xl font-bold text-gray-800 mt-2">0</h3>
+            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-emerald-500">
+                <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL CAMP CONSULTATION</p>
+                <h3 id="kpiCamp" class="text-3xl font-black text-gray-900 mt-2">0</h3>
             </div>
-            <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-purple-600 bg-gradient-to-br from-white to-purple-50">
-                <p class="text-xs font-bold text-purple-700 uppercase tracking-wider">Avg Cases / Agent</p>
-                <h3 id="kpiAvgAgent" class="text-3xl font-bold text-purple-900 mt-2">0.00</h3>
-                <p id="agentInfoText" class="text-xs text-gray-500 mt-1">Based on active agents</p>
+            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-purple-600 bg-gradient-to-br from-white to-purple-50">
+                <p class="text-[11px] font-extrabold text-purple-700 uppercase tracking-wider">AVG CASES / AGENT</p>
+                <h3 id="kpiAvgAgent" class="text-3xl font-black text-purple-900 mt-2">0.00</h3>
+                <p id="agentInfoText" class="text-[11px] text-gray-500 font-medium mt-0.5">Using active agent(s)</p>
             </div>
         </div>
 
         <!-- Filters Section -->
-        <div class="bg-white p-6 rounded-xl card-shadow mb-6">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">🔍 Interactive Filters & Team Management</h2>
+        <div class="bg-white text-gray-800 p-6 rounded-xl card-shadow mb-6">
+            <h2 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span class="text-purple-600">⚡</span> Interactive Filters & Team Management
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Team Filter</label>
-                    <select id="filterTeam" class="w-full border border-gray-300 rounded-lg p-2.5 bg-orange-50 font-semibold text-orange-900 focus:ring-2 focus:ring-orange-500">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Team Filter</label>
+                    <select id="filterTeam" class="w-full border border-gray-300 rounded-lg p-2.5 bg-orange-50/60 font-semibold text-orange-900 focus:ring-2 focus:ring-orange-500 text-sm">
                         <option value="">All Teams (All Regions)</option>
-                        <option value="TEAM JITENDRA">Team Jitendra</option>
-                        <option value="TEAM DEEPTI">Team Deepti</option>
-                        <option value="TEAM ISHANT">Team Ishant</option>
-                        <option value="TEAM SHIVAM SAXENA">Team Shivam Saxena</option>
-                        <option value="TEAM RAVI">Team Ravi</option>
+                        <option value="TEAM JITENDRA">Team Jitendra (5)</option>
+                        <option value="TEAM DEEPTI">Team Deepti (6)</option>
+                        <option value="TEAM ISHANT">Team Ishant (6)</option>
+                        <option value="TEAM SHIVAM SAXENA">Team Shivam Saxena (5)</option>
+                        <option value="TEAM RAVI">Team Ravi (4)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Active Agents Count</label>
-                    <div class="flex items-center gap-2">
-                        <input type="number" id="agentCountInput" min="1" value="0" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 font-bold text-gray-800" title="Modify agent count to account for leaves">
-                    </div>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Active Agents Count</label>
+                    <input type="number" id="agentCountInput" min="1" value="26" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 font-bold text-gray-800 text-sm" title="Modify agent count to account for leaves">
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Region Filter</label>
-                    <select id="filterRegion" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-orange-500">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Region Filter</label>
+                    <select id="filterRegion" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 font-semibold text-gray-700 focus:ring-2 focus:ring-orange-500 text-sm">
                         <option value="">All Regions</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Branch Name Filter</label>
-                    <select id="filterBranch" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-orange-500">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Branch Name Filter</label>
+                    <select id="filterBranch" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 font-semibold text-gray-700 focus:ring-2 focus:ring-orange-500 text-sm">
                         <option value="">All Branches</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Clinic Code Filter</label>
-                    <select id="filterClinic" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-orange-500">
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Clinic Code Filter</label>
+                    <select id="filterClinic" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 font-semibold text-gray-700 focus:ring-2 focus:ring-orange-500 text-sm">
                         <option value="">All Clinic Codes</option>
                     </select>
                 </div>
             </div>
             <div class="mt-4 flex gap-3">
-                <button id="resetBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-300">Reset Filters</button>
+                <button id="resetBtn" class="bg-gray-100 text-gray-700 text-xs font-bold px-4 py-2 rounded-lg hover:bg-gray-200 uppercase transition-colors">Reset Filters</button>
             </div>
         </div>
 
-        <!-- Data Table Section -->
-        <div class="bg-white rounded-xl card-shadow overflow-hidden">
-            <div class="navy-header text-white px-6 py-3 flex justify-between items-center">
-                <h3 class="font-bold text-base">Consultation Records Detail</h3>
-                <span id="rowCount" class="text-xs bg-blue-900 px-3 py-1 rounded-full">Showing 0 rows</span>
+        <!-- Data Table Section (Exact Dark Navy Table Header Match) -->
+        <div class="bg-white text-gray-800 rounded-xl card-shadow overflow-hidden border border-blue-900/20">
+            <div class="navy-header text-white px-6 py-3.5 flex justify-between items-center border-b border-blue-900">
+                <h3 id="tableTitle" class="font-bold text-sm tracking-wide uppercase">TEAM CONSULTATION RECORDS DETAIL</h3>
+                <span id="rowCount" class="text-xs bg-blue-900/90 px-3 py-1 rounded-full text-blue-200 border border-blue-700">Showing 0 rows</span>
             </div>
-            <div class="overflow-x-auto max-h-[500px]">
+            <div class="overflow-x-auto max-h-[520px]">
                 <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-100 text-gray-700 sticky top-0 uppercase text-xs">
+                    <thead class="navy-header text-white sticky top-0 uppercase text-[11px] tracking-wider border-b border-blue-800">
                         <tr>
-                            <th class="p-3 border-b">Region</th>
-                            <th class="p-3 border-b">Branch Name</th>
-                            <th class="p-3 border-b">Clinic Code</th>
-                            <th class="p-3 border-b text-right">Done Consultation</th>
-                            <th class="p-3 border-b text-right">Clinic Video Consultation</th>
-                            <th class="p-3 border-b text-right">Camp Consultation</th>
+                            <th class="p-3.5 border-r border-blue-900">Region 🗂️</th>
+                            <th class="p-3.5 border-r border-blue-900">Branch Name 🗂️</th>
+                            <th class="p-3.5 border-r border-blue-900">Clinic Code 🗂️</th>
+                            <th class="p-3.5 border-r border-blue-900 text-right">Done Consultation 📊</th>
+                            <th class="p-3.5 border-r border-blue-900 text-right">Clinic Video Call 📞</th>
+                            <th class="p-3.5 text-right">Camp Consultation ⛺</th>
                         </tr>
                     </thead>
-                    <tbody id="dataTableBody" class="divide-y divide-gray-200 text-sm">
+                    <tbody id="dataTableBody" class="divide-y divide-gray-200 text-sm bg-white text-gray-800">
                         <tr>
-                            <td colspan="6" class="p-6 text-center text-gray-500">Kripya upar diye gaye button se apni Excel/CSV file upload karein.</td>
+                            <td colspan="6" class="p-8 text-center text-gray-400 font-medium">Kripya upar diye gaye button se apni Excel/CSV file upload karein.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -145,6 +146,11 @@
         document.getElementById('fileUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
+
+            // Show filename badge
+            const fileDisplay = document.getElementById('fileNameDisplay');
+            fileDisplay.textContent = file.name;
+            fileDisplay.classList.remove('hidden');
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -209,10 +215,11 @@
             
             if (selectedTeam && teamConfigs[selectedTeam]) {
                 agentInput.value = teamConfigs[selectedTeam].agents;
+                document.getElementById('tableTitle').textContent = `${selectedTeam} CONSULTATION RECORDS DETAIL`;
             } else {
-                // Sum of all agents across all teams as default for "All Teams"
                 let totalAllAgents = Object.values(teamConfigs).reduce((sum, t) => sum + t.agents, 0);
                 agentInput.value = totalAllAgents;
+                document.getElementById('tableTitle').textContent = `ALL TEAMS CONSULTATION RECORDS DETAIL`;
             }
         }
 
@@ -248,7 +255,6 @@
         document.getElementById('filterBranch').addEventListener('change', filterAndRender);
         document.getElementById('filterClinic').addEventListener('change', filterAndRender);
         document.getElementById('agentCountInput').addEventListener('input', () => {
-            // Re-render KPI when agent count is manually adjusted (e.g. for leave)
             const filtered = getFilteredData();
             updateKPIsAndTable(filtered);
         });
@@ -307,20 +313,20 @@
             tbody.innerHTML = '';
 
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-gray-500">Selected filter ke liye koi data nahi mila.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500 font-medium">Selected filter ke liye koi data nahi mila.</td></tr>`;
                 return;
             }
 
             data.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-blue-50 transition-colors cursor-pointer";
+                tr.className = "hover:bg-blue-50/80 transition-colors cursor-pointer text-gray-800";
                 tr.innerHTML = `
-                    <td class="p-3 border-b font-medium text-gray-800">${row.Region}</td>
-                    <td class="p-3 border-b text-gray-600">${row.Branch}</td>
-                    <td class="p-3 border-b text-blue-600 font-mono">${row.ClinicCode}</td>
-                    <td class="p-3 border-b text-right font-bold text-gray-800">${row.Done}</td>
-                    <td class="p-3 border-b text-right text-gray-600">${row.Video}</td>
-                    <td class="p-3 border-b text-right text-gray-600">${row.Camp}</td>
+                    <td class="p-3.5 border-b border-gray-200 font-semibold text-gray-800">${row.Region}</td>
+                    <td class="p-3.5 border-b border-gray-200 text-gray-700">${row.Branch}</td>
+                    <td class="p-3.5 border-b border-gray-200 text-blue-700 font-mono font-medium">${row.ClinicCode}</td>
+                    <td class="p-3.5 border-b border-gray-200 text-right font-black text-gray-900">${row.Done}</td>
+                    <td class="p-3.5 border-b border-gray-200 text-right font-semibold text-gray-700">${row.Video}</td>
+                    <td class="p-3.5 border-b border-gray-200 text-right font-semibold text-gray-700">${row.Camp}</td>
                 `;
                 tr.addEventListener('click', () => {
                     document.getElementById('filterRegion').value = row.Region;
