@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>m-swasth Consultation Dashboard</title>
+    <title>m-swasth Team Consultation Dashboard</title>
     <!-- SheetJS for reading Excel/CSV files -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Tailwind CSS for modern styling -->
@@ -22,7 +22,7 @@
     <header class="navy-header text-white px-6 py-4 flex flex-wrap justify-between items-center shadow-md">
         <div class="flex items-center space-x-3">
             <span class="text-2xl font-black tracking-wider text-orange-400">m-swasth</span>
-            <span class="text-sm bg-blue-900 px-3 py-1 rounded-full border border-blue-700">Region Branch Consultation Portal</span>
+            <span class="text-sm bg-blue-900 px-3 py-1 rounded-full border border-blue-700">Team Wise Consultation Portal</span>
         </div>
         <div>
             <label for="fileUpload" class="orange-btn text-white px-5 py-2.5 rounded-lg cursor-pointer font-semibold shadow-lg inline-flex items-center gap-2">
@@ -54,7 +54,18 @@
         <!-- Filters Section -->
         <div class="bg-white p-6 rounded-xl card-shadow mb-6">
             <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">🔍 Interactive Filters</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Team Filter</label>
+                    <select id="filterTeam" class="w-full border border-gray-300 rounded-lg p-2.5 bg-orange-50 font-semibold text-orange-900 focus:ring-2 focus:ring-orange-500">
+                        <option value="">All Teams (All Regions)</option>
+                        <option value="TEAM JITENDRA">Team Jitendra</option>
+                        <option value="TEAM DEEPTI">Team Deepti</option>
+                        <option value="TEAM ISHANT">Team Ishant</option>
+                        <option value="TEAM SHIVAM SAXENA">Team Shivam Saxena</option>
+                        <option value="TEAM RAVI">Team Ravi</option>
+                    </select>
+                </div>
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Region Filter</label>
                     <select id="filterRegion" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-orange-500">
@@ -111,6 +122,15 @@
     <script>
         let globalData = [];
 
+        // Team to Regions mapping (case-insensitive matching applied in logic)
+        const teamMappings = {
+            "TEAM JITENDRA": ["SIWAN", "BILASPUR", "JASHPUR"],
+            "TEAM DEEPTI": ["RAIGARH", "TIKAMGARH", "BALLIA"],
+            "TEAM ISHANT": ["MIRZAPUR", "EAST CHAMPARAN", "SARAN", "DEOGARH"],
+            "TEAM SHIVAM SAXENA": ["KAIMUR ROHTAS", "SARGUJA", "MUZAFFARPUR", "MADHEPURA"],
+            "TEAM RAVI": ["SATNA", "CHANDAULI", "GIRIDIH"]
+        };
+
         document.getElementById('fileUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -122,10 +142,8 @@
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
                 
-                // Convert to JSON, skipping header rows if needed
                 const rawJson = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
-                // Locate header row containing 'Region'
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     if (rawJson[i].includes('Region') && rawJson[i].includes('Branch Name')) {
@@ -137,9 +155,9 @@
                 const formattedJson = XLSX.utils.sheet_to_json(worksheet, {range: headerIdx});
                 
                 globalData = formattedJson.map(row => ({
-                    Region: row['Region'] || '',
-                    Branch: row['Branch Name'] || '',
-                    ClinicCode: row['Clinic Code'] || '',
+                    Region: String(row['Region'] || '').trim(),
+                    Branch: String(row['Branch Name'] || '').trim(),
+                    ClinicCode: String(row['Clinic Code'] || '').trim(),
                     Done: Number(row['Done_Consualtion'] || row['No of Consulation'] || 0),
                     Video: Number(row['Clinic_Video_Consulation'] || row['Video_Consulatation'] || 0),
                     Camp: Number(row['Camp_Consulatation'] || 0)
@@ -163,7 +181,8 @@
 
         function fillSelect(elementId, items) {
             const select = document.getElementById(elementId);
-            select.innerHTML = `<option value="">All ${elementId.replace('filter', '')}</option>`;
+            const defaultText = select.options[0].text;
+            select.innerHTML = `<option value="">${defaultText}</option>`;
             items.forEach(item => {
                 const opt = document.createElement('option');
                 opt.value = item;
@@ -173,24 +192,38 @@
         }
 
         function filterAndRender() {
+            const selectedTeam = document.getElementById('filterTeam').value;
             const selectedRegion = document.getElementById('filterRegion').value;
             const selectedBranch = document.getElementById('filterBranch').value;
             const selectedClinic = document.getElementById('filterClinic').value;
 
             const filtered = globalData.filter(d => {
-                return (!selectedRegion || d.Region === selectedRegion) &&
-                       (!selectedBranch || d.Branch === selectedBranch) &&
-                       (!selectedClinic || d.ClinicCode === selectedClinic);
+                // Team filter check
+                if (selectedTeam) {
+                    const allowedRegions = teamMappings[selectedTeam] || [];
+                    // Match region case-insensitively
+                    const matchesTeamRegion = allowedRegions.some(r => r.toUpperCase() === d.Region.toUpperCase());
+                    if (!matchesTeamRegion) return false;
+                }
+
+                // Other filters check
+                if (selectedRegion && d.Region.toUpperCase() !== selectedRegion.toUpperCase()) return false;
+                if (selectedBranch && d.Branch.toUpperCase() !== selectedBranch.toUpperCase()) return false;
+                if (selectedClinic && d.ClinicCode.toUpperCase() !== selectedClinic.toUpperCase()) return false;
+
+                return true;
             });
 
             updateDashboard(filtered);
         }
 
+        document.getElementById('filterTeam').addEventListener('change', filterAndRender);
         document.getElementById('filterRegion').addEventListener('change', filterAndRender);
         document.getElementById('filterBranch').addEventListener('change', filterAndRender);
         document.getElementById('filterClinic').addEventListener('change', filterAndRender);
 
         document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('filterTeam').value = '';
             document.getElementById('filterRegion').value = '';
             document.getElementById('filterBranch').value = '';
             document.getElementById('filterClinic').value = '';
@@ -198,7 +231,6 @@
         });
 
         function updateDashboard(data) {
-            // Update KPIs
             const totalDone = data.reduce((sum, row) => sum + row.Done, 0);
             const totalVideo = data.reduce((sum, row) => sum + row.Video, 0);
             const totalCamp = data.reduce((sum, row) => sum + row.Camp, 0);
@@ -208,12 +240,11 @@
             document.getElementById('kpiCamp').textContent = totalCamp.toLocaleString();
             document.getElementById('rowCount').textContent = `Showing ${data.length} rows`;
 
-            // Update Table Body
             const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
 
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-gray-500">Koi data nahi mila.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-gray-500">Selected filter ke liye koi data nahi mila.</td></tr>`;
                 return;
             }
 
@@ -228,7 +259,6 @@
                     <td class="p-3 border-b text-right text-gray-600">${row.Video}</td>
                     <td class="p-3 border-b text-right text-gray-600">${row.Camp}</td>
                 `;
-                // Click interaction to filter down to specific row
                 tr.addEventListener('click', () => {
                     document.getElementById('filterRegion').value = row.Region;
                     document.getElementById('filterBranch').value = row.Branch;
