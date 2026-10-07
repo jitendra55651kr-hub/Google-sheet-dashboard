@@ -36,7 +36,7 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 mt-6">
 
-        <!-- Summary KPI Cards (Exact Match to Image 2 & 3 Styling) -->
+        <!-- Summary KPI Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-orange-500">
                 <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL DONE CONSULTATION</p>
@@ -102,7 +102,7 @@
             </div>
         </div>
 
-        <!-- Data Table Section (Exact Dark Navy Table Header Match) -->
+        <!-- Data Table Section -->
         <div class="bg-white text-gray-800 rounded-xl card-shadow overflow-hidden border border-blue-900/20">
             <div class="navy-header text-white px-6 py-3.5 flex justify-between items-center border-b border-blue-900">
                 <h3 id="tableTitle" class="font-bold text-sm tracking-wide uppercase">TEAM CONSULTATION RECORDS DETAIL</h3>
@@ -134,7 +134,6 @@
     <script>
         let globalData = [];
 
-        // Team to Regions and Default Agent Counts mapping
         const teamConfigs = {
             "TEAM JITENDRA": { regions: ["SIWAN", "BILASPUR", "JASHPUR"], agents: 5 },
             "TEAM DEEPTI": { regions: ["RAIGARH", "TIKAMGARH", "BALLIA"], agents: 6 },
@@ -147,7 +146,6 @@
             const file = e.target.files[0];
             if (!file) return;
 
-            // Show filename badge
             const fileDisplay = document.getElementById('fileNameDisplay');
             fileDisplay.textContent = file.name;
             fileDisplay.classList.remove('hidden');
@@ -180,26 +178,34 @@
                     Camp: Number(row['Camp_Consulatation'] || 0)
                 })).filter(row => row.Region !== '' && row.ClinicCode !== '' && row.ClinicCode !== 'undefined' && row.ClinicCode !== 'null');
 
-                populateDropdowns();
+                updateDropdownsForTeam();
                 updateDefaultAgentInput();
-                updateDashboard(globalData);
+                updateDashboard(getFilteredData());
             };
             reader.readAsArrayBuffer(file);
         });
 
-        function populateDropdowns() {
-            const regions = [...new Set(globalData.map(d => d.Region))].sort();
-            const branches = [...new Set(globalData.map(d => d.Branch))].sort();
-            const clinics = [...new Set(globalData.map(d => d.ClinicCode))].sort();
+        function updateDropdownsForTeam() {
+            const selectedTeam = document.getElementById('filterTeam').value;
+            
+            let teamFilteredData = globalData;
+            if (selectedTeam && teamConfigs[selectedTeam]) {
+                const allowedRegions = teamConfigs[selectedTeam].regions;
+                teamFilteredData = globalData.filter(d => allowedRegions.some(r => r.toUpperCase() === d.Region.toUpperCase()));
+            }
 
-            fillSelect('filterRegion', regions);
-            fillSelect('filterBranch', branches);
-            fillSelect('filterClinic', clinics);
+            const regions = [...new Set(teamFilteredData.map(d => d.Region))].sort();
+            const branches = [...new Set(teamFilteredData.map(d => d.Branch))].sort();
+            const clinics = [...new Set(teamFilteredData.map(d => d.ClinicCode))].sort();
+
+            fillSelect('filterRegion', regions, 'All Regions');
+            fillSelect('filterBranch', branches, 'All Branches');
+            fillSelect('filterClinic', clinics, 'All Clinic Codes');
         }
 
-        function fillSelect(elementId, items) {
+        function fillSelect(elementId, items, defaultText) {
             const select = document.getElementById(elementId);
-            const defaultText = select.options[0].text;
+            const currentValue = select.value;
             select.innerHTML = `<option value="">${defaultText}</option>`;
             items.forEach(item => {
                 const opt = document.createElement('option');
@@ -207,6 +213,11 @@
                 opt.textContent = item;
                 select.appendChild(opt);
             });
+            if (items.includes(currentValue)) {
+                select.value = currentValue;
+            } else {
+                select.value = "";
+            }
         }
 
         function updateDefaultAgentInput() {
@@ -224,39 +235,24 @@
         }
 
         document.getElementById('filterTeam').addEventListener('change', function() {
+            document.getElementById('filterRegion').value = '';
+            document.getElementById('filterBranch').value = '';
+            document.getElementById('filterClinic').value = '';
+            
             updateDefaultAgentInput();
-            filterAndRender();
+            updateDropdownsForTeam();
+            updateDashboard(getFilteredData());
         });
 
         function filterAndRender() {
-            const selectedTeam = document.getElementById('filterTeam').value;
-            const selectedRegion = document.getElementById('filterRegion').value;
-            const selectedBranch = document.getElementById('filterBranch').value;
-            const selectedClinic = document.getElementById('filterClinic').value;
-
-            const filtered = globalData.filter(d => {
-                if (selectedTeam) {
-                    const allowedRegions = teamConfigs[selectedTeam].regions;
-                    const matchesTeamRegion = allowedRegions.some(r => r.toUpperCase() === d.Region.toUpperCase());
-                    if (!matchesTeamRegion) return false;
-                }
-
-                if (selectedRegion && d.Region.toUpperCase() !== selectedRegion.toUpperCase()) return false;
-                if (selectedBranch && d.Branch.toUpperCase() !== selectedBranch.toUpperCase()) return false;
-                if (selectedClinic && d.ClinicCode.toUpperCase() !== selectedClinic.toUpperCase()) return false;
-
-                return true;
-            });
-
-            updateDashboard(filtered);
+            updateDashboard(getFilteredData());
         }
 
         document.getElementById('filterRegion').addEventListener('change', filterAndRender);
         document.getElementById('filterBranch').addEventListener('change', filterAndRender);
         document.getElementById('filterClinic').addEventListener('change', filterAndRender);
         document.getElementById('agentCountInput').addEventListener('input', () => {
-            const filtered = getFilteredData();
-            updateKPIsAndTable(filtered);
+            updateDashboard(getFilteredData());
         });
 
         document.getElementById('resetBtn').addEventListener('click', () => {
@@ -265,6 +261,7 @@
             document.getElementById('filterBranch').value = '';
             document.getElementById('filterClinic').value = '';
             updateDefaultAgentInput();
+            updateDropdownsForTeam();
             updateDashboard(globalData);
         });
 
@@ -288,10 +285,6 @@
         }
 
         function updateDashboard(data) {
-            updateKPIsAndTable(data);
-        }
-
-        function updateKPIsAndTable(data) {
             const totalDone = data.reduce((sum, row) => sum + row.Done, 0);
             const totalVideo = data.reduce((sum, row) => sum + row.Video, 0);
             const totalCamp = data.reduce((sum, row) => sum + row.Camp, 0);
