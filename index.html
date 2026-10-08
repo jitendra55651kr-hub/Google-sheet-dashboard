@@ -14,17 +14,6 @@
         .orange-btn { background-color: #ff7a00; transition: all 0.3s ease; }
         .orange-btn:hover { background-color: #e06b00; }
         .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1); }
-        /* Centered and larger font for table cells */
-        table td {
-            text-align: center !important;
-            vertical-align: middle !important;
-            font-size: 15px !important;
-        }
-        table th {
-            text-align: center !important;
-            vertical-align: middle !important;
-            font-size: 13px !important;
-        }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -49,21 +38,21 @@
 
         <!-- Summary KPI Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-orange-500 text-center">
+            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-orange-500">
                 <p class="text-[12px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL CASES (CONSULTATION)</p>
-                <h3 id="kpiCases" class="text-4xl font-black text-gray-900 mt-2">0</h3>
+                <h3 id="kpiCases" class="text-3xl font-black text-gray-900 mt-2">0</h3>
             </div>
-            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-blue-600 text-center">
+            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-blue-600">
                 <p class="text-[12px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL GMEET (VIDEO CALL)</p>
-                <h3 id="kpiGmeet" class="text-4xl font-black text-gray-900 mt-2">0</h3>
+                <h3 id="kpiGmeet" class="text-3xl font-black text-gray-900 mt-2">0</h3>
             </div>
-            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-emerald-500 text-center">
+            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-emerald-500">
                 <p class="text-[12px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL CAMP</p>
-                <h3 id="kpiCamp" class="text-4xl font-black text-gray-900 mt-2">0</h3>
+                <h3 id="kpiCamp" class="text-3xl font-black text-gray-900 mt-2">0</h3>
             </div>
-            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-purple-600 bg-gradient-to-br from-white to-purple-50 text-center">
+            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-purple-600 bg-gradient-to-br from-white to-purple-50">
                 <p class="text-[12px] font-extrabold text-purple-700 uppercase tracking-wider">TOTAL AGENTS</p>
-                <h3 id="kpiAgents" class="text-4xl font-black text-purple-900 mt-2">26</h3>
+                <h3 id="kpiAgents" class="text-3xl font-black text-purple-900 mt-2">26</h3>
                 <p class="text-[12px] text-gray-500 font-medium mt-0.5">Active field agents</p>
             </div>
         </div>
@@ -104,23 +93,23 @@
                 <span id="rowCount" class="text-xs bg-blue-900/90 px-3 py-1 rounded-full text-blue-200 border border-blue-700">Showing 0 rows</span>
             </div>
             <div class="overflow-x-auto max-h-[600px]">
-                <table class="w-full border-collapse border border-gray-300">
-                    <thead class="navy-header text-white sticky top-0 uppercase tracking-wider border-b border-blue-800">
+                <table class="w-full border-collapse border border-gray-300 text-center">
+                    <thead class="navy-header text-white sticky top-0 uppercase text-xs tracking-wider border-b border-blue-800">
                         <tr>
-                            <th class="p-4 border border-blue-900">DRO</th>
-                            <th class="p-4 border border-blue-900">Region name</th>
-                            <th class="p-4 border border-blue-900">gmeet count</th>
-                            <th class="p-4 border border-blue-900">Total camp</th>
-                            <th class="p-4 border border-blue-900">Total Gmeet</th>
-                            <th class="p-4 border border-blue-900">Total cases</th>
-                            <th class="p-4 border border-blue-900">No. Of Agent</th>
-                            <th class="p-4 border border-blue-900">Total Gmeet avg. per agent</th>
-                            <th class="p-4 border border-blue-900">Total Cases avg. per agent</th>
+                            <th class="p-4 border border-blue-900 text-center">DRO</th>
+                            <th class="p-4 border border-blue-900 text-center">Region name</th>
+                            <th class="p-4 border border-blue-900 text-center">gmeet count</th>
+                            <th class="p-4 border border-blue-900 text-center">Total camp</th>
+                            <th class="p-4 border border-blue-900 text-center">Total Gmeet</th>
+                            <th class="p-4 border border-blue-900 text-center">Total cases</th>
+                            <th class="p-4 border border-blue-900 text-center">No. Of Agent</th>
+                            <th class="p-4 border border-blue-900 text-center">Total Gmeet avg. per agent</th>
+                            <th class="p-4 border border-blue-900 text-center">Total Cases avg. per agent</th>
                         </tr>
                     </thead>
-                    <tbody id="reportTableBody" class="divide-y divide-gray-200 bg-white text-gray-800">
+                    <tbody id="reportTableBody" class="divide-y divide-gray-200 text-base font-semibold bg-white text-gray-900">
                         <tr>
-                            <td colspan="9" class="p-10 text-center text-gray-400 font-medium text-base">Kripya upar diye gaye button se apni Excel/CSV file upload karein.</td>
+                            <td colspan="9" class="p-8 text-center text-gray-400 font-medium">Kripya upar diye gaye button se apni Excel/CSV file upload karein.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -132,7 +121,6 @@
     <script>
         let globalRawData = [];
 
-        // Strict configuration of configured DROs and their exact valid regions
         const droConfigs = {
             "Jitendra": { regions: ["BILASPUR", "JASHPUR", "SIWAN"], agents: 5 },
             "Ravi": { regions: ["CHANDAULI", "GIRIDIH", "SATNA"], agents: 4 },
@@ -150,7 +138,7 @@
                     return { dro: dro, region: matchedReg };
                 }
             }
-            return null; // Discard any region not matching our strict configured list
+            return null;
         }
 
         document.getElementById('fileUpload').addEventListener('change', function(e) {
@@ -170,10 +158,11 @@
                 
                 const rawJson = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
+                // Flexible dynamic header detection looking for 'region' keyword in any row
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
-                    if (rowStr.includes('region') && (rowStr.includes('branch') || rowStr.includes('clinic') || rowStr.includes('code'))) {
+                    if (rowStr.includes('region')) {
                         headerIdx = i;
                         break;
                     }
@@ -183,27 +172,28 @@
                 
                 globalRawData = [];
                 formattedJson.forEach(row => {
-                    // Universal dynamic column key lookup
+                    // Normalize keys to support variations across different exported files/dates
                     const keys = Object.keys(row);
                     let regionVal = '', branchVal = '', clinicVal = '', doneVal = 0, videoVal = 0, campVal = 0;
 
                     keys.forEach(k => {
-                        const lk = k.toLowerCase();
+                        const lk = k.toLowerCase().trim();
                         if (lk.includes('region')) regionVal = row[k];
                         if (lk.includes('branch')) branchVal = row[k];
                         if (lk.includes('clinic') || lk.includes('code')) clinicVal = row[k];
-                        if (lk.includes('done') || lk.includes('consultation') || lk.includes('cases')) doneVal = row[k];
-                        if (lk.includes('video') || lk.includes('gmeet')) videoVal = row[k];
+                        if (lk.includes('done') || lk.includes('consul') || lk.includes('cases')) doneVal = row[k];
+                        if (lk.includes('video') || lk.includes('gmeet') || lk.includes('call')) videoVal = row[k];
                         if (lk.includes('camp')) campVal = row[k];
                     });
 
                     const validInfo = getValidDroAndRegion(regionVal);
-                    if (validInfo && String(clinicVal || '').trim() !== '' && String(clinicVal || '').trim() !== 'undefined') {
+                    // If clinic code is missing, fallback to treating each row as a valid record if region is valid
+                    if (validInfo) {
                         globalRawData.push({
                             Region: validInfo.region,
                             DRO: validInfo.dro,
                             Branch: String(branchVal || '').trim(),
-                            ClinicCode: String(clinicVal || '').trim(),
+                            ClinicCode: String(clinicVal || 'EC_GEN').trim(),
                             Done: Number(doneVal) || 0,
                             Video: Number(videoVal) || 0,
                             Camp: Number(campVal) || 0
@@ -248,7 +238,6 @@
                 return true;
             });
 
-            // Build structured map strictly from configured DROs and regions
             let droMap = {};
             Object.keys(droConfigs).forEach(dro => {
                 if (!selectedDro || selectedDro === dro) {
@@ -294,7 +283,7 @@
             const sortedDros = Object.keys(droMap).sort();
 
             if (sortedDros.length === 0 || filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-10 text-center text-gray-500 font-medium text-base">Koi data nahi mila.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-500 font-medium">Koi data nahi mila.</td></tr>`;
                 document.getElementById('rowCount').textContent = `Showing 0 rows`;
                 return;
             }
@@ -325,29 +314,29 @@
                     totalRowsDisplayed++;
                     const rData = droMap[dro].regions[reg];
                     const tr = document.createElement('tr');
-                    tr.className = "hover:bg-blue-50/60 transition-colors border-b border-gray-200 text-gray-900";
+                    tr.className = "hover:bg-blue-50/50 transition-colors border-b border-gray-200 text-gray-900";
 
                     let droCell = '';
                     if (idx === 0) {
-                        droCell = `<td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-gray-50 text-gray-900 align-middle text-base">${dro}</td>`;
+                        droCell = `<td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-gray-50 text-gray-900 align-middle text-center">${dro}</td>`;
                     }
 
                     let summaryCells = '';
                     if (idx === 0) {
                         summaryCells = `
-                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-gray-50 align-middle text-base">${droTotalCamp}</td>
-                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-gray-50 align-middle text-base">${droTotalGmeet}</td>
-                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-gray-50 align-middle text-base">${droTotalCases}</td>
-                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-gray-50 align-middle text-base">${agentCount}</td>
-                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-indigo-50 text-indigo-950 align-middle text-base">${droGmeetAvgPerAgent}</td>
-                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-purple-50 text-purple-950 align-middle text-base">${droCasesAvgPerAgent}</td>
+                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-gray-50 align-middle text-center">${droTotalCamp}</td>
+                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-gray-50 align-middle text-center">${droTotalGmeet}</td>
+                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-gray-50 align-middle text-center">${droTotalCases}</td>
+                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-gray-50 align-middle text-center">${agentCount}</td>
+                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-indigo-50 text-indigo-950 align-middle text-center">${droGmeetAvgPerAgent}</td>
+                            <td rowspan="${regKeys.length}" class="p-4 border border-gray-300 font-bold bg-purple-50 text-purple-950 align-middle text-center">${droCasesAvgPerAgent}</td>
                         `;
                     }
 
                     tr.innerHTML = `
                         ${droCell}
-                        <td class="p-4 border border-gray-300 font-semibold text-gray-800 text-base">${reg}</td>
-                        <td class="p-4 border border-gray-300 font-mono font-bold text-base">${rData.gmeetCount}</td>
+                        <td class="p-4 border border-gray-300 font-semibold text-gray-800 text-center">${reg}</td>
+                        <td class="p-4 border border-gray-300 font-mono font-bold text-center">${rData.gmeetCount}</td>
                         ${summaryCells}
                     `;
                     tbody.appendChild(tr);
@@ -361,15 +350,15 @@
             const totalTr = document.createElement('tr');
             totalTr.className = "navy-header text-white font-black text-base";
             totalTr.innerHTML = `
-                <td class="p-4 border border-blue-900 text-base font-bold">TOTAL</td>
-                <td class="p-4 border border-blue-900"></td>
-                <td class="p-4 border border-blue-900 text-base font-bold">${grandTotalGmeet}</td>
-                <td class="p-4 border border-blue-900 text-base font-bold">${grandTotalCamp}</td>
-                <td class="p-4 border border-blue-900 text-base font-bold">${grandTotalGmeet}</td>
-                <td class="p-4 border border-blue-900 text-base font-bold">${grandTotalCases}</td>
-                <td class="p-4 border border-blue-900 text-base font-bold">${totalAgentsCount}</td>
-                <td class="p-4 border border-blue-900 text-base font-bold">${totalGmeetAvgAll}</td>
-                <td class="p-4 border border-blue-900 text-base font-bold">${totalCasesAvgAll}</td>
+                <td class="p-4 border border-blue-900 text-center">TOTAL</td>
+                <td class="p-4 border border-blue-900 text-center"></td>
+                <td class="p-4 border border-blue-900 text-center">${grandTotalGmeet}</td>
+                <td class="p-4 border border-blue-900 text-center">${grandTotalCamp}</td>
+                <td class="p-4 border border-blue-900 text-center">${grandTotalGmeet}</td>
+                <td class="p-4 border border-blue-900 text-center">${grandTotalCases}</td>
+                <td class="p-4 border border-blue-900 text-center">${totalAgentsCount}</td>
+                <td class="p-4 border border-blue-900 text-center">${totalGmeetAvgAll}</td>
+                <td class="p-4 border border-blue-900 text-center">${totalCasesAvgAll}</td>
             `;
             tbody.appendChild(totalTr);
 
