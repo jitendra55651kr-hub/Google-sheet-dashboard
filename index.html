@@ -150,9 +150,30 @@
             fileDisplay.classList.remove('hidden');
 
             const reader = new FileReader();
+            
+            // Check if file is CSV or Excel
+            const fileName = file.name.toLowerCase();
+            if (fileName.endsWith('.csv')) {
+                reader.readAsText(file, 'UTF-8');
+            } else {
+                reader.readAsArrayBuffer(file);
+            }
+
             reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
+                let workbook;
+                try {
+                    if (fileName.endsWith('.csv')) {
+                        const csvText = e.target.result;
+                        workbook = XLSX.read(csvText, {type: 'string'});
+                    } else {
+                        const data = new Uint8Array(e.target.result);
+                        workbook = XLSX.read(data, {type: 'array'});
+                    }
+                } catch (err) {
+                    alert("File reading error: " + err.message);
+                    return;
+                }
+
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
                 
@@ -182,7 +203,6 @@
                         if (lk.includes('clinic') || lk.includes('code')) clinicVal = row[k];
                     });
 
-                    // Flexible intelligent parsing for any date format columns
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
                         const val = Number(row[k]) || 0;
@@ -199,7 +219,6 @@
                         }
                     });
 
-                    // Fallback if specific consultation column wasn't picked up
                     if (doneVal === 0 && (videoVal > 0 || campVal > 0)) {
                         doneVal = videoVal + campVal;
                     }
@@ -221,7 +240,6 @@
                 updateDropdowns();
                 renderDashboard();
             };
-            reader.readAsArrayBuffer(file);
         });
 
         function updateDropdowns() {
