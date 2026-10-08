@@ -177,11 +177,11 @@
                 const worksheet = workbook.Sheets[firstSheetName];
                 const rawJson = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
-                // Smart Header Detection
+                // Smart Header Detection: Find row containing 'region' or 'clinic' or 'branch'
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
-                    if (rowStr.includes('region') && (rowStr.includes('branch') || rowStr.includes('clinic'))) {
+                    if (rowStr.includes('region') || rowStr.includes('branch') || rowStr.includes('clinic')) {
                         headerIdx = i;
                         break;
                     }
@@ -197,7 +197,7 @@
 
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
-                        if ((lk.includes('region') || lk.includes('branch') || lk.includes('name')) && !regionVal) {
+                        if ((lk.includes('region') || lk.includes('branch') || lk.includes('clinic') || lk.includes('name')) && !regionVal) {
                             regionVal = row[k];
                         }
                     });
@@ -210,11 +210,11 @@
                         const lk = k.toLowerCase().trim();
                         const val = Number(row[k]) || 0;
                         
-                        // Sum of Clinic_Video_Consulation = GMEET COUNT
-                        if (lk.includes('clinic_video_consulation') || lk.includes('video_consulatation') || lk.includes('gmeet')) {
+                        // Universal flexible detection for Gmeet / Video Consultation
+                        if (lk.includes('clinic_video_consulation') || lk.includes('video_consulatation') || lk.includes('gmeet') || lk.includes('consultation count') || lk.includes('video')) {
                             clinicVideoVal += val;
                         }
-                        // Sum of Camp_Consulatation = Total camp
+                        // Universal flexible detection for Camp Consultation
                         if (lk.includes('camp_consulatation') || lk.includes('camp')) {
                             campConsulVal += val;
                         }
