@@ -172,7 +172,8 @@
                 globalRawData = [];
                 formattedJson.forEach(row => {
                     const keys = Object.keys(row);
-                    let regionVal = '', branchVal = '', clinicVal = '', doneVal = 0, videoVal = 0, campVal = 0;
+                    let regionVal = '', branchVal = '', clinicVal = '';
+                    let doneVal = 0, videoVal = 0, campVal = 0;
 
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
@@ -181,26 +182,27 @@
                         if (lk.includes('clinic') || lk.includes('code')) clinicVal = row[k];
                     });
 
-                    // Fallback search if exact keys are named differently in other date files
+                    // Flexible intelligent parsing for any date format columns
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
                         const val = Number(row[k]) || 0;
-                        if (val > 0) {
-                            if (lk.includes('camp')) campVal = val;
-                            else if (lk.includes('video') || lk.includes('gmeet') || lk.includes('call')) videoVal = val;
-                            else if (lk.includes('done') || lk.includes('consult') || lk.includes('case') || lk.includes('total')) {
-                                if (!lk.includes('avg')) doneVal = val;
+                        if (lk.includes('camp')) {
+                            campVal = val;
+                        }
+                        if (lk.includes('video') || lk.includes('gmeet') || lk.includes('clinic_video') || lk.includes('call')) {
+                            videoVal = val;
+                        }
+                        if (lk.includes('done') || lk.includes('no of consul') || lk.includes('consultation') || lk.includes('cases')) {
+                            if (!lk.includes('avg') && !lk.includes('pre') && !lk.includes('audio')) {
+                                doneVal = val;
                             }
                         }
                     });
 
-                    // If explicit column names exist, take them with highest priority
-                    keys.forEach(k => {
-                        const lk = k.toLowerCase().trim();
-                        if (lk === 'done' || lk === 'done_consualtion' || lk === 'no of consulation' || lk === 'total cases') doneVal = Number(row[k]) || doneVal;
-                        if (lk === 'video' || lk === 'clinic_video_consulation' || lk === 'video_consulatation' || lk === 'gmeet count' || lk === 'clinic video call') videoVal = Number(row[k]) || videoVal;
-                        if (lk === 'camp' || lk === 'camp_consulatation' || lk === 'total camp') campVal = Number(row[k]) || campVal;
-                    });
+                    // Fallback if specific consultation column wasn't picked up
+                    if (doneVal === 0 && (videoVal > 0 || campVal > 0)) {
+                        doneVal = videoVal + campVal;
+                    }
 
                     const validInfo = getValidDroAndRegion(regionVal);
                     if (validInfo) {
@@ -209,7 +211,7 @@
                             DRO: validInfo.dro,
                             Branch: String(branchVal || '').trim(),
                             ClinicCode: String(clinicVal || 'EC_GEN').trim(),
-                            Done: doneVal || videoVal + campVal, // Fallback calculation if consultation summary column is missing
+                            Done: doneVal,
                             Video: videoVal,
                             Camp: campVal
                         });
