@@ -175,50 +175,45 @@
 
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                const rawJson = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                const rawRows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
-                // Universal Dynamic Header Detector: Scan all rows to find header containing 'region'
-                let headerIdx = 0;
-                for (let i = 0; i < rawJson.length; i++) {
-                    const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
-                    if (rowStr.includes('region') || rowStr.includes('branch') || rowStr.includes('clinic')) {
-                        headerIdx = i;
-                        break;
+                // Find header row index where 'Region' is present
+                let headerIdx = -1;
+                let regionColIdx = 0;
+                let gmeetColIdx = 9;   // Default index for Clinic_Video_Consulation
+                let campColIdx = 7;    // Default index for Camp_Consulatation
+
+                for (let i = 0; i < rawRows.length; i++) {
+                    const row = rawRows[i];
+                    for (let j = 0; j < row.length; j++) {
+                        const cellVal = String(row[j] || '').toLowerCase().trim();
+                        if (cellVal === 'region') {
+                            headerIdx = i;
+                            regionColIdx = j;
+                        }
+                        if (cellVal.includes('clinic_video_consulation') || cellVal === 'video_consulatation' || cellVal.includes('gmeet')) {
+                            gmeetColIdx = j;
+                        }
+                        if (cellVal.includes('camp_consulatation') || cellVal === 'camp') {
+                            campColIdx = j;
+                        }
                     }
+                    if (headerIdx !== -1) break;
                 }
 
-                const formattedJson = XLSX.utils.sheet_to_json(worksheet, {range: headerIdx});
-                
+                // Fallback if header not strictly found
+                if (headerIdx === -1) headerIdx = 4;
+
                 globalRawData = [];
-                formattedJson.forEach(row => {
-                    const keys = Object.keys(row);
-                    let regionVal = '';
-                    let clinicVideoVal = 0, campConsulVal = 0;
+                
+                // Read data rows starting after headerIdx
+                for (let i = headerIdx + 1; i < rawRows.length; i++) {
+                    const row = rawRows[i];
+                    if (!row || row.length === 0) continue;
 
-                    keys.forEach(k => {
-                        const lk = k.toLowerCase().trim();
-                        if ((lk.includes('region') || lk.includes('branch') || lk.includes('clinic') || lk.includes('name')) && !regionVal) {
-                            regionVal = row[k];
-                        }
-                    });
-
-                    if (!regionVal && keys.length > 0) {
-                        regionVal = row[keys[0]];
-                    }
-
-                    keys.forEach(k => {
-                        const lk = k.toLowerCase().trim();
-                        const val = Number(row[k]) || 0;
-                        
-                        // Clinic_Video_Consulation = GMEET COUNT
-                        if (lk.includes('clinic_video_consulation') || lk.includes('video_consulatation') || lk.includes('gmeet') || lk.includes('video') || lk.includes('consultation count')) {
-                            clinicVideoVal += val;
-                        }
-                        // Camp_Consulatation = Total camp
-                        if (lk.includes('camp_consulatation') || lk.includes('camp')) {
-                            campConsulVal += val;
-                        }
-                    });
+                    const regionVal = row[regionColIdx];
+                    const clinicVideoVal = Number(row[gmeetColIdx]) || 0;
+                    const campConsulVal = Number(row[campColIdx]) || 0;
 
                     const validInfo = getValidDroAndRegion(regionVal);
                     if (validInfo) {
@@ -229,7 +224,7 @@
                             CampConsul: campConsulVal
                         });
                     }
-                });
+                }
 
                 updateDropdowns();
                 renderDashboard();
