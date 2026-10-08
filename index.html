@@ -97,14 +97,14 @@
                     <thead class="navy-header text-white sticky top-0 uppercase text-[11px] tracking-wider border-b border-blue-800">
                         <tr>
                             <th class="p-3.5 border border-blue-900">DRO</th>
-                            <th class="p-3.5 border border-blue-900">Region Name</th>
-                            <th class="p-3.5 border border-blue-900 text-right">Gmeet Count</th>
-                            <th class="p-3.5 border border-blue-900 text-right">Total Camp</th>
+                            <th class="p-3.5 border border-blue-900">Region name</th>
+                            <th class="p-3.5 border border-blue-900 text-right">gmeet count</th>
+                            <th class="p-3.5 border border-blue-900 text-right">Total camp</th>
                             <th class="p-3.5 border border-blue-900 text-right">Total Gmeet</th>
-                            <th class="p-3.5 border border-blue-900 text-right">Total Cases</th>
+                            <th class="p-3.5 border border-blue-900 text-right">Total cases</th>
                             <th class="p-3.5 border border-blue-900 text-right">No. Of Agent</th>
-                            <th class="p-3.5 border border-blue-900 text-right">Total Gmeet Avg. / Agent</th>
-                            <th class="p-3.5 border border-blue-900 text-right">Total Cases Avg. / Agent</th>
+                            <th class="p-3.5 border border-blue-900 text-right">Total Gmeet avg. per agent</th>
+                            <th class="p-3.5 border border-blue-900 text-right">Total Cases avg. per agent</th>
                         </tr>
                     </thead>
                     <tbody id="reportTableBody" class="divide-y divide-gray-200 text-sm bg-white text-gray-800">
@@ -121,7 +121,7 @@
     <script>
         let globalRawData = [];
 
-        // Predefined strict DROs and their exact valid regions configuration
+        // Strict configuration of configured DROs and their exact valid regions
         const droConfigs = {
             "Jitendra": { regions: ["BILASPUR", "JASHPUR", "SIWAN"], agents: 5 },
             "Ravi": { regions: ["CHANDAULI", "GIRIDIH", "SATNA"], agents: 4 },
@@ -139,7 +139,7 @@
                     return { dro: dro, region: matchedReg };
                 }
             }
-            return null; // Ignore any extra or unwanted regions not present in configuration
+            return null; // Discard any region not matching our strict list (prevents "Other")
         }
 
         document.getElementById('fileUpload').addEventListener('change', function(e) {
@@ -231,7 +231,7 @@
                 return true;
             });
 
-            // Build structured map based purely on configured regions
+            // Build structured map strictly from configured DROs and regions
             let droMap = {};
             Object.keys(droConfigs).forEach(dro => {
                 if (!selectedDro || selectedDro === dro) {
