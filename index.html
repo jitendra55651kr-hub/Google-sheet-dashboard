@@ -158,7 +158,6 @@
                 
                 const rawJson = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
-                // Flexible dynamic header detection looking for 'region' keyword in any row
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
@@ -172,7 +171,6 @@
                 
                 globalRawData = [];
                 formattedJson.forEach(row => {
-                    // Normalize keys to support variations across different exported files/dates
                     const keys = Object.keys(row);
                     let regionVal = '', branchVal = '', clinicVal = '', doneVal = 0, videoVal = 0, campVal = 0;
 
@@ -181,22 +179,39 @@
                         if (lk.includes('region')) regionVal = row[k];
                         if (lk.includes('branch')) branchVal = row[k];
                         if (lk.includes('clinic') || lk.includes('code')) clinicVal = row[k];
-                        if (lk.includes('done') || lk.includes('consul') || lk.includes('cases')) doneVal = row[k];
-                        if (lk.includes('video') || lk.includes('gmeet') || lk.includes('call')) videoVal = row[k];
-                        if (lk.includes('camp')) campVal = row[k];
+                    });
+
+                    // Fallback search if exact keys are named differently in other date files
+                    keys.forEach(k => {
+                        const lk = k.toLowerCase().trim();
+                        const val = Number(row[k]) || 0;
+                        if (val > 0) {
+                            if (lk.includes('camp')) campVal = val;
+                            else if (lk.includes('video') || lk.includes('gmeet') || lk.includes('call')) videoVal = val;
+                            else if (lk.includes('done') || lk.includes('consult') || lk.includes('case') || lk.includes('total')) {
+                                if (!lk.includes('avg')) doneVal = val;
+                            }
+                        }
+                    });
+
+                    // If explicit column names exist, take them with highest priority
+                    keys.forEach(k => {
+                        const lk = k.toLowerCase().trim();
+                        if (lk === 'done' || lk === 'done_consualtion' || lk === 'no of consulation' || lk === 'total cases') doneVal = Number(row[k]) || doneVal;
+                        if (lk === 'video' || lk === 'clinic_video_consulation' || lk === 'video_consulatation' || lk === 'gmeet count' || lk === 'clinic video call') videoVal = Number(row[k]) || videoVal;
+                        if (lk === 'camp' || lk === 'camp_consulatation' || lk === 'total camp') campVal = Number(row[k]) || campVal;
                     });
 
                     const validInfo = getValidDroAndRegion(regionVal);
-                    // If clinic code is missing, fallback to treating each row as a valid record if region is valid
                     if (validInfo) {
                         globalRawData.push({
                             Region: validInfo.region,
                             DRO: validInfo.dro,
                             Branch: String(branchVal || '').trim(),
                             ClinicCode: String(clinicVal || 'EC_GEN').trim(),
-                            Done: Number(doneVal) || 0,
-                            Video: Number(videoVal) || 0,
-                            Camp: Number(campVal) || 0
+                            Done: doneVal || videoVal + campVal, // Fallback calculation if consultation summary column is missing
+                            Video: videoVal,
+                            Camp: campVal
                         });
                     }
                 });
