@@ -87,12 +87,11 @@
         </div>
 
         <!-- Report Table Section -->
-        <div class="bg-white text-gray-800 rounded-xl card-shadow overflow-hidden border-2 border-gray-800">
+        <div class="bg-white text-gray-800 rounded-xl card-shadow overflow-hidden border-2 border-gray-800 mb-8">
             <div class="navy-header text-white px-6 py-3.5 flex justify-between items-center border-b-2 border-blue-800">
                 <h3 class="font-black text-sm tracking-wide uppercase">CASHPOR REGION BRANCH CONSULTATION REPORT</h3>
                 <span id="rowCount" class="text-xs bg-blue-900 px-3 py-1 rounded-full text-blue-200 border border-blue-500 font-bold">Showing 0 rows</span>
             </div>
-            <!-- Scroll constraint removed so entire table shows fully without vertical scrolling -->
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse border-2 border-gray-800 text-center">
                     <thead class="navy-header text-white sticky top-0 uppercase text-xs tracking-wider border-b-2 border-gray-800">
@@ -117,12 +116,25 @@
             </div>
         </div>
 
+        <!-- High-Tech Team Comparison Section -->
+        <div class="bg-navy-900 bg-[#0f1f38] border-2 border-blue-800 rounded-xl p-6 card-shadow mb-12">
+            <div class="flex items-center justify-between mb-6 pb-3 border-b-2 border-blue-900">
+                <h3 class="text-lg font-black text-orange-400 uppercase tracking-wider flex items-center gap-2">
+                    <span>📊</span> Team Workload & Performance Comparison Matrix
+                </h3>
+                <span class="text-xs bg-blue-900 px-3 py-1 rounded-full text-blue-200 border border-blue-600 font-bold uppercase">Live Load Analysis</span>
+            </div>
+            <div id="teamComparisonContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <!-- Dynamically populated comparison cards -->
+                <div class="col-span-5 text-center py-6 text-blue-300 font-bold">File upload hone ke baad yahan team comparison show hoga.</div>
+            </div>
+        </div>
+
     </main>
 
     <script>
         let globalRawData = [];
 
-        // Store custom editable agent counts per DRO
         let customAgentCounts = {
             "Jitendra": 5,
             "Ravi": 4,
@@ -301,6 +313,7 @@
             let grandTotalCases = 0;
 
             const sortedDros = Object.keys(droMap).sort();
+            let teamComparisonHTML = '';
 
             sortedDros.forEach(dro => {
                 const regKeys = Object.keys(droMap[dro].regions).sort();
@@ -323,6 +336,34 @@
 
                 let droGmeetAvgPerAgent = agentCount > 0 ? (droTotalGmeet / agentCount).toFixed(2) : "0.00";
                 let droCasesAvgPerAgent = agentCount > 0 ? (droTotalCases / agentCount).toFixed(2) : "0.00";
+
+                // Build High-Tech Comparison Card for each team
+                teamComparisonHTML += `
+                    <div class="bg-white text-gray-900 rounded-xl p-4 border-2 border-gray-300 card-shadow relative overflow-hidden flex flex-col justify-between">
+                        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-orange-500 to-indigo-600"></div>
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="font-black text-base text-gray-900 uppercase">${dro}</h4>
+                                <span class="text-xs bg-purple-100 text-purple-900 px-2 py-0.5 rounded font-black">${agentCount} Agents</span>
+                            </div>
+                            <div class="space-y-1.5 text-xs font-bold text-gray-700 mb-4 border-b pb-3">
+                                <div class="flex justify-between"><span>Gmeet:</span> <span class="font-black text-gray-900">${droTotalGmeet}</span></div>
+                                <div class="flex justify-between"><span>Camp:</span> <span class="font-black text-gray-900">${droTotalCamp}</span></div>
+                                <div class="flex justify-between"><span>Total Cases:</span> <span class="font-black text-gray-900">${droTotalCases}</span></div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="bg-indigo-50 border border-indigo-200 p-2 rounded-lg text-center">
+                                <p class="text-[10px] font-black text-indigo-700 uppercase">Gmeet Avg / Agent</p>
+                                <p class="text-lg font-black text-indigo-950">${droGmeetAvgPerAgent}</p>
+                            </div>
+                            <div class="bg-purple-50 border border-purple-200 p-2 rounded-lg text-center">
+                                <p class="text-[10px] font-black text-purple-700 uppercase">Cases Avg / Agent</p>
+                                <p class="text-lg font-black text-purple-950">${droCasesAvgPerAgent}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
 
                 regKeys.forEach((reg, idx) => {
                     totalRowsDisplayed++;
@@ -358,6 +399,9 @@
                     tbody.appendChild(tr);
                 });
             });
+
+            // Update Comparison Matrix Section
+            document.getElementById('teamComparisonContainer').innerHTML = teamComparisonHTML;
 
             // Update KPI Cards
             document.getElementById('kpiCases').textContent = grandTotalCases.toLocaleString();
