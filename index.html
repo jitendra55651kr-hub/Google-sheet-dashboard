@@ -22,7 +22,7 @@
     <header class="navy-header text-white px-8 py-5 flex flex-wrap justify-between items-center border-b border-blue-900 shadow-lg">
         <div class="flex items-center space-x-3">
             <span class="text-2xl font-black tracking-wider text-orange-400">m-swasth</span>
-            <span class="text-xs bg-blue-900 px-3 py-1.5 rounded-full border border-blue-700 tracking-wide uppercase font-semibold">Region Branch Consultation Portal</span>
+            <span class="text-xs bg-blue-900 px-3 py-1.5 rounded-full border border-blue-700 tracking-wide uppercase font-semibold">Region Branch Consultation Report Portal</span>
         </div>
         <div class="flex items-center gap-3">
             <label for="fileUpload" class="orange-btn text-white px-5 py-2.5 rounded-xl cursor-pointer font-bold text-sm shadow-md inline-flex items-center gap-2">
@@ -37,51 +37,42 @@
     <main class="max-w-7xl mx-auto px-4 mt-6">
 
         <!-- Summary KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-orange-500">
-                <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL DONE CONSULTATION</p>
-                <h3 id="kpiDone" class="text-3xl font-black text-gray-900 mt-2">0</h3>
+                <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL CASES (CONSULTATION)</p>
+                <h3 id="kpiCases" class="text-3xl font-black text-gray-900 mt-2">0</h3>
             </div>
             <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-blue-600">
-                <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL CLINIC VIDEO CALL</p>
-                <h3 id="kpiVideo" class="text-3xl font-black text-gray-900 mt-2">0</h3>
+                <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL GMEET (VIDEO CALL)</p>
+                <h3 id="kpiGmeet" class="text-3xl font-black text-gray-900 mt-2">0</h3>
             </div>
             <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-emerald-500">
-                <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL CAMP CONSULTATION</p>
+                <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL CAMP</p>
                 <h3 id="kpiCamp" class="text-3xl font-black text-gray-900 mt-2">0</h3>
             </div>
-            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-indigo-600 bg-gradient-to-br from-white to-indigo-50">
-                <p class="text-[11px] font-extrabold text-indigo-700 uppercase tracking-wider">AVG VIDEO / AGENT</p>
-                <h3 id="kpiAvgVideo" class="text-3xl font-black text-indigo-900 mt-2">0.00</h3>
-                <p id="agentVideoInfoText" class="text-[11px] text-gray-500 font-medium mt-0.5">Per active agent</p>
-            </div>
             <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-purple-600 bg-gradient-to-br from-white to-purple-50">
-                <p class="text-[11px] font-extrabold text-purple-700 uppercase tracking-wider">AVG CASES / AGENT</p>
-                <h3 id="kpiAvgAgent" class="text-3xl font-black text-purple-900 mt-2">0.00</h3>
-                <p id="agentInfoText" class="text-[11px] text-gray-500 font-medium mt-0.5">Using active agent(s)</p>
+                <p class="text-[11px] font-extrabold text-purple-700 uppercase tracking-wider">TOTAL AGENTS</p>
+                <h3 id="kpiAgents" class="text-3xl font-black text-purple-900 mt-2">26</h3>
+                <p class="text-[11px] text-gray-500 font-medium mt-0.5">Active field agents</p>
             </div>
         </div>
 
         <!-- Filters Section -->
         <div class="bg-white text-gray-800 p-6 rounded-xl card-shadow mb-6">
             <h2 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <span class="text-purple-600">⚡</span> Interactive Filters & Team Management
+                <span class="text-purple-600">⚡</span> Interactive Filters
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Team Filter</label>
-                    <select id="filterTeam" class="w-full border border-gray-300 rounded-lg p-2.5 bg-orange-50/60 font-semibold text-orange-900 focus:ring-2 focus:ring-orange-500 text-sm">
-                        <option value="">All Teams (All Regions)</option>
-                        <option value="TEAM JITENDRA">Team Jitendra (5)</option>
-                        <option value="TEAM DEEPTI">Team Deepti (6)</option>
-                        <option value="TEAM ISHANT">Team Ishant (6)</option>
-                        <option value="TEAM SHIVAM SAXENA">Team Shivam Saxena (5)</option>
-                        <option value="TEAM RAVI">Team Ravi (4)</option>
+                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">DRO / Team Filter</label>
+                    <select id="filterDro" class="w-full border border-gray-300 rounded-lg p-2.5 bg-orange-50/60 font-semibold text-orange-900 focus:ring-2 focus:ring-orange-500 text-sm">
+                        <option value="">All DROs (Teams)</option>
+                        <option value="Jitendra">Jitendra</option>
+                        <option value="Ravi">Ravi</option>
+                        <option value="Deepti">Deepti</option>
+                        <option value="Shivam">Shivam</option>
+                        <option value="Ishant">Ishant</option>
                     </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Active Agents Count</label>
-                    <input type="number" id="agentCountInput" min="1" value="26" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 font-bold text-gray-800 text-sm" title="Modify agent count to account for leaves">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Region Filter</label>
@@ -89,68 +80,36 @@
                         <option value="">All Regions</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Branch Name Filter</label>
-                    <select id="filterBranch" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 font-semibold text-gray-700 focus:ring-2 focus:ring-orange-500 text-sm">
-                        <option value="">All Branches</option>
-                    </select>
+                <div class="flex items-end">
+                    <button id="resetBtn" class="w-full bg-gray-100 text-gray-700 text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-gray-200 uppercase transition-colors">Reset Filters</button>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Clinic Code Filter</label>
-                    <select id="filterClinic" class="w-full border border-gray-300 rounded-lg p-2.5 bg-gray-50 font-semibold text-gray-700 focus:ring-2 focus:ring-orange-500 text-sm">
-                        <option value="">All Clinic Codes</option>
-                    </select>
-                </div>
-            </div>
-            <div class="mt-4 flex gap-3">
-                <button id="resetBtn" class="bg-gray-100 text-gray-700 text-xs font-bold px-4 py-2 rounded-lg hover:bg-gray-200 uppercase transition-colors">Reset Filters</button>
             </div>
         </div>
 
-        <!-- Region-wise Breakdown Section -->
-        <div class="bg-white text-gray-800 rounded-xl card-shadow mb-6 overflow-hidden border border-blue-900/20">
-            <div class="navy-header text-white px-6 py-3 flex justify-between items-center border-b border-blue-900">
-                <h3 class="font-bold text-sm tracking-wide uppercase">📍 Region-wise Video Call & Camp Summary</h3>
-            </div>
-            <div class="overflow-x-auto max-h-[300px]">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-gray-100 text-gray-700 sticky top-0 uppercase text-[11px] tracking-wider border-b border-gray-200">
-                        <tr>
-                            <th class="p-3 border-r border-gray-200">Region Name</th>
-                            <th class="p-3 border-r border-gray-200 text-right">Clinic Video Calls 📞</th>
-                            <th class="p-3 text-right">Camp Consultations ⛺</th>
-                        </tr>
-                    </thead>
-                    <tbody id="regionSummaryBody" class="divide-y divide-gray-200 text-sm">
-                        <tr>
-                            <td colspan="3" class="p-4 text-center text-gray-400 font-medium">Data upload karne ke baad yahan region-wise summary dikhegi.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Data Table Section -->
+        <!-- Report Table Section matching Image 2 -->
         <div class="bg-white text-gray-800 rounded-xl card-shadow overflow-hidden border border-blue-900/20">
             <div class="navy-header text-white px-6 py-3.5 flex justify-between items-center border-b border-blue-900">
-                <h3 id="tableTitle" class="font-bold text-sm tracking-wide uppercase">TEAM CONSULTATION RECORDS DETAIL</h3>
+                <h3 class="font-bold text-sm tracking-wide uppercase">CASHPOR REGION BRANCH CONSULTATION REPORT</h3>
                 <span id="rowCount" class="text-xs bg-blue-900/90 px-3 py-1 rounded-full text-blue-200 border border-blue-700">Showing 0 rows</span>
             </div>
-            <div class="overflow-x-auto max-h-[520px]">
-                <table class="w-full text-left border-collapse">
+            <div class="overflow-x-auto max-h-[600px]">
+                <table class="w-full text-left border-collapse border border-gray-300">
                     <thead class="navy-header text-white sticky top-0 uppercase text-[11px] tracking-wider border-b border-blue-800">
                         <tr>
-                            <th class="p-3.5 border-r border-blue-900">Region 🗂️</th>
-                            <th class="p-3.5 border-r border-blue-900">Branch Name 🗂️</th>
-                            <th class="p-3.5 border-r border-blue-900">Clinic Code 🗂️</th>
-                            <th class="p-3.5 border-r border-blue-900 text-right">Done Consultation 📊</th>
-                            <th class="p-3.5 border-r border-blue-900 text-right">Clinic Video Call 📞</th>
-                            <th class="p-3.5 text-right">Camp Consultation ⛺</th>
+                            <th class="p-3.5 border border-blue-900">DRO</th>
+                            <th class="p-3.5 border border-blue-900">Region Name</th>
+                            <th class="p-3.5 border border-blue-900 text-right">Gmeet Count</th>
+                            <th class="p-3.5 border border-blue-900 text-right">Total Camp</th>
+                            <th class="p-3.5 border border-blue-900 text-right">Total Gmeet</th>
+                            <th class="p-3.5 border border-blue-900 text-right">Total Cases</th>
+                            <th class="p-3.5 border border-blue-900 text-right">No. Of Agent</th>
+                            <th class="p-3.5 border border-blue-900 text-right">Total Gmeet Avg. / Agent</th>
+                            <th class="p-3.5 border border-blue-900 text-right">Total Cases Avg. / Agent</th>
                         </tr>
                     </thead>
-                    <tbody id="dataTableBody" class="divide-y divide-gray-200 text-sm bg-white text-gray-800">
+                    <tbody id="reportTableBody" class="divide-y divide-gray-200 text-sm bg-white text-gray-800">
                         <tr>
-                            <td colspan="6" class="p-8 text-center text-gray-400 font-medium">Kripya upar diye gaye button se apni Excel/CSV file upload karein.</td>
+                            <td colspan="9" class="p-8 text-center text-gray-400 font-medium">Kripya upar diye gaye button se apni Excel/CSV file upload karein.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -160,19 +119,30 @@
     </main>
 
     <script>
-        let globalData = [];
+        let globalRawData = [];
 
-        const teamConfigs = {
-            "TEAM JITENDRA": { regions: ["SIWAN", "BILASPUR", "JASHPUR"], agents: 5 },
-            "TEAM DEEPTI": { regions: ["RAIGARH", "TIKAMGARH", "BALLIA"], agents: 6 },
-            "TEAM ISHANT": { regions: ["MIRZAPUR", "EAST CHAMPARAN", "SARAN", "DEOGARH"], agents: 6 },
-            "TEAM SHIVAM SAXENA": { regions: ["KAIMUR ROHTAS", "SARGUJA", "MUZAFFARPUR", "MADHEPURA"], agents: 5 },
-            "TEAM RAVI": { regions: ["SATNA", "CHANDAULI", "GIRIDIH"], agents: 4 }
+        // DRO mapping configuration and Agent counts
+        const droConfigs = {
+            "Jitendra": { regions: ["BILASPUR", "JASHPUR", "SIWAN"], agents: 5 },
+            "Ravi": { regions: ["CHANDAULI", "GIRIDIH", "SATNA"], agents: 4 },
+            "Deepti": { regions: ["BALLIA", "RAIGARH", "TIKAMGARH"], agents: 6 },
+            "Shivam": { regions: ["KAIMUR ROHTAS", "MADHEPURA", "MUZAFFARPUR", "SARGUJA"], agents: 5 },
+            "Ishant": { regions: ["EAST CHAMPARAN", "MIRZAPUR", "SARAN", "DEOGARH"], agents: 6 }
         };
 
         function toTitleCase(str) {
             if (!str) return '';
             return str.toLowerCase().replace(/(^|\s)\S/g, l => l.toUpperCase());
+        }
+
+        function getDroForRegion(regionName) {
+            const upperReg = regionName.toUpperCase();
+            for (let dro in droConfigs) {
+                if (droConfigs[dro].regions.map(r => r.toUpperCase()).includes(upperReg)) {
+                    return dro;
+                }
+            }
+            return "Other";
         }
 
         document.getElementById('fileUpload').addEventListener('change', function(e) {
@@ -203,8 +173,7 @@
 
                 const formattedJson = XLSX.utils.sheet_to_json(worksheet, {range: headerIdx});
                 
-                globalData = formattedJson.map(row => {
-                    // Flexible key mapping for different CSV columns
+                globalRawData = formattedJson.map(row => {
                     const regionVal = row['Region'] || row['region'] || row['REGION'] || '';
                     const branchVal = row['Branch Name'] || row['Branch'] || row['branch name'] || row['BRANCH NAME'] || '';
                     const clinicVal = row['Clinic Code'] || row['ClinicCode'] || row['clinic code'] || row['CLINIC CODE'] || '';
@@ -213,185 +182,177 @@
                     const videoVal = row['Clinic_Video_Consulation'] || row['Video_Consulatation'] || row['Clinic Video Call'] || row['Video'] || row['video'] || 0;
                     const campVal = row['Camp_Consulatation'] || row['Camp Consultation'] || row['Camp'] || row['camp'] || 0;
 
+                    const cleanRegion = toTitleCase(String(regionVal).trim());
+
                     return {
-                        Region: toTitleCase(String(regionVal).trim()),
+                        Region: cleanRegion,
+                        DRO: getDroForRegion(cleanRegion),
                         Branch: String(branchVal).trim(),
                         ClinicCode: String(clinicVal).trim(),
                         Done: Number(doneVal) || 0,
                         Video: Number(videoVal) || 0,
                         Camp: Number(campVal) || 0
                     };
-                }).filter(row => row.Region !== '' && row.ClinicCode !== '' && row.ClinicCode !== 'undefined' && row.ClinicCode !== 'null');
+                }).filter(row => row.Region !== '' && row.ClinicCode !== '' && row.ClinicCode !== 'undefined');
 
-                updateDropdownsForTeam();
-                updateDefaultAgentInput();
-                updateDashboard(getFilteredData());
+                updateDropdowns();
+                renderDashboard();
             };
             reader.readAsArrayBuffer(file);
         });
 
-        function updateDropdownsForTeam() {
-            const selectedTeam = document.getElementById('filterTeam').value;
-            
-            let teamFilteredData = globalData;
-            if (selectedTeam && teamConfigs[selectedTeam]) {
-                const allowedRegions = teamConfigs[selectedTeam].regions.map(r => r.toUpperCase());
-                teamFilteredData = globalData.filter(d => allowedRegions.includes(d.Region.toUpperCase()));
-            }
-
-            const regions = [...new Set(teamFilteredData.map(d => d.Region))].sort();
-            const branches = [...new Set(teamFilteredData.map(d => d.Branch))].sort();
-            const clinics = [...new Set(teamFilteredData.map(d => d.ClinicCode))].sort();
-
-            fillSelect('filterRegion', regions, 'All Regions');
-            fillSelect('filterBranch', branches, 'All Branches');
-            fillSelect('filterClinic', clinics, 'All Clinic Codes');
-        }
-
-        function fillSelect(elementId, items, defaultText) {
-            const select = document.getElementById(elementId);
-            const currentValue = select.value;
-            select.innerHTML = `<option value="">${defaultText}</option>`;
-            items.forEach(item => {
+        function updateDropdowns() {
+            const regions = [...new Set(globalRawData.map(d => d.Region))].sort();
+            const selectRegion = document.getElementById('filterRegion');
+            selectRegion.innerHTML = '<option value="">All Regions</option>';
+            regions.forEach(reg => {
                 const opt = document.createElement('option');
-                opt.value = item;
-                opt.textContent = item;
-                select.appendChild(opt);
+                opt.value = reg;
+                opt.textContent = reg;
+                selectRegion.appendChild(opt);
             });
-            if (items.includes(currentValue)) {
-                select.value = currentValue;
-            } else {
-                select.value = "";
-            }
         }
 
-        function updateDefaultAgentInput() {
-            const selectedTeam = document.getElementById('filterTeam').value;
-            const agentInput = document.getElementById('agentCountInput');
-            
-            if (selectedTeam && teamConfigs[selectedTeam]) {
-                agentInput.value = teamConfigs[selectedTeam].agents;
-                document.getElementById('tableTitle').textContent = `${selectedTeam} CONSULTATION RECORDS DETAIL`;
-            } else {
-                let totalAllAgents = Object.values(teamConfigs).reduce((sum, t) => sum + t.agents, 0);
-                agentInput.value = totalAllAgents;
-                document.getElementById('tableTitle').textContent = `ALL TEAMS CONSULTATION RECORDS DETAIL`;
-            }
-        }
-
-        document.getElementById('filterTeam').addEventListener('change', function() {
-            document.getElementById('filterRegion').value = '';
-            document.getElementById('filterBranch').value = '';
-            document.getElementById('filterClinic').value = '';
-            
-            updateDefaultAgentInput();
-            updateDropdownsForTeam();
-            updateDashboard(getFilteredData());
-        });
-
-        function filterAndRender() {
-            updateDashboard(getFilteredData());
-        }
-
-        document.getElementById('filterRegion').addEventListener('change', filterAndRender);
-        document.getElementById('filterBranch').addEventListener('change', filterAndRender);
-        document.getElementById('filterClinic').addEventListener('change', filterAndRender);
-        document.getElementById('agentCountInput').addEventListener('input', () => {
-            updateDashboard(getFilteredData());
-        });
+        document.getElementById('filterDro').addEventListener('change', renderDashboard);
+        document.getElementById('filterRegion').addEventListener('change', renderDashboard);
 
         document.getElementById('resetBtn').addEventListener('click', () => {
-            document.getElementById('filterTeam').value = '';
+            document.getElementById('filterDro').value = '';
             document.getElementById('filterRegion').value = '';
-            document.getElementById('filterBranch').value = '';
-            document.getElementById('filterClinic').value = '';
-            updateDefaultAgentInput();
-            updateDropdownsForTeam();
-            updateDashboard(globalData);
+            renderDashboard();
         });
 
-        function getFilteredData() {
-            const selectedTeam = document.getElementById('filterTeam').value;
+        function renderDashboard() {
+            const selectedDro = document.getElementById('filterDro').value;
             const selectedRegion = document.getElementById('filterRegion').value;
-            const selectedBranch = document.getElementById('filterBranch').value;
-            const selectedClinic = document.getElementById('filterClinic').value;
 
-            return globalData.filter(d => {
-                if (selectedTeam) {
-                    const allowedRegions = teamConfigs[selectedTeam].regions.map(r => r.toUpperCase());
-                    const matchesTeamRegion = allowedRegions.includes(d.Region.toUpperCase());
-                    if (!matchesTeamRegion) return false;
-                }
-                if (selectedRegion && d.Region.toUpperCase() !== selectedRegion.toUpperCase()) return false;
-                if (selectedBranch && d.Branch.toUpperCase() !== selectedBranch.toUpperCase()) return false;
-                if (selectedClinic && d.ClinicCode.toUpperCase() !== selectedClinic.toUpperCase()) return false;
+            // Filter raw data
+            let filtered = globalRawData.filter(d => {
+                if (selectedDro && d.DRO !== selectedDro) return false;
+                if (selectedRegion && d.Region !== selectedRegion) return false;
                 return true;
             });
-        }
 
-        function updateDashboard(data) {
-            const totalDone = data.reduce((sum, row) => sum + row.Done, 0);
-            const totalVideo = data.reduce((sum, row) => sum + row.Video, 0);
-            const totalCamp = data.reduce((sum, row) => sum + row.Camp, 0);
-
-            let activeAgents = Number(document.getElementById('agentCountInput').value) || 1;
-            if (activeAgents <= 0) activeAgents = 1;
-
-            const avgPerAgent = (totalDone / activeAgents).toFixed(2);
-            const avgVideoPerAgent = (totalVideo / activeAgents).toFixed(2);
-
-            document.getElementById('kpiDone').textContent = totalDone.toLocaleString();
-            document.getElementById('kpiVideo').textContent = totalVideo.toLocaleString();
-            document.getElementById('kpiCamp').textContent = totalCamp.toLocaleString();
-            document.getElementById('kpiAvgVideo').textContent = avgVideoPerAgent;
-            document.getElementById('kpiAvgAgent').textContent = avgPerAgent;
-            document.getElementById('agentVideoInfoText').textContent = `Using ${activeAgents} active agent(s)`;
-            document.getElementById('agentInfoText').textContent = `Using ${activeAgents} active agent(s)`;
-
-            document.getElementById('rowCount').textContent = `Showing ${data.length} rows`;
-
-            const regionSummaryMap = {};
-            data.forEach(row => {
-                if (!regionSummaryMap[row.Region]) {
-                    regionSummaryMap[row.Region] = { video: 0, camp: 0 };
+            // Group by DRO and Region to match Image 2 format
+            let droMap = {};
+            filtered.forEach(row => {
+                if (!droMap[row.DRO]) {
+                    droMap[row.DRO] = { regions: {} };
                 }
-                regionSummaryMap[row.Region].video += row.Video;
-                regionSummaryMap[row.Region].camp += row.Camp;
+                if (!droMap[row.DRO].regions[row.Region]) {
+                    droMap[row.DRO].regions[row.Region] = { gmeetCount: 0, camp: 0, cases: 0 };
+                }
+                droMap[row.DRO].regions[row.Region].gmeetCount += row.Video;
+                droMap[row.DRO].regions[row.Region].camp += row.Camp;
+                droMap[row.DRO].regions[row.Region].cases += row.Done;
             });
 
-            const regionSummaryBody = document.getElementById('regionSummaryBody');
-            regionSummaryBody.innerHTML = '';
-            const sortedRegions = Object.keys(regionSummaryMap).sort();
+            // Calculate Totals for KPIs
+            let totalCasesSum = 0;
+            let totalGmeetSum = 0;
+            let totalCampSum = 0;
 
-            if (sortedRegions.length === 0) {
-                regionSummaryBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400 font-medium">Koi region data available nahi hai.</td></tr>`;
-            } else {
-                sortedRegions.forEach(reg => {
-                    const stats = regionSummaryMap[reg];
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-blue-50/50 transition-colors";
-                    tr.innerHTML = `
-                        <td class="p-3 border-b border-gray-200 font-semibold text-gray-800">${reg}</td>
-                        <td class="p-3 border-b border-gray-200 text-right font-bold text-blue-800">${stats.video.toLocaleString()}</td>
-                        <td class="p-3 border-b border-gray-200 text-right font-bold text-emerald-700">${stats.camp.toLocaleString()}</td>
-                    `;
-                    regionSummaryBody.appendChild(tr);
-                });
-            }
+            filtered.forEach(r => {
+                totalCasesSum += r.Done;
+                totalGmeetSum += r.Video;
+                totalCampSum += r.Camp;
+            });
 
-            const tbody = document.getElementById('dataTableBody');
+            document.getElementById('kpiCases').textContent = totalCasesSum.toLocaleString();
+            document.getElementById('kpiGmeet').textContent = totalGmeetSum.toLocaleString();
+            document.getElementById('kpiCamp').textContent = totalCampSum.toLocaleString();
+
+            const tbody = document.getElementById('reportTableBody');
             tbody.innerHTML = '';
 
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500 font-medium">Selected filter ke liye koi data nahi mila.</td></tr>`;
+            let totalRowsDisplayed = 0;
+            let grandTotalGmeet = 0;
+            let grandTotalCamp = 0;
+            let grandTotalCases = 0;
+
+            const sortedDros = Object.keys(droMap).sort();
+
+            if (sortedDros.length === 0 || filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-500 font-medium">Koi data nahi mila.</td></tr>`;
+                document.getElementById('rowCount').textContent = `Showing 0 rows`;
                 return;
             }
 
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-blue-50/80 transition-colors cursor-pointer text-gray-800";
-                tr.innerHTML = `
-                    <td class="p-3.5 border-b border-gray-200 font-semibold text-gray-800">${row.Region}</td>
-                    <td class="p-3.5 border-b border-gray-200 text-gray-700">${row.Branch}</td>
-                    <td class="p-3.5 border-b border-gray-200 text-blue-700 font-mono font-medium">${row.ClinicCode}</td>
-                    <td class="p-3.5 border-
+            sortedDros.forEach(dro => {
+                const regKeys = Object.keys(droMap[dro].regions).sort();
+                let droTotalCamp = 0;
+                let droTotalGmeet = 0;
+                let droTotalCases = 0;
+                let agentCount = droConfigs[dro] ? droConfigs[dro].agents : 1;
+
+                regKeys.forEach(reg => {
+                    droTotalCamp += droMap[dro].regions[reg].camp;
+                    droTotalGmeet += droMap[dro].regions[reg].gmeetCount;
+                    droTotalCases += droMap[dro].regions[reg].cases;
+                });
+
+                grandTotalCamp += droTotalCamp;
+                grandTotalGmeet += droTotalGmeet;
+                grandTotalCases += droTotalCases;
+
+                let droGmeetAvgPerAgent = (droTotalGmeet / agentCount).toFixed(2);
+                let droCasesAvgPerAgent = (droTotalCases / agentCount).toFixed(2);
+
+                regKeys.forEach((reg, idx) => {
+                    totalRowsDisplayed++;
+                    const rData = droMap[dro].regions[reg];
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-blue-50/50 transition-colors border-b border-gray-200 text-gray-800";
+
+                    let droCell = '';
+                    if (idx === 0) {
+                        droCell = `<td rowspan="${regKeys.length}" class="p-3.5 border border-gray-300 font-bold bg-gray-50 text-gray-900 align-middle">${dro}</td>`;
+                    }
+
+                    let summaryCells = '';
+                    if (idx === 0) {
+                        summaryCells = `
+                            <td rowspan="${regKeys.length}" class="p-3.5 border border-gray-300 text-right font-bold bg-gray-50 align-middle">${droTotalCamp}</td>
+                            <td rowspan="${regKeys.length}" class="p-3.5 border border-gray-300 text-right font-bold bg-gray-50 align-middle">${droTotalGmeet}</td>
+                            <td rowspan="${regKeys.length}" class="p-3.5 border border-gray-300 text-right font-bold bg-gray-50 align-middle">${droTotalCases}</td>
+                            <td rowspan="${regKeys.length}" class="p-3.5 border border-gray-300 text-right font-bold bg-gray-50 align-middle">${agentCount}</td>
+                            <td rowspan="${regKeys.length}" class="p-3.5 border border-gray-300 text-right font-bold bg-indigo-50 text-indigo-950 align-middle">${droGmeetAvgPerAgent}</td>
+                            <td rowspan="${regKeys.length}" class="p-3.5 border border-gray-300 text-right font-bold bg-purple-50 text-purple-950 align-middle">${droCasesAvgPerAgent}</td>
+                        `;
+                    }
+
+                    tr.innerHTML = `
+                        ${droCell}
+                        <td class="p-3.5 border border-gray-300 font-semibold text-gray-700">${reg}</td>
+                        <td class="p-3.5 border border-gray-300 text-right font-mono font-semibold">${rData.gmeetCount}</td>
+                        ${summaryCells}
+                    `;
+                    tbody.appendChild(tr);
+                });
+            });
+
+            // Grand Total Row
+            let totalAgentsCount = Object.values(droConfigs).reduce((sum, d) => sum + d.agents, 0);
+            let totalGmeetAvgAll = (grandTotalGmeet / totalAgentsCount).toFixed(2);
+            let totalCasesAvgAll = (grandTotalCases / totalAgentsCount).toFixed(2);
+
+            const totalTr = document.createElement('tr');
+            totalTr.className = "navy-header text-white font-black text-sm";
+            totalTr.innerHTML = `
+                <td class="p-3.5 border border-blue-900">TOTAL</td>
+                <td class="p-3.5 border border-blue-900"></td>
+                <td class="p-3.5 border border-blue-900 text-right">${grandTotalGmeet}</td>
+                <td class="p-3.5 border border-blue-900 text-right">${grandTotalCamp}</td>
+                <td class="p-3.5 border border-blue-900 text-right">${grandTotalGmeet}</td>
+                <td class="p-3.5 border border-blue-900 text-right">${grandTotalCases}</td>
+                <td class="p-3.5 border border-blue-900 text-right">${totalAgentsCount}</td>
+                <td class="p-3.5 border border-blue-900 text-right">${totalGmeetAvgAll}</td>
+                <td class="p-3.5 border border-blue-900 text-right">${totalCasesAvgAll}</td>
+            `;
+            tbody.appendChild(totalTr);
+
+            document.getElementById('rowCount').textContent = `Showing ${totalRowsDisplayed} regions`;
+        }
+    </script>
+</body>
+</html>
