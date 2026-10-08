@@ -133,12 +133,12 @@
             if (!regionName) return null;
             const upperReg = String(regionName).toUpperCase().trim();
             for (let dro in droConfigs) {
-                const matchedReg = droConfigs[dro].regions.find(r => r.toUpperCase() === upperReg);
+                const matchedReg = droConfigs[dro].regions.find(r => r.toUpperCase() === upperReg || upperReg.includes(r.toUpperCase()) || r.toUpperCase().includes(upperReg));
                 if (matchedReg) {
                     return { dro: dro, region: matchedReg };
                 }
             }
-            return null; // Ignore extra regions not in the list
+            return null;
         }
 
         document.getElementById('fileUpload').addEventListener('change', function(e) {
@@ -180,7 +180,7 @@
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
-                    if (rowStr.includes('region') || rowStr.includes('branch') || rowStr.includes('case') || rowStr.includes('gmeet')) {
+                    if (rowStr.includes('region') || rowStr.includes('branch') || rowStr.includes('consulation') || rowStr.includes('cases')) {
                         headerIdx = i;
                         break;
                     }
@@ -192,7 +192,7 @@
                 formattedJson.forEach(row => {
                     const keys = Object.keys(row);
                     let regionVal = '';
-                    let doneVal = 0, videoVal = 0, campVal = 0;
+                    let videoVal = 0, campVal = 0, doneVal = 0;
 
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
@@ -208,14 +208,14 @@
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
                         const val = Number(row[k]) || 0;
+                        if (lk.includes('video') || lk.includes('gmeet') || lk.includes('call') || lk.includes('clinic_video')) {
+                            videoVal += val;
+                        }
                         if (lk.includes('camp')) {
                             campVal += val;
                         }
-                        if (lk.includes('video') || lk.includes('gmeet') || lk.includes('call')) {
-                            videoVal += val;
-                        }
-                        if (lk.includes('done') || lk.includes('consultation') || lk.includes('cases') || lk.includes('total cases')) {
-                            if (!lk.includes('avg') && !lk.includes('pre') && !lk.includes('audio')) {
+                        if (lk.includes('done') || lk.includes('consultation') || lk.includes('cases') || lk.includes('consulation')) {
+                            if (!lk.includes('avg') && !lk.includes('pre') && !lk.includes('audio') && !lk.includes('no of')) {
                                 doneVal += val;
                             }
                         }
@@ -223,6 +223,18 @@
 
                     if (doneVal === 0 && (videoVal > 0 || campVal > 0)) {
                         doneVal = videoVal + campVal;
+                    }
+
+                    // If still 0, sum all numeric columns except code/id
+                    if (doneVal === 0 && videoVal === 0 && campVal === 0) {
+                        keys.forEach(k => {
+                            const lk = k.toLowerCase();
+                            if (!lk.includes('code') && !lk.includes('branch') && !lk.includes('region')) {
+                                const val = Number(row[k]) || 0;
+                                doneVal += val;
+                            }
+                        });
+                        videoVal = doneVal; // fallback assignment
                     }
 
                     const validInfo = getValidDroAndRegion(regionVal);
