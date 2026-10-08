@@ -131,14 +131,14 @@
 
         function getValidDroAndRegion(regionName) {
             if (!regionName) return null;
-            const upperReg = String(regionName).toUpperCase().trim();
+            const upperReg = String(regionName).toUpperCase().trim().replace(/[\t\r\n]/g, '');
             for (let dro in droConfigs) {
                 const matchedReg = droConfigs[dro].regions.find(r => r.toUpperCase() === upperReg || upperReg.includes(r.toUpperCase()) || r.toUpperCase().includes(upperReg));
                 if (matchedReg) {
                     return { dro: dro, region: matchedReg };
                 }
             }
-            return null; // Ignore extra/unwanted regions
+            return null;
         }
 
         document.getElementById('fileUpload').addEventListener('change', function(e) {
@@ -177,7 +177,7 @@
                 const worksheet = workbook.Sheets[firstSheetName];
                 const rawJson = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
-                // Smart Header Detection: Find row containing 'Region' and 'Branch Name' or 'Clinic Code'
+                // Smart Header Detection
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
@@ -311,8 +311,6 @@
                 grandTotalCases += droTotalCases;
 
                 // Exact formulas requested:
-                // Total Gmeet avg. per agent = Total Gmeet / No. Of Agent
-                // Total Cases avg. per agent = Total cases / No. Of Agent
                 let droGmeetAvgPerAgent = agentCount > 0 ? (droTotalGmeet / agentCount).toFixed(2) : "0.00";
                 let droCasesAvgPerAgent = agentCount > 0 ? (droTotalCases / agentCount).toFixed(2) : "0.00";
 
