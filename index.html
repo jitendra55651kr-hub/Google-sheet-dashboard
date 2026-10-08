@@ -86,7 +86,7 @@
             </div>
         </div>
 
-        <!-- Report Table Section matching Image 2 -->
+        <!-- Report Table Section -->
         <div class="bg-white text-gray-800 rounded-xl card-shadow overflow-hidden border border-blue-900/20">
             <div class="navy-header text-white px-6 py-3.5 flex justify-between items-center border-b border-blue-900">
                 <h3 class="font-bold text-sm tracking-wide uppercase">CASHPOR REGION BRANCH CONSULTATION REPORT</h3>
@@ -121,7 +121,7 @@
     <script>
         let globalRawData = [];
 
-        // DRO mapping configuration and Agent counts
+        // Predefined strict DROs and their exact valid regions configuration
         const droConfigs = {
             "Jitendra": { regions: ["BILASPUR", "JASHPUR", "SIWAN"], agents: 5 },
             "Ravi": { regions: ["CHANDAULI", "GIRIDIH", "SATNA"], agents: 4 },
@@ -130,19 +130,16 @@
             "Ishant": { regions: ["EAST CHAMPARAN", "MIRZAPUR", "SARAN", "DEOGARH"], agents: 6 }
         };
 
-        function toTitleCase(str) {
-            if (!str) return '';
-            return str.toLowerCase().replace(/(^|\s)\S/g, l => l.toUpperCase());
-        }
-
-        function getDroForRegion(regionName) {
-            const upperReg = regionName.toUpperCase();
+        function getValidDroAndRegion(regionName) {
+            if (!regionName) return null;
+            const upperReg = String(regionName).toUpperCase().trim();
             for (let dro in droConfigs) {
-                if (droConfigs[dro].regions.map(r => r.toUpperCase()).includes(upperReg)) {
-                    return dro;
+                const matchedReg = droConfigs[dro].regions.find(r => r.toUpperCase() === upperReg);
+                if (matchedReg) {
+                    return { dro: dro, region: matchedReg };
                 }
             }
-            return "Other";
+            return null; // Ignore any extra or unwanted regions not present in configuration
         }
 
         document.getElementById('fileUpload').addEventListener('change', function(e) {
@@ -173,7 +170,8 @@
 
                 const formattedJson = XLSX.utils.sheet_to_json(worksheet, {range: headerIdx});
                 
-                globalRawData = formattedJson.map(row => {
+                globalRawData = [];
+                formattedJson.forEach(row => {
                     const regionVal = row['Region'] || row['region'] || row['REGION'] || '';
                     const branchVal = row['Branch Name'] || row['Branch'] || row['branch name'] || row['BRANCH NAME'] || '';
                     const clinicVal = row['Clinic Code'] || row['ClinicCode'] || row['clinic code'] || row['CLINIC CODE'] || '';
@@ -182,18 +180,19 @@
                     const videoVal = row['Clinic_Video_Consulation'] || row['Video_Consulatation'] || row['Clinic Video Call'] || row['Video'] || row['video'] || 0;
                     const campVal = row['Camp_Consulatation'] || row['Camp Consultation'] || row['Camp'] || row['camp'] || 0;
 
-                    const cleanRegion = toTitleCase(String(regionVal).trim());
-
-                    return {
-                        Region: cleanRegion,
-                        DRO: getDroForRegion(cleanRegion),
-                        Branch: String(branchVal).trim(),
-                        ClinicCode: String(clinicVal).trim(),
-                        Done: Number(doneVal) || 0,
-                        Video: Number(videoVal) || 0,
-                        Camp: Number(campVal) || 0
-                    };
-                }).filter(row => row.Region !== '' && row.ClinicCode !== '' && row.ClinicCode !== 'undefined');
+                    const validInfo = getValidDroAndRegion(regionVal);
+                    if (validInfo && String(clinicVal).trim() !== '' && String(clinicVal).trim() !== 'undefined') {
+                        globalRawData.push({
+                            Region: validInfo.region,
+                            DRO: validInfo.dro,
+                            Branch: String(branchVal).trim(),
+                            ClinicCode: String(clinicVal).trim(),
+                            Done: Number(doneVal) || 0,
+                            Video: Number(videoVal) || 0,
+                            Camp: Number(campVal) || 0
+                        });
+                    }
+                });
 
                 updateDropdowns();
                 renderDashboard();
@@ -226,28 +225,33 @@
             const selectedDro = document.getElementById('filterDro').value;
             const selectedRegion = document.getElementById('filterRegion').value;
 
-            // Filter raw data
             let filtered = globalRawData.filter(d => {
                 if (selectedDro && d.DRO !== selectedDro) return false;
                 if (selectedRegion && d.Region !== selectedRegion) return false;
                 return true;
             });
 
-            // Group by DRO and Region to match Image 2 format
+            // Build structured map based purely on configured regions
             let droMap = {};
-            filtered.forEach(row => {
-                if (!droMap[row.DRO]) {
-                    droMap[row.DRO] = { regions: {} };
+            Object.keys(droConfigs).forEach(dro => {
+                if (!selectedDro || selectedDro === dro) {
+                    droMap[dro] = { regions: {} };
+                    droConfigs[dro].regions.forEach(reg => {
+                        if (!selectedRegion || selectedRegion === reg) {
+                            droMap[dro].regions[reg] = { gmeetCount: 0, camp: 0, cases: 0 };
+                        }
+                    });
                 }
-                if (!droMap[row.DRO].regions[row.Region]) {
-                    droMap[row.DRO].regions[row.Region] = { gmeetCount: 0, camp: 0, cases: 0 };
-                }
-                droMap[row.DRO].regions[row.Region].gmeetCount += row.Video;
-                droMap[row.DRO].regions[row.Region].camp += row.Camp;
-                droMap[row.DRO].regions[row.Region].cases += row.Done;
             });
 
-            // Calculate Totals for KPIs
+            filtered.forEach(row => {
+                if (droMap[row.DRO] && droMap[row.DRO].regions[row.Region]) {
+                    droMap[row.DRO].regions[row.Region].gmeetCount += row.Video;
+                    droMap[row.DRO].regions[row.Region].camp += row.Camp;
+                    droMap[row.DRO].regions[row.Region].cases += row.Done;
+                }
+            });
+
             let totalCasesSum = 0;
             let totalGmeetSum = 0;
             let totalCampSum = 0;
@@ -280,6 +284,8 @@
 
             sortedDros.forEach(dro => {
                 const regKeys = Object.keys(droMap[dro].regions).sort();
+                if (regKeys.length === 0) return;
+
                 let droTotalCamp = 0;
                 let droTotalGmeet = 0;
                 let droTotalCases = 0;
@@ -331,7 +337,6 @@
                 });
             });
 
-            // Grand Total Row
             let totalAgentsCount = Object.values(droConfigs).reduce((sum, d) => sum + d.agents, 0);
             let totalGmeetAvgAll = (grandTotalGmeet / totalAgentsCount).toFixed(2);
             let totalCasesAvgAll = (grandTotalCases / totalAgentsCount).toFixed(2);
