@@ -138,8 +138,7 @@
                     return { dro: dro, region: matchedReg };
                 }
             }
-            // Fallback: If region name doesn't strictly match config list, map it dynamically or assign to first DRO
-            return { dro: "Jitendra", region: upperReg };
+            return null; // Ignore extra regions not in the list
         }
 
         document.getElementById('fileUpload').addEventListener('change', function(e) {
@@ -181,7 +180,7 @@
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
-                    if (rowStr.includes('region') || rowStr.includes('branch') || rowStr.includes('dro') || rowStr.includes('case') || rowStr.includes('gmeet')) {
+                    if (rowStr.includes('region') || rowStr.includes('branch') || rowStr.includes('case') || rowStr.includes('gmeet')) {
                         headerIdx = i;
                         break;
                     }
@@ -192,17 +191,16 @@
                 globalRawData = [];
                 formattedJson.forEach(row => {
                     const keys = Object.keys(row);
-                    let regionVal = '', branchVal = '', clinicVal = '';
+                    let regionVal = '';
                     let doneVal = 0, videoVal = 0, campVal = 0;
 
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
-                        if (lk.includes('region') && !regionVal) regionVal = row[k];
-                        if (lk.includes('branch') && !branchVal) branchVal = row[k];
-                        if ((lk.includes('clinic') || lk.includes('code')) && !clinicVal) clinicVal = row[k];
+                        if ((lk.includes('region') || lk.includes('branch') || lk.includes('name')) && !regionVal) {
+                            regionVal = row[k];
+                        }
                     });
 
-                    // If region is blank, check first column values as fallback
                     if (!regionVal && keys.length > 0) {
                         regionVal = row[keys[0]];
                     }
@@ -227,23 +225,11 @@
                         doneVal = videoVal + campVal;
                     }
 
-                    // Fallback numeric detection if specific columns weren't matched via keywords
-                    if (doneVal === 0 && videoVal === 0 && campVal === 0) {
-                        keys.forEach(k => {
-                            const val = Number(row[k]);
-                            if (!isNaN(val) && val > 0 && k !== regionVal) {
-                                doneVal += val;
-                            }
-                        });
-                    }
-
                     const validInfo = getValidDroAndRegion(regionVal);
                     if (validInfo) {
                         globalRawData.push({
                             Region: validInfo.region,
                             DRO: validInfo.dro,
-                            Branch: String(branchVal || '').trim(),
-                            ClinicCode: String(clinicVal || 'EC_GEN').trim(),
                             Done: doneVal,
                             Video: videoVal,
                             Camp: campVal
@@ -299,27 +285,24 @@
                 }
             });
 
-            // Dynamically add regions from uploaded data if they don't match standard configs
             filtered.forEach(row => {
-                if (!droMap[row.DRO]) {
-                    droMap[row.DRO] = { regions: {} };
+                if (droMap[row.DRO] && droMap[row.DRO].regions[row.Region]) {
+                    droMap[row.DRO].regions[row.Region].gmeetCount += row.Video;
+                    droMap[row.DRO].regions[row.Region].camp += row.Camp;
+                    droMap[row.DRO].regions[row.Region].cases += row.Done;
                 }
-                if (!droMap[row.DRO].regions[row.Region]) {
-                    droMap[row.DRO].regions[row.Region] = { gmeetCount: 0, camp: 0, cases: 0 };
-                }
-                droMap[row.DRO].regions[row.Region].gmeetCount += row.Video;
-                droMap[row.DRO].regions[row.Region].camp += row.Camp;
-                droMap[row.DRO].regions[row.Region].cases += row.Done;
             });
 
             let totalCasesSum = 0;
             let totalGmeetSum = 0;
             let totalCampSum = 0;
 
-            filtered.forEach(r => {
-                totalCasesSum += r.Done;
-                totalGmeetSum += r.Video;
-                totalCampSum += r.Camp;
+            Object.keys(droMap).forEach(dro => {
+                Object.keys(droMap[dro].regions).forEach(reg => {
+                    totalCasesSum += droMap[dro].regions[reg].cases;
+                    totalGmeetSum += droMap[dro].regions[reg].gmeetCount;
+                    totalCampSum += droMap[dro].regions[reg].camp;
+                });
             });
 
             document.getElementById('kpiCases').textContent = totalCasesSum.toLocaleString();
@@ -335,12 +318,6 @@
             let grandTotalCases = 0;
 
             const sortedDros = Object.keys(droMap).sort();
-
-            if (sortedDros.length === 0 || filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-600 font-black">Koi data nahi mila. Sahi format ki file upload karein.</td></tr>`;
-                document.getElementById('rowCount').textContent = `Showing 0 rows`;
-                return;
-            }
 
             sortedDros.forEach(dro => {
                 const regKeys = Object.keys(droMap[dro].regions).sort();
