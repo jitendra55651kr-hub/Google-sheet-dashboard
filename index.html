@@ -177,10 +177,11 @@
                 const worksheet = workbook.Sheets[firstSheetName];
                 const rawJson = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
+                // Smart header detection: Find row containing 'region' and 'branch'
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
-                    if (rowStr.includes('region') || rowStr.includes('branch') || rowStr.includes('consulation') || rowStr.includes('clinic_video_consulation')) {
+                    if (rowStr.includes('region') && (rowStr.includes('branch') || rowStr.includes('clinic'))) {
                         headerIdx = i;
                         break;
                     }
@@ -210,7 +211,7 @@
                         const val = Number(row[k]) || 0;
                         
                         // Sum of Clinic_Video_Consulation = GMEET COUNT
-                        if (lk.includes('clinic_video_consulation') || lk.includes('video_consulatation') || lk.includes('gmeet')) {
+                        if (lk.includes('clinic_video_consulation') || lk.includes('video_consulatation') || lk.includes('gmeet') || lk.includes('video')) {
                             clinicVideoVal += val;
                         }
                         // Sum of Camp_Consulatation = Total camp
