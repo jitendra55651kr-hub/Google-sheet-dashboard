@@ -180,7 +180,7 @@
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
-                    if (rowStr.includes('region') || rowStr.includes('branch') || rowStr.includes('consulation') || rowStr.includes('cases')) {
+                    if (rowStr.includes('region') || rowStr.includes('branch') || rowStr.includes('consulation') || rowStr.includes('clinic_video_consulation')) {
                         headerIdx = i;
                         break;
                     }
@@ -192,7 +192,7 @@
                 formattedJson.forEach(row => {
                     const keys = Object.keys(row);
                     let regionVal = '';
-                    let videoVal = 0, campVal = 0, doneVal = 0;
+                    let clinicVideoVal = 0, campConsulVal = 0;
 
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
@@ -208,43 +208,24 @@
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
                         const val = Number(row[k]) || 0;
-                        if (lk.includes('video') || lk.includes('gmeet') || lk.includes('call') || lk.includes('clinic_video')) {
-                            videoVal += val;
+                        
+                        // Sum of Clinic_Video_Consulation = GMEET COUNT
+                        if (lk.includes('clinic_video_consulation') || lk.includes('video_consulatation') || lk.includes('gmeet')) {
+                            clinicVideoVal += val;
                         }
-                        if (lk.includes('camp')) {
-                            campVal += val;
-                        }
-                        if (lk.includes('done') || lk.includes('consultation') || lk.includes('cases') || lk.includes('consulation')) {
-                            if (!lk.includes('avg') && !lk.includes('pre') && !lk.includes('audio') && !lk.includes('no of')) {
-                                doneVal += val;
-                            }
+                        // Sum of Camp_Consulatation = Total camp
+                        if (lk.includes('camp_consulatation') || lk.includes('camp')) {
+                            campConsulVal += val;
                         }
                     });
-
-                    if (doneVal === 0 && (videoVal > 0 || campVal > 0)) {
-                        doneVal = videoVal + campVal;
-                    }
-
-                    // If still 0, sum all numeric columns except code/id
-                    if (doneVal === 0 && videoVal === 0 && campVal === 0) {
-                        keys.forEach(k => {
-                            const lk = k.toLowerCase();
-                            if (!lk.includes('code') && !lk.includes('branch') && !lk.includes('region')) {
-                                const val = Number(row[k]) || 0;
-                                doneVal += val;
-                            }
-                        });
-                        videoVal = doneVal; // fallback assignment
-                    }
 
                     const validInfo = getValidDroAndRegion(regionVal);
                     if (validInfo) {
                         globalRawData.push({
                             Region: validInfo.region,
                             DRO: validInfo.dro,
-                            Done: doneVal,
-                            Video: videoVal,
-                            Camp: campVal
+                            ClinicVideo: clinicVideoVal,
+                            CampConsul: campConsulVal
                         });
                     }
                 });
@@ -279,47 +260,24 @@
             const selectedDro = document.getElementById('filterDro').value;
             const selectedRegion = document.getElementById('filterRegion').value;
 
-            let filtered = globalRawData.filter(d => {
-                if (selectedDro && d.DRO !== selectedDro) return false;
-                if (selectedRegion && d.Region !== selectedRegion) return false;
-                return true;
-            });
-
             let droMap = {};
             Object.keys(droConfigs).forEach(dro => {
                 if (!selectedDro || selectedDro === dro) {
                     droMap[dro] = { regions: {} };
                     droConfigs[dro].regions.forEach(reg => {
                         if (!selectedRegion || selectedRegion === reg) {
-                            droMap[dro].regions[reg] = { gmeetCount: 0, camp: 0, cases: 0 };
+                            droMap[dro].regions[reg] = { clinicVideo: 0, campConsul: 0 };
                         }
                     });
                 }
             });
 
-            filtered.forEach(row => {
+            globalRawData.forEach(row => {
                 if (droMap[row.DRO] && droMap[row.DRO].regions[row.Region]) {
-                    droMap[row.DRO].regions[row.Region].gmeetCount += row.Video;
-                    droMap[row.DRO].regions[row.Region].camp += row.Camp;
-                    droMap[row.DRO].regions[row.Region].cases += row.Done;
+                    droMap[row.DRO].regions[row.Region].clinicVideo += row.ClinicVideo;
+                    droMap[row.DRO].regions[row.Region].campConsul += row.CampConsul;
                 }
             });
-
-            let totalCasesSum = 0;
-            let totalGmeetSum = 0;
-            let totalCampSum = 0;
-
-            Object.keys(droMap).forEach(dro => {
-                Object.keys(droMap[dro].regions).forEach(reg => {
-                    totalCasesSum += droMap[dro].regions[reg].cases;
-                    totalGmeetSum += droMap[dro].regions[reg].gmeetCount;
-                    totalCampSum += droMap[dro].regions[reg].camp;
-                });
-            });
-
-            document.getElementById('kpiCases').textContent = totalCasesSum.toLocaleString();
-            document.getElementById('kpiGmeet').textContent = totalGmeetSum.toLocaleString();
-            document.getElementById('kpiCamp').textContent = totalCampSum.toLocaleString();
 
             const tbody = document.getElementById('reportTableBody');
             tbody.innerHTML = '';
@@ -336,22 +294,24 @@
                 if (regKeys.length === 0) return;
 
                 let droTotalCamp = 0;
-                let droTotalGmeet = 0;
-                let droTotalCases = 0;
+                let droTotalGmeet = 0; // Total Gmeet = Sum of DRO mapped region's Gmeet counts
                 let agentCount = droConfigs[dro] ? droConfigs[dro].agents : 5;
 
                 regKeys.forEach(reg => {
-                    droTotalCamp += droMap[dro].regions[reg].camp;
-                    droTotalGmeet += droMap[dro].regions[reg].gmeetCount;
-                    droTotalCases += droMap[dro].regions[reg].cases;
+                    droTotalCamp += droMap[dro].regions[reg].campConsul;
+                    droTotalGmeet += droMap[dro].regions[reg].clinicVideo;
                 });
+
+                // Total cases = Total camp + Total Gmeet
+                let droTotalCases = droTotalCamp + droTotalGmeet;
 
                 grandTotalCamp += droTotalCamp;
                 grandTotalGmeet += droTotalGmeet;
                 grandTotalCases += droTotalCases;
 
-                let droGmeetAvgPerAgent = (droTotalGmeet / agentCount).toFixed(2);
-                let droCasesAvgPerAgent = (droTotalCases / agentCount).toFixed(2);
+                // Averages per agent formulas
+                let droGmeetAvgPerAgent = agentCount > 0 ? (droTotalGmeet / agentCount).toFixed(2) : "0.00";
+                let droCasesAvgPerAgent = agentCount > 0 ? (droTotalCases / agentCount).toFixed(2) : "0.00";
 
                 regKeys.forEach((reg, idx) => {
                     totalRowsDisplayed++;
@@ -379,12 +339,17 @@
                     tr.innerHTML = `
                         ${droCell}
                         <td class="p-4 border-2 border-gray-800 font-black text-gray-900 text-center">${reg}</td>
-                        <td class="p-4 border-2 border-gray-800 font-mono font-black text-center">${rData.gmeetCount}</td>
+                        <td class="p-4 border-2 border-gray-800 font-mono font-black text-center">${rData.clinicVideo}</td>
                         ${summaryCells}
                     `;
                     tbody.appendChild(tr);
                 });
             });
+
+            // Update KPI Cards
+            document.getElementById('kpiCases').textContent = grandTotalCases.toLocaleString();
+            document.getElementById('kpiGmeet').textContent = grandTotalGmeet.toLocaleString();
+            document.getElementById('kpiCamp').textContent = grandTotalCamp.toLocaleString();
 
             let totalAgentsCount = Object.keys(droMap).reduce((sum, dro) => sum + (droConfigs[dro] ? droConfigs[dro].agents : 5), 0);
             let totalGmeetAvgAll = totalAgentsCount > 0 ? (grandTotalGmeet / totalAgentsCount).toFixed(2) : "0.00";
