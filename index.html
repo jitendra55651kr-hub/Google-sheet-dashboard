@@ -37,7 +37,7 @@
     <main class="max-w-7xl mx-auto px-4 mt-6">
 
         <!-- Summary KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
             <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-orange-500">
                 <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL DONE CONSULTATION</p>
                 <h3 id="kpiDone" class="text-3xl font-black text-gray-900 mt-2">0</h3>
@@ -49,6 +49,11 @@
             <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-emerald-500">
                 <p class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">TOTAL CAMP CONSULTATION</p>
                 <h3 id="kpiCamp" class="text-3xl font-black text-gray-900 mt-2">0</h3>
+            </div>
+            <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-indigo-600 bg-gradient-to-br from-white to-indigo-50">
+                <p class="text-[11px] font-extrabold text-indigo-700 uppercase tracking-wider">AVG VIDEO / AGENT</p>
+                <h3 id="kpiAvgVideo" class="text-3xl font-black text-indigo-900 mt-2">0.00</h3>
+                <p id="agentVideoInfoText" class="text-[11px] text-gray-500 font-medium mt-0.5">Per active agent</p>
             </div>
             <div class="bg-white text-gray-800 p-5 rounded-xl card-shadow border-t-4 border-purple-600 bg-gradient-to-br from-white to-purple-50">
                 <p class="text-[11px] font-extrabold text-purple-700 uppercase tracking-wider">AVG CASES / AGENT</p>
@@ -102,6 +107,29 @@
             </div>
         </div>
 
+        <!-- Region-wise Breakdown Section -->
+        <div class="bg-white text-gray-800 rounded-xl card-shadow mb-6 overflow-hidden border border-blue-900/20">
+            <div class="navy-header text-white px-6 py-3 flex justify-between items-center border-b border-blue-900">
+                <h3 class="font-bold text-sm tracking-wide uppercase">📍 Region-wise Video Call & Camp Summary</h3>
+            </div>
+            <div class="overflow-x-auto max-h-[300px]">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-100 text-gray-700 sticky top-0 uppercase text-[11px] tracking-wider border-b border-gray-200">
+                        <tr>
+                            <th class="p-3 border-r border-gray-200">Region Name</th>
+                            <th class="p-3 border-r border-gray-200 text-right">Clinic Video Calls 📞</th>
+                            <th class="p-3 text-right">Camp Consultations ⛺</th>
+                        </tr>
+                    </thead>
+                    <tbody id="regionSummaryBody" class="divide-y divide-gray-200 text-sm">
+                        <tr>
+                            <td colspan="3" class="p-4 text-center text-gray-400 font-medium">Data upload karne ke baad yahan region-wise summary dikhegi.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Data Table Section -->
         <div class="bg-white text-gray-800 rounded-xl card-shadow overflow-hidden border border-blue-900/20">
             <div class="navy-header text-white px-6 py-3.5 flex justify-between items-center border-b border-blue-900">
@@ -142,6 +170,12 @@
             "TEAM RAVI": { regions: ["SATNA", "CHANDAULI", "GIRIDIH"], agents: 4 }
         };
 
+        // Helper function to convert any region name to standard Title Case (e.g. "bilaspur" or "BILASPUR" -> "Bilaspur")
+        function toTitleCase(str) {
+            if (!str) return '';
+            return str.toLowerCase().replace(/(^|\s)\S/g, l => l.toUpperCase());
+        }
+
         document.getElementById('fileUpload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -170,7 +204,7 @@
                 const formattedJson = XLSX.utils.sheet_to_json(worksheet, {range: headerIdx});
                 
                 globalData = formattedJson.map(row => ({
-                    Region: String(row['Region'] || '').trim(),
+                    Region: toTitleCase(String(row['Region'] || '').trim()),
                     Branch: String(row['Branch Name'] || '').trim(),
                     ClinicCode: String(row['Clinic Code'] || '').trim(),
                     Done: Number(row['Done_Consualtion'] || row['No of Consulation'] || 0),
@@ -190,146 +224,10 @@
             
             let teamFilteredData = globalData;
             if (selectedTeam && teamConfigs[selectedTeam]) {
-                const allowedRegions = teamConfigs[selectedTeam].regions;
-                teamFilteredData = globalData.filter(d => allowedRegions.some(r => r.toUpperCase() === d.Region.toUpperCase()));
+                const allowedRegions = teamConfigs[selectedTeam].regions.map(r => r.toUpperCase());
+                teamFilteredData = globalData.filter(d => allowedRegions.includes(d.Region.toUpperCase()));
             }
 
             const regions = [...new Set(teamFilteredData.map(d => d.Region))].sort();
             const branches = [...new Set(teamFilteredData.map(d => d.Branch))].sort();
-            const clinics = [...new Set(teamFilteredData.map(d => d.ClinicCode))].sort();
-
-            fillSelect('filterRegion', regions, 'All Regions');
-            fillSelect('filterBranch', branches, 'All Branches');
-            fillSelect('filterClinic', clinics, 'All Clinic Codes');
-        }
-
-        function fillSelect(elementId, items, defaultText) {
-            const select = document.getElementById(elementId);
-            const currentValue = select.value;
-            select.innerHTML = `<option value="">${defaultText}</option>`;
-            items.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item;
-                opt.textContent = item;
-                select.appendChild(opt);
-            });
-            if (items.includes(currentValue)) {
-                select.value = currentValue;
-            } else {
-                select.value = "";
-            }
-        }
-
-        function updateDefaultAgentInput() {
-            const selectedTeam = document.getElementById('filterTeam').value;
-            const agentInput = document.getElementById('agentCountInput');
-            
-            if (selectedTeam && teamConfigs[selectedTeam]) {
-                agentInput.value = teamConfigs[selectedTeam].agents;
-                document.getElementById('tableTitle').textContent = `${selectedTeam} CONSULTATION RECORDS DETAIL`;
-            } else {
-                let totalAllAgents = Object.values(teamConfigs).reduce((sum, t) => sum + t.agents, 0);
-                agentInput.value = totalAllAgents;
-                document.getElementById('tableTitle').textContent = `ALL TEAMS CONSULTATION RECORDS DETAIL`;
-            }
-        }
-
-        document.getElementById('filterTeam').addEventListener('change', function() {
-            document.getElementById('filterRegion').value = '';
-            document.getElementById('filterBranch').value = '';
-            document.getElementById('filterClinic').value = '';
-            
-            updateDefaultAgentInput();
-            updateDropdownsForTeam();
-            updateDashboard(getFilteredData());
-        });
-
-        function filterAndRender() {
-            updateDashboard(getFilteredData());
-        }
-
-        document.getElementById('filterRegion').addEventListener('change', filterAndRender);
-        document.getElementById('filterBranch').addEventListener('change', filterAndRender);
-        document.getElementById('filterClinic').addEventListener('change', filterAndRender);
-        document.getElementById('agentCountInput').addEventListener('input', () => {
-            updateDashboard(getFilteredData());
-        });
-
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            document.getElementById('filterTeam').value = '';
-            document.getElementById('filterRegion').value = '';
-            document.getElementById('filterBranch').value = '';
-            document.getElementById('filterClinic').value = '';
-            updateDefaultAgentInput();
-            updateDropdownsForTeam();
-            updateDashboard(globalData);
-        });
-
-        function getFilteredData() {
-            const selectedTeam = document.getElementById('filterTeam').value;
-            const selectedRegion = document.getElementById('filterRegion').value;
-            const selectedBranch = document.getElementById('filterBranch').value;
-            const selectedClinic = document.getElementById('filterClinic').value;
-
-            return globalData.filter(d => {
-                if (selectedTeam) {
-                    const allowedRegions = teamConfigs[selectedTeam].regions;
-                    const matchesTeamRegion = allowedRegions.some(r => r.toUpperCase() === d.Region.toUpperCase());
-                    if (!matchesTeamRegion) return false;
-                }
-                if (selectedRegion && d.Region.toUpperCase() !== selectedRegion.toUpperCase()) return false;
-                if (selectedBranch && d.Branch.toUpperCase() !== selectedBranch.toUpperCase()) return false;
-                if (selectedClinic && d.ClinicCode.toUpperCase() !== selectedClinic.toUpperCase()) return false;
-                return true;
-            });
-        }
-
-        function updateDashboard(data) {
-            const totalDone = data.reduce((sum, row) => sum + row.Done, 0);
-            const totalVideo = data.reduce((sum, row) => sum + row.Video, 0);
-            const totalCamp = data.reduce((sum, row) => sum + row.Camp, 0);
-
-            let activeAgents = Number(document.getElementById('agentCountInput').value) || 1;
-            if (activeAgents <= 0) activeAgents = 1;
-
-            const avgPerAgent = (totalDone / activeAgents).toFixed(2);
-
-            document.getElementById('kpiDone').textContent = totalDone.toLocaleString();
-            document.getElementById('kpiVideo').textContent = totalVideo.toLocaleString();
-            document.getElementById('kpiCamp').textContent = totalCamp.toLocaleString();
-            document.getElementById('kpiAvgAgent').textContent = avgPerAgent;
-            document.getElementById('agentInfoText').textContent = `Using ${activeAgents} active agent(s)`;
-
-            document.getElementById('rowCount').textContent = `Showing ${data.length} rows`;
-
-            const tbody = document.getElementById('dataTableBody');
-            tbody.innerHTML = '';
-
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500 font-medium">Selected filter ke liye koi data nahi mila.</td></tr>`;
-                return;
-            }
-
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-blue-50/80 transition-colors cursor-pointer text-gray-800";
-                tr.innerHTML = `
-                    <td class="p-3.5 border-b border-gray-200 font-semibold text-gray-800">${row.Region}</td>
-                    <td class="p-3.5 border-b border-gray-200 text-gray-700">${row.Branch}</td>
-                    <td class="p-3.5 border-b border-gray-200 text-blue-700 font-mono font-medium">${row.ClinicCode}</td>
-                    <td class="p-3.5 border-b border-gray-200 text-right font-black text-gray-900">${row.Done}</td>
-                    <td class="p-3.5 border-b border-gray-200 text-right font-semibold text-gray-700">${row.Video}</td>
-                    <td class="p-3.5 border-b border-gray-200 text-right font-semibold text-gray-700">${row.Camp}</td>
-                `;
-                tr.addEventListener('click', () => {
-                    document.getElementById('filterRegion').value = row.Region;
-                    document.getElementById('filterBranch').value = row.Branch;
-                    document.getElementById('filterClinic').value = row.ClinicCode;
-                    filterAndRender();
-                });
-                tbody.appendChild(tr);
-            });
-        }
-    </script>
-</body>
-</html>
+            const clinics = [...new Set(teamFilteredData.map(d => d.ClinicCode))
