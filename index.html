@@ -177,7 +177,7 @@
                 const worksheet = workbook.Sheets[firstSheetName];
                 const rawJson = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
-                // Universal Dynamic Header Detector: Scan all rows to find the header row containing 'region' or 'branch' or 'clinic'
+                // Universal Dynamic Header Detector: Scan all rows to find header containing 'region'
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
@@ -195,7 +195,6 @@
                     let regionVal = '';
                     let clinicVideoVal = 0, campConsulVal = 0;
 
-                    // Find region/branch/clinic name column dynamically
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
                         if ((lk.includes('region') || lk.includes('branch') || lk.includes('clinic') || lk.includes('name')) && !regionVal) {
@@ -203,19 +202,19 @@
                         }
                     });
 
-                    // Fallback to first column if header wasn't matched strictly
                     if (!regionVal && keys.length > 0) {
                         regionVal = row[keys[0]];
                     }
 
-                    // Flexible Column Scanning for Gmeet / Video & Camp Counts
                     keys.forEach(k => {
                         const lk = k.toLowerCase().trim();
                         const val = Number(row[k]) || 0;
                         
+                        // Clinic_Video_Consulation = GMEET COUNT
                         if (lk.includes('clinic_video_consulation') || lk.includes('video_consulatation') || lk.includes('gmeet') || lk.includes('video') || lk.includes('consultation count')) {
                             clinicVideoVal += val;
                         }
+                        // Camp_Consulatation = Total camp
                         if (lk.includes('camp_consulatation') || lk.includes('camp')) {
                             campConsulVal += val;
                         }
@@ -296,7 +295,7 @@
                 if (regKeys.length === 0) return;
 
                 let droTotalCamp = 0;
-                let droTotalGmeet = 0; // Total Gmeet = SUM of DRO mapped region's Gmeet counts
+                let droTotalGmeet = 0; 
                 let agentCount = droConfigs[dro] ? droConfigs[dro].agents : 5;
 
                 regKeys.forEach(reg => {
@@ -340,7 +339,7 @@
 
                     tr.innerHTML = `
                         ${droCell}
-                        <p class="p-4 border-2 border-gray-800 font-black text-gray-900 text-center">${reg}</p>
+                        <td class="p-4 border-2 border-gray-800 font-black text-gray-900 text-center">${reg}</td>
                         <td class="p-4 border-2 border-gray-800 font-mono font-black text-center">${rData.clinicVideo}</td>
                         ${summaryCells}
                     `;
