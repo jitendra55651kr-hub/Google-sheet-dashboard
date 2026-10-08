@@ -92,7 +92,8 @@
                 <h3 class="font-black text-sm tracking-wide uppercase">CASHPOR REGION BRANCH CONSULTATION REPORT</h3>
                 <span id="rowCount" class="text-xs bg-blue-900 px-3 py-1 rounded-full text-blue-200 border border-blue-500 font-bold">Showing 0 rows</span>
             </div>
-            <div class="overflow-x-auto max-h-[600px]">
+            <!-- Scroll constraint removed so entire table shows fully without vertical scrolling -->
+            <div class="overflow-x-auto">
                 <table class="w-full border-collapse border-2 border-gray-800 text-center">
                     <thead class="navy-header text-white sticky top-0 uppercase text-xs tracking-wider border-b-2 border-gray-800">
                         <tr>
@@ -121,12 +122,21 @@
     <script>
         let globalRawData = [];
 
+        // Store custom editable agent counts per DRO
+        let customAgentCounts = {
+            "Jitendra": 5,
+            "Ravi": 4,
+            "Deepti": 6,
+            "Shivam": 5,
+            "Ishant": 6
+        };
+
         const droConfigs = {
-            "Jitendra": { regions: ["BILASPUR", "JASHPUR", "SIWAN"], agents: 5 },
-            "Ravi": { regions: ["CHANDAULI", "GIRIDIH", "SATNA"], agents: 4 },
-            "Deepti": { regions: ["BALLIA", "RAIGARH", "TIKAMGARH"], agents: 6 },
-            "Shivam": { regions: ["KAIMUR ROHTAS", "MADHEPURA", "MUZAFFARPUR", "SARGUJA"], agents: 5 },
-            "Ishant": { regions: ["EAST CHAMPARAN", "MIRZAPUR", "SARAN", "DEOGARH"], agents: 6 }
+            "Jitendra": { regions: ["BILASPUR", "JASHPUR", "SIWAN"] },
+            "Ravi": { regions: ["CHANDAULI", "GIRIDIH", "SATNA"] },
+            "Deepti": { regions: ["BALLIA", "RAIGARH", "TIKAMGARH"] },
+            "Shivam": { regions: ["KAIMUR ROHTAS", "MADHEPURA", "MUZAFFARPUR", "SARGUJA"] },
+            "Ishant": { regions: ["EAST CHAMPARAN", "MIRZAPUR", "SARAN", "DEOGARH"] }
         };
 
         function getValidDroAndRegion(regionName) {
@@ -177,11 +187,10 @@
                 const worksheet = workbook.Sheets[firstSheetName];
                 const rawRows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
-                // Find header row index where 'Region' is present
                 let headerIdx = -1;
                 let regionColIdx = 0;
-                let gmeetColIdx = 9;   // Default index for Clinic_Video_Consulation
-                let campColIdx = 7;    // Default index for Camp_Consulatation
+                let gmeetColIdx = 9;   
+                let campColIdx = 7;    
 
                 for (let i = 0; i < rawRows.length; i++) {
                     const row = rawRows[i];
@@ -201,12 +210,10 @@
                     if (headerIdx !== -1) break;
                 }
 
-                // Fallback if header not strictly found
                 if (headerIdx === -1) headerIdx = 4;
 
                 globalRawData = [];
                 
-                // Read data rows starting after headerIdx
                 for (let i = headerIdx + 1; i < rawRows.length; i++) {
                     const row = rawRows[i];
                     if (!row || row.length === 0) continue;
@@ -252,6 +259,16 @@
             renderDashboard();
         });
 
+        function updateAgentCount(dro, val) {
+            const parsed = parseInt(val);
+            if (!isNaN(parsed) && parsed > 0) {
+                customAgentCounts[dro] = parsed;
+            } else {
+                customAgentCounts[dro] = 1;
+            }
+            renderDashboard();
+        }
+
         function renderDashboard() {
             const selectedDro = document.getElementById('filterDro').value;
             const selectedRegion = document.getElementById('filterRegion').value;
@@ -291,21 +308,19 @@
 
                 let droTotalCamp = 0;
                 let droTotalGmeet = 0; 
-                let agentCount = droConfigs[dro] ? droConfigs[dro].agents : 5;
+                let agentCount = customAgentCounts[dro] !== undefined ? customAgentCounts[dro] : 5;
 
                 regKeys.forEach(reg => {
                     droTotalCamp += droMap[dro].regions[reg].campConsul;
                     droTotalGmeet += droMap[dro].regions[reg].clinicVideo;
                 });
 
-                // Total cases = Total camp + Total Gmeet
                 let droTotalCases = droTotalCamp + droTotalGmeet;
 
                 grandTotalCamp += droTotalCamp;
                 grandTotalGmeet += droTotalGmeet;
                 grandTotalCases += droTotalCases;
 
-                // Exact formulas requested:
                 let droGmeetAvgPerAgent = agentCount > 0 ? (droTotalGmeet / agentCount).toFixed(2) : "0.00";
                 let droCasesAvgPerAgent = agentCount > 0 ? (droTotalCases / agentCount).toFixed(2) : "0.00";
 
@@ -326,7 +341,9 @@
                             <td rowspan="${regKeys.length}" class="p-4 border-2 border-gray-800 font-black bg-gray-100 align-middle text-center">${droTotalCamp}</td>
                             <td rowspan="${regKeys.length}" class="p-4 border-2 border-gray-800 font-black bg-gray-100 align-middle text-center">${droTotalGmeet}</td>
                             <td rowspan="${regKeys.length}" class="p-4 border-2 border-gray-800 font-black bg-gray-100 align-middle text-center">${droTotalCases}</td>
-                            <td rowspan="${regKeys.length}" class="p-4 border-2 border-gray-800 font-black bg-gray-100 align-middle text-center">${agentCount}</td>
+                            <td rowspan="${regKeys.length}" class="p-4 border-2 border-gray-800 font-black bg-gray-100 align-middle text-center">
+                                <input type="number" min="1" value="${agentCount}" onchange="updateAgentCount('${dro}', this.value)" class="w-16 text-center font-black bg-white border-2 border-gray-500 rounded p-1 focus:ring-2 focus:ring-orange-500">
+                            </td>
                             <td rowspan="${regKeys.length}" class="p-4 border-2 border-gray-800 font-black bg-indigo-100 text-indigo-950 align-middle text-center">${droGmeetAvgPerAgent}</td>
                             <td rowspan="${regKeys.length}" class="p-4 border-2 border-gray-800 font-black bg-purple-100 text-purple-950 align-middle text-center">${droCasesAvgPerAgent}</td>
                         `;
@@ -347,7 +364,9 @@
             document.getElementById('kpiGmeet').textContent = grandTotalGmeet.toLocaleString();
             document.getElementById('kpiCamp').textContent = grandTotalCamp.toLocaleString();
 
-            let totalAgentsCount = Object.keys(droMap).reduce((sum, dro) => sum + (droConfigs[dro] ? droConfigs[dro].agents : 5), 0);
+            let totalAgentsCount = Object.keys(droMap).reduce((sum, dro) => sum + (customAgentCounts[dro] !== undefined ? customAgentCounts[dro] : 5), 0);
+            document.getElementById('kpiAgents').textContent = totalAgentsCount;
+
             let totalGmeetAvgAll = totalAgentsCount > 0 ? (grandTotalGmeet / totalAgentsCount).toFixed(2) : "0.00";
             let totalCasesAvgAll = totalAgentsCount > 0 ? (grandTotalCases / totalAgentsCount).toFixed(2) : "0.00";
 
