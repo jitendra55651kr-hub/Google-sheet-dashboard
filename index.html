@@ -138,7 +138,7 @@
                     return { dro: dro, region: matchedReg };
                 }
             }
-            return null;
+            return null; // Ignore extra/unwanted regions
         }
 
         document.getElementById('fileUpload').addEventListener('change', function(e) {
@@ -177,7 +177,7 @@
                 const worksheet = workbook.Sheets[firstSheetName];
                 const rawJson = XLSX.utils.sheet_to_json(worksheet, {header: 1});
                 
-                // Smart header detection: Find row containing 'region' and 'branch'
+                // Smart Header Detection: Find row containing 'Region' and 'Branch Name' or 'Clinic Code'
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
                     const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
@@ -211,7 +211,7 @@
                         const val = Number(row[k]) || 0;
                         
                         // Sum of Clinic_Video_Consulation = GMEET COUNT
-                        if (lk.includes('clinic_video_consulation') || lk.includes('video_consulatation') || lk.includes('gmeet') || lk.includes('video')) {
+                        if (lk.includes('clinic_video_consulation') || lk.includes('video_consulatation') || lk.includes('gmeet')) {
                             clinicVideoVal += val;
                         }
                         // Sum of Camp_Consulatation = Total camp
@@ -295,7 +295,7 @@
                 if (regKeys.length === 0) return;
 
                 let droTotalCamp = 0;
-                let droTotalGmeet = 0; // Total Gmeet = Sum of DRO mapped region's Gmeet counts
+                let droTotalGmeet = 0; // Total Gmeet = SUM of DRO mapped region's Gmeet counts
                 let agentCount = droConfigs[dro] ? droConfigs[dro].agents : 5;
 
                 regKeys.forEach(reg => {
@@ -310,7 +310,9 @@
                 grandTotalGmeet += droTotalGmeet;
                 grandTotalCases += droTotalCases;
 
-                // Averages per agent formulas
+                // Exact formulas requested:
+                // Total Gmeet avg. per agent = Total Gmeet / No. Of Agent
+                // Total Cases avg. per agent = Total cases / No. Of Agent
                 let droGmeetAvgPerAgent = agentCount > 0 ? (droTotalGmeet / agentCount).toFixed(2) : "0.00";
                 let droCasesAvgPerAgent = agentCount > 0 ? (droTotalCases / agentCount).toFixed(2) : "0.00";
 
