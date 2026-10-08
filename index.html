@@ -170,7 +170,6 @@
             "TEAM RAVI": { regions: ["SATNA", "CHANDAULI", "GIRIDIH"], agents: 4 }
         };
 
-        // Helper function to convert any region name to standard Title Case (e.g. "bilaspur" or "BILASPUR" -> "Bilaspur")
         function toTitleCase(str) {
             if (!str) return '';
             return str.toLowerCase().replace(/(^|\s)\S/g, l => l.toUpperCase());
@@ -195,7 +194,8 @@
                 
                 let headerIdx = 0;
                 for (let i = 0; i < rawJson.length; i++) {
-                    if (rawJson[i].includes('Region') && rawJson[i].includes('Branch Name')) {
+                    const rowStr = JSON.stringify(rawJson[i]).toLowerCase();
+                    if (rowStr.includes('region') && (rowStr.includes('branch') || rowStr.includes('clinic'))) {
                         headerIdx = i;
                         break;
                     }
@@ -203,14 +203,25 @@
 
                 const formattedJson = XLSX.utils.sheet_to_json(worksheet, {range: headerIdx});
                 
-                globalData = formattedJson.map(row => ({
-                    Region: toTitleCase(String(row['Region'] || '').trim()),
-                    Branch: String(row['Branch Name'] || '').trim(),
-                    ClinicCode: String(row['Clinic Code'] || '').trim(),
-                    Done: Number(row['Done_Consualtion'] || row['No of Consulation'] || 0),
-                    Video: Number(row['Clinic_Video_Consulation'] || row['Video_Consulatation'] || 0),
-                    Camp: Number(row['Camp_Consulatation'] || 0)
-                })).filter(row => row.Region !== '' && row.ClinicCode !== '' && row.ClinicCode !== 'undefined' && row.ClinicCode !== 'null');
+                globalData = formattedJson.map(row => {
+                    // Flexible key mapping for different CSV columns
+                    const regionVal = row['Region'] || row['region'] || row['REGION'] || '';
+                    const branchVal = row['Branch Name'] || row['Branch'] || row['branch name'] || row['BRANCH NAME'] || '';
+                    const clinicVal = row['Clinic Code'] || row['ClinicCode'] || row['clinic code'] || row['CLINIC CODE'] || '';
+                    
+                    const doneVal = row['Done_Consualtion'] || row['No of Consulation'] || row['Done Consultation'] || row['Done'] || row['done'] || 0;
+                    const videoVal = row['Clinic_Video_Consulation'] || row['Video_Consulatation'] || row['Clinic Video Call'] || row['Video'] || row['video'] || 0;
+                    const campVal = row['Camp_Consulatation'] || row['Camp Consultation'] || row['Camp'] || row['camp'] || 0;
+
+                    return {
+                        Region: toTitleCase(String(regionVal).trim()),
+                        Branch: String(branchVal).trim(),
+                        ClinicCode: String(clinicVal).trim(),
+                        Done: Number(doneVal) || 0,
+                        Video: Number(videoVal) || 0,
+                        Camp: Number(campVal) || 0
+                    };
+                }).filter(row => row.Region !== '' && row.ClinicCode !== '' && row.ClinicCode !== 'undefined' && row.ClinicCode !== 'null');
 
                 updateDropdownsForTeam();
                 updateDefaultAgentInput();
@@ -230,4 +241,157 @@
 
             const regions = [...new Set(teamFilteredData.map(d => d.Region))].sort();
             const branches = [...new Set(teamFilteredData.map(d => d.Branch))].sort();
-            const clinics = [...new Set(teamFilteredData.map(d => d.ClinicCode))
+            const clinics = [...new Set(teamFilteredData.map(d => d.ClinicCode))].sort();
+
+            fillSelect('filterRegion', regions, 'All Regions');
+            fillSelect('filterBranch', branches, 'All Branches');
+            fillSelect('filterClinic', clinics, 'All Clinic Codes');
+        }
+
+        function fillSelect(elementId, items, defaultText) {
+            const select = document.getElementById(elementId);
+            const currentValue = select.value;
+            select.innerHTML = `<option value="">${defaultText}</option>`;
+            items.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.textContent = item;
+                select.appendChild(opt);
+            });
+            if (items.includes(currentValue)) {
+                select.value = currentValue;
+            } else {
+                select.value = "";
+            }
+        }
+
+        function updateDefaultAgentInput() {
+            const selectedTeam = document.getElementById('filterTeam').value;
+            const agentInput = document.getElementById('agentCountInput');
+            
+            if (selectedTeam && teamConfigs[selectedTeam]) {
+                agentInput.value = teamConfigs[selectedTeam].agents;
+                document.getElementById('tableTitle').textContent = `${selectedTeam} CONSULTATION RECORDS DETAIL`;
+            } else {
+                let totalAllAgents = Object.values(teamConfigs).reduce((sum, t) => sum + t.agents, 0);
+                agentInput.value = totalAllAgents;
+                document.getElementById('tableTitle').textContent = `ALL TEAMS CONSULTATION RECORDS DETAIL`;
+            }
+        }
+
+        document.getElementById('filterTeam').addEventListener('change', function() {
+            document.getElementById('filterRegion').value = '';
+            document.getElementById('filterBranch').value = '';
+            document.getElementById('filterClinic').value = '';
+            
+            updateDefaultAgentInput();
+            updateDropdownsForTeam();
+            updateDashboard(getFilteredData());
+        });
+
+        function filterAndRender() {
+            updateDashboard(getFilteredData());
+        }
+
+        document.getElementById('filterRegion').addEventListener('change', filterAndRender);
+        document.getElementById('filterBranch').addEventListener('change', filterAndRender);
+        document.getElementById('filterClinic').addEventListener('change', filterAndRender);
+        document.getElementById('agentCountInput').addEventListener('input', () => {
+            updateDashboard(getFilteredData());
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('filterTeam').value = '';
+            document.getElementById('filterRegion').value = '';
+            document.getElementById('filterBranch').value = '';
+            document.getElementById('filterClinic').value = '';
+            updateDefaultAgentInput();
+            updateDropdownsForTeam();
+            updateDashboard(globalData);
+        });
+
+        function getFilteredData() {
+            const selectedTeam = document.getElementById('filterTeam').value;
+            const selectedRegion = document.getElementById('filterRegion').value;
+            const selectedBranch = document.getElementById('filterBranch').value;
+            const selectedClinic = document.getElementById('filterClinic').value;
+
+            return globalData.filter(d => {
+                if (selectedTeam) {
+                    const allowedRegions = teamConfigs[selectedTeam].regions.map(r => r.toUpperCase());
+                    const matchesTeamRegion = allowedRegions.includes(d.Region.toUpperCase());
+                    if (!matchesTeamRegion) return false;
+                }
+                if (selectedRegion && d.Region.toUpperCase() !== selectedRegion.toUpperCase()) return false;
+                if (selectedBranch && d.Branch.toUpperCase() !== selectedBranch.toUpperCase()) return false;
+                if (selectedClinic && d.ClinicCode.toUpperCase() !== selectedClinic.toUpperCase()) return false;
+                return true;
+            });
+        }
+
+        function updateDashboard(data) {
+            const totalDone = data.reduce((sum, row) => sum + row.Done, 0);
+            const totalVideo = data.reduce((sum, row) => sum + row.Video, 0);
+            const totalCamp = data.reduce((sum, row) => sum + row.Camp, 0);
+
+            let activeAgents = Number(document.getElementById('agentCountInput').value) || 1;
+            if (activeAgents <= 0) activeAgents = 1;
+
+            const avgPerAgent = (totalDone / activeAgents).toFixed(2);
+            const avgVideoPerAgent = (totalVideo / activeAgents).toFixed(2);
+
+            document.getElementById('kpiDone').textContent = totalDone.toLocaleString();
+            document.getElementById('kpiVideo').textContent = totalVideo.toLocaleString();
+            document.getElementById('kpiCamp').textContent = totalCamp.toLocaleString();
+            document.getElementById('kpiAvgVideo').textContent = avgVideoPerAgent;
+            document.getElementById('kpiAvgAgent').textContent = avgPerAgent;
+            document.getElementById('agentVideoInfoText').textContent = `Using ${activeAgents} active agent(s)`;
+            document.getElementById('agentInfoText').textContent = `Using ${activeAgents} active agent(s)`;
+
+            document.getElementById('rowCount').textContent = `Showing ${data.length} rows`;
+
+            const regionSummaryMap = {};
+            data.forEach(row => {
+                if (!regionSummaryMap[row.Region]) {
+                    regionSummaryMap[row.Region] = { video: 0, camp: 0 };
+                }
+                regionSummaryMap[row.Region].video += row.Video;
+                regionSummaryMap[row.Region].camp += row.Camp;
+            });
+
+            const regionSummaryBody = document.getElementById('regionSummaryBody');
+            regionSummaryBody.innerHTML = '';
+            const sortedRegions = Object.keys(regionSummaryMap).sort();
+
+            if (sortedRegions.length === 0) {
+                regionSummaryBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400 font-medium">Koi region data available nahi hai.</td></tr>`;
+            } else {
+                sortedRegions.forEach(reg => {
+                    const stats = regionSummaryMap[reg];
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-blue-50/50 transition-colors";
+                    tr.innerHTML = `
+                        <td class="p-3 border-b border-gray-200 font-semibold text-gray-800">${reg}</td>
+                        <td class="p-3 border-b border-gray-200 text-right font-bold text-blue-800">${stats.video.toLocaleString()}</td>
+                        <td class="p-3 border-b border-gray-200 text-right font-bold text-emerald-700">${stats.camp.toLocaleString()}</td>
+                    `;
+                    regionSummaryBody.appendChild(tr);
+                });
+            }
+
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500 font-medium">Selected filter ke liye koi data nahi mila.</td></tr>`;
+                return;
+            }
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-blue-50/80 transition-colors cursor-pointer text-gray-800";
+                tr.innerHTML = `
+                    <td class="p-3.5 border-b border-gray-200 font-semibold text-gray-800">${row.Region}</td>
+                    <td class="p-3.5 border-b border-gray-200 text-gray-700">${row.Branch}</td>
+                    <td class="p-3.5 border-b border-gray-200 text-blue-700 font-mono font-medium">${row.ClinicCode}</td>
+                    <td class="p-3.5 border-
