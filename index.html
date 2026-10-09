@@ -108,9 +108,7 @@
                         </tr>
                     </thead>
                     <tbody id="reportTableBody" class="divide-y-2 divide-gray-800 text-base font-bold bg-white text-gray-900">
-                        <tr>
-                            <td colspan="9" class="p-8 text-center text-gray-500 font-extrabold">Kripya upar diye gaye button se apni Excel/CSV file upload karein.</td>
-                        </tr>
+                        <!-- Dynamically populated rows -->
                     </tbody>
                 </table>
             </div>
@@ -126,7 +124,6 @@
             </div>
             <div id="teamComparisonContainer" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <!-- Dynamically populated comparison cards -->
-                <div class="col-span-5 text-center py-6 text-blue-300 font-bold">File upload hone ke baad yahan team comparison show hoga.</div>
             </div>
         </div>
 
@@ -337,7 +334,6 @@
                 let droGmeetAvgPerAgent = agentCount > 0 ? (droTotalGmeet / agentCount).toFixed(2) : "0.00";
                 let droCasesAvgPerAgent = agentCount > 0 ? (droTotalCases / agentCount).toFixed(2) : "0.00";
 
-                // Build High-Tech Comparison Card for each team
                 teamComparisonHTML += `
                     <div class="bg-white text-gray-900 rounded-xl p-4 border-2 border-gray-300 card-shadow relative overflow-hidden flex flex-col justify-between">
                         <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-orange-500 to-indigo-600"></div>
@@ -400,10 +396,8 @@
                 });
             });
 
-            // Update Comparison Matrix Section
             document.getElementById('teamComparisonContainer').innerHTML = teamComparisonHTML;
 
-            // Update KPI Cards
             document.getElementById('kpiCases').textContent = grandTotalCases.toLocaleString();
             document.getElementById('kpiGmeet').textContent = grandTotalGmeet.toLocaleString();
             document.getElementById('kpiCamp').textContent = grandTotalCamp.toLocaleString();
