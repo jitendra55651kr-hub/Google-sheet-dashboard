@@ -21,13 +21,23 @@
     <!-- Top Navigation Bar -->
     <header class="navy-header text-white px-8 py-4 flex flex-wrap justify-between items-center border-b-2 border-blue-800 shadow-lg">
         <div class="flex items-center space-x-4">
-            <!-- m-Swasth Full Logo with Tagline -->
-            <img src="https://m-swasth.com/assets/images/logo.png" alt="m-swasth Logo" class="h-12 w-auto">
-            <span class="text-xs bg-blue-900 px-3 py-1.5 rounded-full border border-blue-600 tracking-wide uppercase font-bold">Region Branch Consultation Report Portal</span>
-        </div>
-        <div class="flex items-center gap-3">
-            <label for="fileUpload" class="orange-btn text-white px-5 py-2.5 rounded-xl cursor-pointer font-extrabold text-sm shadow-md inline-flex items-center gap-2">
-                📁 UPLOAD EXCEL / CSV FILE
+           <!-- M-SWASTH TOP NAVIGATION -->
+  <header class="royal-navbar">
+    <div class="royal-brand" onclick="switchView('hub')">
+      <div class="royal-logo-container">
+        <img src="https://m-swasth.in/wp-content/uploads/2022/02/m-swasth-new-logo.png" alt="M-Swasth Logo">
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button type="button" class="btn-return-home" onclick="switchView('hub')">
+        <i class="fa-solid fa-house"></i> Return to Home
+      </button>
+      <div class="clock-badge">
+        <i class="fa-regular fa-clock"></i>
+        <span id="royalLiveClock">--:--:--</span>
+      </div>
+    </div>
+  </header>
             </label>
             <input type="file" id="fileUpload" accept=".csv, .xlsx, .xls" class="hidden">
             <span id="fileNameDisplay" class="text-xs bg-blue-900/90 px-3 py-2 rounded-xl border border-blue-600 text-blue-200 hidden font-bold">No file chosen</span>
