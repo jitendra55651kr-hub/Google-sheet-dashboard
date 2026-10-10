@@ -2260,7 +2260,23 @@
         renderD2Dashboard(d2LatestMap);
       }
     }
+<div class="controls-container">
+      <div class="control-group">
+        <label>📅 Start Date:</label>
+        <input type="date" id="startDate" onchange="handleDateChange()">
+      </div>
+      <div class="control-group">
+        <label>📅 End Date:</label>
+        <input type="date" id="endDate" onchange="handleDateChange()">
+      </div>
+      <div class="control-group">
+        <label>🎯 Working Days:</label>
+        <input type="number" id="workingDays" value="1" min="1" oninput="renderDashboard(latestParsedMap)">
+      </div>
+    </div>
 
+    <div class="upload-container">
+      <label for="fileInput" class="custom-file-upload">
     function handleD2FileSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
