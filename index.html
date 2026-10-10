@@ -581,7 +581,6 @@
           color: #ffffff;
         }
         .d2-h1 { color: #ffffff; font-size: 32px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
-        .d2-subtitle { display: none; }
         .d2-controls {
           display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap;
           background: rgba(255, 255, 255, 0.1); padding: 12px 20px;
@@ -626,7 +625,6 @@
         .d2-team-header { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 14px 22px; font-size: 18px; font-weight: 900; color: #ffffff; border-bottom: 3px solid #1e3a8a; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
         .d2-header-avg { background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 6px; }
         
-        /* Removed max-height restriction so list flows down naturally */
         .d2-table-container-scroll { overflow-y: visible; overflow-x: auto; }
         .d2-table { width: 100%; border-collapse: collapse; text-align: left; }
         .d2-table th { background-color: #0f172a; color: #ffffff; padding: 10px 6px; font-weight: 800; border-bottom: 3px solid #1e3a8a; border-right: 1.5px solid #cbd5e1; text-transform: uppercase; font-size: 11px; text-align: center; position: sticky; top: 0; z-index: 10; }
@@ -646,11 +644,26 @@
 
       <header class="d2-header">
         <h1 class="d2-h1">PRODUCTIVITY REPORT</h1>
-        <div class="d2-controls" style="display:none;">
-          <input type="date" id="d2StartDate" onchange="handleD2DateChange()">
-          <input type="date" id="d2EndDate" onchange="handleD2DateChange()">
-          <input type="number" id="d2WorkingDays" value="1" min="1" oninput="renderD2Dashboard(d2LatestMap)">
+        
+        <!-- Added Date Range & Working Days Controls -->
+        <div class="d2-controls">
+          <div class="d2-control-group">
+            <i class="fa-solid fa-calendar-days text-sky-400"></i>
+            <span>From:</span>
+            <input type="date" id="d2StartDate" onchange="handleD2DateChange()">
+          </div>
+          <div class="d2-control-group">
+            <i class="fa-solid fa-calendar-days text-sky-400"></i>
+            <span>To:</span>
+            <input type="date" id="d2EndDate" onchange="handleD2DateChange()">
+          </div>
+          <div class="d2-control-group">
+            <i class="fa-solid fa-briefcase text-amber-400"></i>
+            <span>Working Days:</span>
+            <input type="number" id="d2WorkingDays" value="1" min="1" style="width: 75px;" oninput="renderD2Dashboard(d2LatestMap)">
+          </div>
         </div>
+
         <div style="display:flex; justify-content:center; align-items:center; gap:15px; flex-wrap:wrap;">
           <label for="d2FileInput" class="d2-upload-btn">
             <i class="fa-solid fa-cloud-arrow-up"></i> Upload Excel / CSV Data File
@@ -2246,7 +2259,7 @@
       let count = 0, cur = new Date(start);
       while (cur <= end) {
         let dayOfWeek = cur.getDay();
-        if (dayOfWeek !== 0 && dayOfWeek !== 6) count++;
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) count++; // Exclude Sunday (0) and Saturday (6)
         cur.setDate(cur.getDate() + 1);
       }
       return count === 0 ? 1 : count;
@@ -2260,20 +2273,7 @@
         renderD2Dashboard(d2LatestMap);
       }
     }
-<div class="controls-container">
-      <div class="control-group">
-        <label>📅 Start Date:</label>
-        <input type="date" id="startDate" onchange="handleDateChange()">
-      </div>
-      <div class="control-group">
-        <label>📅 End Date:</label>
-        <input type="date" id="endDate" onchange="handleDateChange()">
-      </div>
-      <div class="control-group">
-        <label>🎯 Working Days:</label>
-        <input type="number" id="workingDays" value="1" min="1" oninput="renderDashboard(latestParsedMap)">
-      </div>
-    </div>
+
     function handleD2FileSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
